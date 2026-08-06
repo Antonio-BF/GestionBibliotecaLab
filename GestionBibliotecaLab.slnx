@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="GestionBibliotecaLab.Aplicacion/GestionBibliotecaLab.Aplicacion.csproj" />
+  <Project Path="GestionBibliotecaLab.Dominio/GestionBibliotecaLab.Dominio.csproj" />
+  <Project Path="GestionBibliotecaLab.Infraestructura/GestionBibliotecaLab.Infraestructura.csproj" />
+  <Project Path="GestionBibliotecaLab.Presentacion.API/GestionBibliotecaLab.Presentacion.API.csproj" />
+</Solution>
