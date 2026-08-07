@@ -15,4 +15,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GestionBibliotecaLab.Dominio\GestionBibliotecaLab.Dominio.csproj" />
+  </ItemGroup>
+
 </Project>
