@@ -10,8 +10,4 @@
     <Compile Remove="Entidades\RefreshToken.Extension.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="Entidades\RefreshToken.Extension.cs" />
-  </ItemGroup>
-
 </Project>

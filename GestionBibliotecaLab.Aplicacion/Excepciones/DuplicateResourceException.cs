@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GestionBibliotecaLab.Aplicacion.Excepciones
+﻿namespace GestionBibliotecaLab.Aplicacion.Excepciones
 {
     public class DuplicateResourceException : ExcepcionAplicacionBase
     {

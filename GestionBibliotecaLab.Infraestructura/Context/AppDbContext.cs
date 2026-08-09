@@ -11,7 +11,6 @@ public partial class AppDbContext : DbContext
         : base(options)
     {
     }
-
     public virtual DbSet<Laboratorio> Laboratorios { get; set; }
 
     public virtual DbSet<Libro> Libros { get; set; }

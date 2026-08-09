@@ -6,6 +6,6 @@ namespace GestionBibliotecaLab.Dominio.Entidades
 {
 	public partial class RefreshToken
 	{
-		public bool EstaActivo => !Revocado && DateTime.UtcNow < FechaExpiracion;
-	}
+        public bool EstaActivo => !Revocado && FechaExpiracion > DateTime.UtcNow;
+    }
 }

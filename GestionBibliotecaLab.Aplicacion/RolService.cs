@@ -3,6 +3,9 @@ using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Infraestructura.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using GestionBibliotecaLab.Dominio.Entidades;
+using BCrypt.Net;
 
 namespace GestionBibliotecaLab.Aplicacion
 {
@@ -18,18 +21,19 @@ namespace GestionBibliotecaLab.Aplicacion
         public async Task<List<RolResponse>> GetAllRol()
         {
             return await _context.Roles.AsNoTracking()
-                .Select(x => new RolResponse { 
-                    Id = x.Id, 
-                    Nombre = x.Nombre, 
-                    Descripcion = x.Descripcion })
+                .Select(x => new RolResponse
+                {
+                    Id = x.Id,
+                    Nombre = x.Nombre,
+                    Descripcion = x.Descripcion
+                })
                 .ToListAsync();
         }
 
         public async Task<RolResponse> GetById(int id)
         {
-            var rol = await _context.Roles.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (rol == null) throw new ResourceNotFoundException($"No se pudo encontrar el rol con le ID {id}");
+            var rol = await _context.Roles.FirstOrDefaultAsync(x => x.Id == id)
+                ?? throw new ResourceNotFoundException($"No se pudo encontrar el rol con le ID {id}");
 
             return new RolResponse
             {
@@ -39,21 +43,55 @@ namespace GestionBibliotecaLab.Aplicacion
             };
         }
 
-        public Task<RolResponse> SaveRol(RolRequest request)
+        public async Task<RolResponse> SaveRol(RolRequest request)
         {
-            throw new NotImplementedException();
+            var NombreRol = request.Nombre.Trim().ToLower();
+
+            if (await _context.Roles.AnyAsync(x => x.Nombre.ToLower() == NombreRol))
+                throw new DuplicateResourceException($"El nombre {NombreRol} ya se encuenta registrado en el sistema");
+
+            var rol = new Rol
+            {
+                Nombre = NombreRol,
+                Descripcion = request.Descripcion
+            };
+
+            _context.Roles.Add(rol);
+            await _context.SaveChangesAsync();
+
+            return new RolResponse
+            {
+                Id = rol.Id,
+                Nombre = rol.Nombre,
+                Descripcion = rol.Descripcion
+            };
         }
 
-        public Task<bool> UpdateRol(int id, RolRequest request)
+        public async Task UpdateRol(int id, RolRequest request)
         {
-            throw new NotImplementedException();
+            var rol = await _context.Roles.FindAsync(id)
+               ?? throw new ResourceNotFoundException($"No se pudo encontrar el rol con le ID {id}");
+
+            var NombreRol = request.Nombre.Trim().ToLower();
+
+            if (await _context.Roles.AnyAsync(x => x.Id != id && x.Nombre.ToLower() == NombreRol))
+                throw new DuplicateResourceException($"El nombre {NombreRol} ya se encuenta registrado en el sistema");
+
+            rol.Nombre = NombreRol;
+            rol.Descripcion = request.Descripcion;
+
+           await _context.SaveChangesAsync();
         }
-        public Task<bool> DeleteRol(int id)
+        public async Task DeleteRol(int id)
         {
-            throw new NotImplementedException();
+            var rol = await _context.Roles.FindAsync(id)
+               ?? throw new ResourceNotFoundException($"No se pudo encontrar el rol con le ID {id}");
+
+            if (await _context.Usuarios.AnyAsync(x => x.RolId == id))
+                throw new ConflictException("No se puede eliminar el rol porque hay usuarios registrados con ese rol");
+
+            _context.Roles.Remove(rol);
+            await _context.SaveChangesAsync();
         }
-
-
-
     }
 }

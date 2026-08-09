@@ -10,9 +10,7 @@ namespace GestionBibliotecaLab.Aplicacion.Interfaces
         Task<List<RolResponse>> GetAllRol();
         Task<RolResponse> GetById(int id);
         Task<RolResponse> SaveRol(RolRequest request);
-        Task<bool> UpdateRol(int id, RolRequest request);
-        Task<bool> DeleteRol (int id);
-
-
+        Task UpdateRol(int id, RolRequest request);
+        Task DeleteRol (int id);
     }
 }

@@ -376,3 +376,10 @@ BEGIN
     );
 END
 GO
+
+
+INSERT INTO dbo.Usuarios ( Nombres, Apellidos, Email, PasswordHash, RolId ) VALUES 
+( 'Administrador', 'Sistema', 'admin@bibliotecalab.com', '$2a$11$s1hs6IMqg9CfpjBdP70FS.L1VsqqIPh2zZ.sYbE1SR7pCKxu06z5W', 1 ), -- Password: Admin123!
+( 'Juan', 'Perez', 'juan.perez@bibliotecalab.com', '$2a$11$OmYmIGGK3M5.v8OuVKooF.ialAEwCN.41NJZOji6qvxcCaYi1T4ai', 2 ),  -- Password: Estudiante123!
+( 'Maria', 'Gomez', 'maria.gomez@bibliotecalab.com', '$2a$11$GGVB4SqUtoIkRTqeKVX2Wu42lYDK/EsFw11/9nbNxViaqBgsyd2Ka', 3 );  -- Password: Docente123!
+GO
