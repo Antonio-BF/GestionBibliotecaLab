@@ -17,21 +17,21 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpPost("registro")]
-        public async Task<ActionResult<LoginResponse>> Registro(RegistroRequest request)
+        public async Task<ActionResult<AuthResponse>> Registro(RegistroRequest request)
         {
             var resultado = await _service.RegistrarAsync(request);
             return Ok(resultado);
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
+        public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
         {
             var resultado = await _service.LoginAsync(request);
             return Ok(resultado);
         }
 
         [HttpPost("refresh")]
-        public async Task<ActionResult<LoginResponse>> Refresh(RefreshRequest request)
+        public async Task<ActionResult<AuthResponse>> Refresh(RefreshRequest request)
         {
             var resultado = await _service.RefrescarTokenAsync(request);
             return Ok(resultado);

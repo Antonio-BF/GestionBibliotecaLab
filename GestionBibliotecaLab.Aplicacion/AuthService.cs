@@ -28,11 +28,11 @@ namespace GestionBibliotecaLab.Aplicacion
             _jwtSettings = jwtSettings.Value;
         }
 
-        public async Task<LoginResponse> RegistrarAsync(RegistroRequest request)
+        public async Task<AuthResponse> RegistrarAsync(RegistroRequest request)
         {
             var email = request.Email.Trim().ToLower();
 
-            if (await _context.Usuarios.AnyAsync(u => u.Email.ToLower() == email))
+            if (await _context.Usuarios.AnyAsync(u => u.Email == email))
                 throw new DuplicateResourceException("Ya existe un usuario registrado con ese email.");
 
             var rol = await _context.Roles.FirstOrDefaultAsync(r => r.Id == request.RolId)
@@ -45,26 +45,37 @@ namespace GestionBibliotecaLab.Aplicacion
             {
                 Nombres = request.Nombres.Trim(),
                 Apellidos = request.Apellidos.Trim(),
-                Email = email,
+                Email = email, 
                 PasswordHash = _passwordHasher.HashPassword(request.Password),
                 RolId = request.RolId
             };
 
-            _context.Usuarios.Add(usuario);
-            await _context.SaveChangesAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Usuarios.Add(usuario);
+                await _context.SaveChangesAsync(); 
 
-            usuario.Rol = rol;
+                usuario.Rol = rol;
+                var response = await GenerarRespuestaConNuevoRefreshTokenAsync(usuario);
 
-            return await GenerarRespuestaConNuevoRefreshTokenAsync(usuario);
+                await transaction.CommitAsync();
+                return response;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
-        public async Task<LoginResponse> LoginAsync(LoginRequest request)
+        public async Task<AuthResponse> LoginAsync(LoginRequest request)
         {
             var email = request.Email.Trim().ToLower();
 
             var usuario = await _context.Usuarios
                 .Include(u => u.Rol)
-                .FirstOrDefaultAsync(u => u.Email.ToLower() == email);
+                .FirstOrDefaultAsync(u => u.Email == email);
 
             if (usuario is null || !_passwordHasher.VerifyPassword(usuario.PasswordHash, request.Password))
                 throw new UnauthorizedException("Email o contraseña incorrectos.");
@@ -72,9 +83,10 @@ namespace GestionBibliotecaLab.Aplicacion
             return await GenerarRespuestaConNuevoRefreshTokenAsync(usuario);
         }
 
-        public async Task<LoginResponse> RefrescarTokenAsync(RefreshRequest request)
+        public async Task<AuthResponse> RefrescarTokenAsync(RefreshRequest request)
         {
             var hashRecibido = _jwtService.HashRefreshToken(request.RefreshToken);
+            var fechaActual = DateTime.UtcNow; 
 
             var refreshToken = await _context.RefreshTokens
                 .Include(rt => rt.Usuario)
@@ -87,11 +99,10 @@ namespace GestionBibliotecaLab.Aplicacion
             if (refreshToken.Revocado)
             {
                 await RevocarCadenaDeRotacionAsync(refreshToken);
-                throw new UnauthorizedException(
-                    "Se detectó un uso indebido del token de actualización. Por seguridad, todas las sesiones han sido cerradas.");
+                throw new UnauthorizedException("Se detectó un uso indebido del token de actualización. Por seguridad, la cadena de sesiones comprometida ha sido cerrada.");
             }
 
-            if (refreshToken.FechaExpiracion <= DateTime.UtcNow)
+            if (refreshToken.FechaExpiracion <= fechaActual)
                 throw new UnauthorizedException("El token de actualización ha expirado.");
 
             var usuario = refreshToken.Usuario;
@@ -100,22 +111,21 @@ namespace GestionBibliotecaLab.Aplicacion
             var nuevoTokenPlano = _jwtService.GenerarRefreshToken();
             var nuevoTokenHash = _jwtService.HashRefreshToken(nuevoTokenPlano);
 
-            // Rotación: el token usado queda inutilizable de inmediato.
             refreshToken.Revocado = true;
-            refreshToken.FechaRevocacion = DateTime.UtcNow;
+            refreshToken.FechaRevocacion = fechaActual;
             refreshToken.ReemplazadoPorToken = nuevoTokenHash;
 
             _context.RefreshTokens.Add(new RefreshToken
             {
                 UsuarioId = usuario.Id,
                 Token = nuevoTokenHash,
-                FechaExpiracion = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenDias),
+                FechaExpiracion = fechaActual.AddDays(_jwtSettings.RefreshTokenDias),
                 Revocado = false
             });
 
             await _context.SaveChangesAsync();
 
-            return new LoginResponse
+            return new AuthResponse
             {
                 AccessToken = accessToken,
                 RefreshToken = nuevoTokenPlano,
@@ -140,7 +150,7 @@ namespace GestionBibliotecaLab.Aplicacion
             await _context.SaveChangesAsync();
         }
 
-        private async Task<LoginResponse> GenerarRespuestaConNuevoRefreshTokenAsync(Usuario usuario)
+        private async Task<AuthResponse> GenerarRespuestaConNuevoRefreshTokenAsync(Usuario usuario)
         {
             var (accessToken, expiracionAccess) = _jwtService.GenerarAccessToken(usuario);
             var refreshTokenPlano = _jwtService.GenerarRefreshToken();
@@ -155,7 +165,7 @@ namespace GestionBibliotecaLab.Aplicacion
 
             await _context.SaveChangesAsync();
 
-            return new LoginResponse
+            return new AuthResponse
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshTokenPlano,
@@ -166,47 +176,45 @@ namespace GestionBibliotecaLab.Aplicacion
             };
         }
 
-        /// <summary>
-        /// Ante un token de refresco reutilizado (ya revocado por una rotación previa),
-        /// revoca únicamente los tokens que descienden de él siguiendo ReemplazadoPorToken
-        /// hacia adelante, hasta llegar al token activo (la punta de la cadena) o hasta que
-        /// la cadena se corte. Deliberadamente NO revoca todas las sesiones del usuario:
-        /// una sesión completamente independiente (otro dispositivo, u otro login posterior
-        /// al incidente) no comparte linaje con el token comprometido y no debe verse afectada.
-        /// </summary>
         private async Task RevocarCadenaDeRotacionAsync(RefreshToken tokenComprometido)
         {
+            var tokensUsuario = await _context.RefreshTokens
+                .Where(rt => rt.UsuarioId == tokenComprometido.UsuarioId)
+                .ToListAsync();
+
+            var diccionarioTokens = tokensUsuario.ToDictionary(rt => rt.Token);
+
             var hashSiguiente = tokenComprometido.ReemplazadoPorToken;
             var visitados = new HashSet<string> { tokenComprometido.Token };
 
-            // Salvaguarda defensiva: si por algún motivo la cadena tuviera un ciclo,
-            // esto evita un bucle infinito en vez de dejar el request colgado indefinidamente.
             const int maxSaltos = 50;
             var saltos = 0;
+            bool requiereActualizacion = false;
+            var fechaActual = DateTime.UtcNow;
 
             while (!string.IsNullOrEmpty(hashSiguiente) && saltos < maxSaltos)
             {
                 if (!visitados.Add(hashSiguiente))
                     break;
 
-                var siguienteToken = await _context.RefreshTokens
-                    .FirstOrDefaultAsync(rt => rt.Token == hashSiguiente);
-
-                // Cadena rota: No hay nada más que revocar.
-                if (siguienteToken is null)
+                if (!diccionarioTokens.TryGetValue(hashSiguiente, out var siguienteToken))
                     break;
 
                 if (!siguienteToken.Revocado)
                 {
                     siguienteToken.Revocado = true;
-                    siguienteToken.FechaRevocacion = DateTime.UtcNow;
+                    siguienteToken.FechaRevocacion = fechaActual;
+                    requiereActualizacion = true;
                 }
 
                 hashSiguiente = siguienteToken.ReemplazadoPorToken;
                 saltos++;
             }
 
-            await _context.SaveChangesAsync();
+            if (requiereActualizacion)
+            {
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

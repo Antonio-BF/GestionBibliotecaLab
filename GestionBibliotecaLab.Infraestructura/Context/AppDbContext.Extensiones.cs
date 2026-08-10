@@ -17,9 +17,7 @@ namespace GestionBibliotecaLab.Infraestructura.Context
 
         /// <summary>
         /// Registra HasQueryFilter(IsDeleted == false) para toda entidad que tenga una
-        /// propiedad "IsDeleted" de tipo bool. A diferencia de la versión Code-First
-        /// (que usaba EntidadBase), aquí no hay un tipo común del que partir: se
-        /// pregunta a los metadatos del modelo de EF, no al sistema de tipos de C#.
+        /// propiedad "IsDeleted" de tipo bool. 
         /// </summary>
         private static void AplicarFiltroGlobalDeSoftDelete(ModelBuilder modelBuilder)
         {

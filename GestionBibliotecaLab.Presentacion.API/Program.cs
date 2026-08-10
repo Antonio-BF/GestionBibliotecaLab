@@ -2,6 +2,7 @@ using GestionBibliotecaLab.Aplicacion;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
 using GestionBibliotecaLab.Infraestructura.Context;
+using GestionBibliotecaLab.Infraestructura.Jobs;
 using GestionBibliotecaLab.Presentacion.API.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
     ?? throw new InvalidOperationException("La sección 'Jwt' no está configurada en appsettings.");
+
+
+builder.Services.Configure<RefreshTokenCleanupOptions>(
+    builder.Configuration.GetSection("RefreshTokenCleanup"));
+
+builder.Services.AddHostedService<RefreshTokenCleanupService>();
 
 // ---------- Swagger con soporte de Bearer token ----------
 builder.Services.AddSwaggerGen(options =>

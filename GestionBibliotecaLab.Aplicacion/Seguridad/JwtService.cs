@@ -46,8 +46,6 @@ namespace GestionBibliotecaLab.Aplicacion.Seguridad
 
         public string GenerarRefreshToken()
         {
-            // 64 bytes de un generador criptográficamente seguro (no Random/Guid):
-            // suficiente entropía para que adivinarlo por fuerza bruta sea inviable.
             var bytes = RandomNumberGenerator.GetBytes(64);
             return Convert.ToBase64String(bytes);
         }

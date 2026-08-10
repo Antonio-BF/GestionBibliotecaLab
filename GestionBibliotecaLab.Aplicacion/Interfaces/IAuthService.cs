@@ -4,9 +4,9 @@ namespace GestionBibliotecaLab.Aplicacion.Interfaces
 {
     public interface IAuthService
     {
-        Task<LoginResponse> RegistrarAsync(RegistroRequest request);
-        Task<LoginResponse> LoginAsync(LoginRequest request);
-        Task<LoginResponse> RefrescarTokenAsync(RefreshRequest request);
+        Task<AuthResponse> RegistrarAsync(RegistroRequest request);
+        Task<AuthResponse> LoginAsync(LoginRequest request);
+        Task<AuthResponse> RefrescarTokenAsync(RefreshRequest request);
         Task LogoutAsync(RefreshRequest request);
     }
 }
