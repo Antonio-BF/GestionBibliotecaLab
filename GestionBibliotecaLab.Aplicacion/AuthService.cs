@@ -32,7 +32,7 @@ namespace GestionBibliotecaLab.Aplicacion
         {
             var email = request.Email.Trim().ToLower();
 
-            if (await _context.Usuarios.AnyAsync(u => u.Email == email))
+            if (await _context.Usuarios.IgnoreQueryFilters().AnyAsync(u => u.Email == email))
                 throw new DuplicateResourceException("Ya existe un usuario registrado con ese email.");
 
             var rol = await _context.Roles.FirstOrDefaultAsync(r => r.Id == request.RolId)
@@ -80,6 +80,9 @@ namespace GestionBibliotecaLab.Aplicacion
             if (usuario is null || !_passwordHasher.VerifyPassword(usuario.PasswordHash, request.Password))
                 throw new UnauthorizedException("Email o contraseña incorrectos.");
 
+            if (usuario.IsDeleted)
+                throw new UnauthorizedException("Usuario sin permisos para ingresar al sistema");
+
             return await GenerarRespuestaConNuevoRefreshTokenAsync(usuario);
         }
 
@@ -95,6 +98,9 @@ namespace GestionBibliotecaLab.Aplicacion
 
             if (refreshToken is null)
                 throw new UnauthorizedException("El token de actualización no es válido.");
+
+            if(refreshToken.Usuario.IsDeleted)
+                throw new UnauthorizedException("El usuario se encuentar inactivo en el sistema");
 
             if (refreshToken.Revocado)
             {

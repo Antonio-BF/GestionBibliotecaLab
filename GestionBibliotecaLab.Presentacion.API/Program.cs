@@ -4,6 +4,7 @@ using GestionBibliotecaLab.Aplicacion.Seguridad;
 using GestionBibliotecaLab.Infraestructura.Context;
 using GestionBibliotecaLab.Infraestructura.Jobs;
 using GestionBibliotecaLab.Presentacion.API.Middleware;
+using GestionBibliotecaLab.Presentacion.API.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -78,13 +79,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 // ---------- Servicios de aplicación ----------
-builder.Services.AddScoped<IRolService, RolService>();
 builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddScoped<IRolService, RolService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 
 var app = builder.Build();

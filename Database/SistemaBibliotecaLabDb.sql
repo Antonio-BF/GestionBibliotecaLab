@@ -377,9 +377,86 @@ BEGIN
 END
 GO
 
+-- =====================================================================
+-- 11. Seed data: Usuarios
+-- =====================================================================
 
 INSERT INTO dbo.Usuarios ( Nombres, Apellidos, Email, PasswordHash, RolId ) VALUES 
 ( 'Administrador', 'Sistema', 'admin@bibliotecalab.com', '$2a$11$s1hs6IMqg9CfpjBdP70FS.L1VsqqIPh2zZ.sYbE1SR7pCKxu06z5W', 1 ), -- Password: Admin123!
 ( 'Juan', 'Perez', 'juan.perez@bibliotecalab.com', '$2a$11$OmYmIGGK3M5.v8OuVKooF.ialAEwCN.41NJZOji6qvxcCaYi1T4ai', 2 ),  -- Password: Estudiante123!
 ( 'Maria', 'Gomez', 'maria.gomez@bibliotecalab.com', '$2a$11$GGVB4SqUtoIkRTqeKVX2Wu42lYDK/EsFw11/9nbNxViaqBgsyd2Ka', 3 );  -- Password: Docente123!
+GO
+
+-- =====================================================================
+-- 12. Seed data: Libros
+-- =====================================================================
+
+INSERT INTO dbo.Libros (Titulo, Autor, ISBN, CantidadTotal, CantidadDisponible, Estado) VALUES
+( 'Clean Code', 'Robert C. Martin', '9780132350884', 5, 4, 'Activo' ),
+( 'The Pragmatic Programmer', 'David Thomas y Andrew Hunt', '9780135957059', 3, 2, 'Activo' ),
+( 'Design Patterns', 'Erich Gamma, Richard Helm, Ralph Johnson y John Vlissides', '9780201633610', 4, 4, 'Activo' ),
+( 'Introduction to Algorithms', 'Thomas H. Cormen', '9780262046305', 2, 1, 'Activo' ),
+( 'Database System Concepts', 'Abraham Silberschatz', '9780078022159', 6, 6, 'Activo' ),
+( 'Artificial Intelligence: A Modern Approach', 'Stuart Russell y Peter Norvig', '9780134610993', 2, 1, 'Activo' ),
+( 'Computer Networks', 'Andrew S. Tanenbaum', '9780132126953', 3, 3, 'Activo' ),
+( 'Refactoring', 'Martin Fowler', '9780134757599', 5, 5, 'Activo' ),
+( 'Legacy Programming Guide', 'Editorial Técnica', '9789999999991', 2, 2, 'Descontinuado' );
+GO
+
+
+-- =====================================================================
+-- 13. Seed data: Laboratorios
+-- =====================================================================
+
+INSERT INTO dbo.Laboratorios (Nombre, Capacidad, Equipamiento, Ubicacion, Estado) VALUES
+( 'Laboratorio de Computación 1', 30, '30 PCs Intel Core i5, proyector, pizarra digital, acceso a Internet', 'Pabellón A - Primer Piso', 'Disponible' ),
+( 'Laboratorio de Computación 2', 25, '25 PCs Intel Core i7, proyector, pizarra digital, acceso a Internet', 'Pabellón A - Segundo Piso', 'Disponible' ),
+( 'Laboratorio de Redes', 20, '20 PCs, routers Cisco, switches administrables, racks de comunicaciones', 'Pabellón B - Primer Piso', 'Disponible' ),
+( 'Laboratorio de Inteligencia Artificial', 20, '20 PCs con GPU, servidores de entrenamiento, proyector', 'Pabellón B - Segundo Piso', 'Disponible' ),
+( 'Laboratorio de Electrónica', 15, 'Osciloscopios, fuentes de poder, multímetros, generadores de señales', 'Pabellón C - Primer Piso', 'Mantenimiento' );
+GO
+
+
+-- =====================================================================
+-- 14. Seed data: Prestamos
+-- =====================================================================
+
+INSERT INTO dbo.Prestamos (UsuarioId, LibroId, FechaPrestamo, FechaDevolucionEsperada, FechaDevolucionReal, Estado) VALUES
+( 2, 1, '2026-08-10 09:00:00', '2026-08-20 23:59:59', NULL, 'Prestado' ), -- Juan Pérez - préstamo activo
+( 3, 2, '2026-08-11 10:30:00', '2026-08-18 23:59:59', NULL, 'Prestado' ), -- María Gómez - préstamo activo
+( 2, 3, '2026-07-20 11:00:00', '2026-08-03 23:59:59', '2026-07-30 15:30:00', 'Devuelto' ), -- Juan Pérez - préstamo devuelto
+( 3, 4, '2026-07-25 09:30:00', '2026-08-05 23:59:59', NULL, 'EnMora' ), -- María Gómez - préstamo vencido
+( 2, 5, '2026-07-10 14:00:00', '2026-07-24 23:59:59', '2026-07-22 16:00:00', 'Devuelto' ), -- Juan Pérez - préstamo devuelto
+( 3, 6, '2026-08-12 08:30:00', '2026-08-25 23:59:59', NULL, 'Prestado' ), -- María Gómez - préstamo activo
+( 1, 7, '2026-06-15 10:00:00', '2026-06-29 23:59:59', '2026-06-25 12:00:00', 'Devuelto' ), -- Administrador - préstamo devuelto
+( 2, 8, '2026-07-01 09:00:00', '2026-07-15 23:59:59', '2026-07-12 17:00:00', 'Devuelto' ); -- Juan Pérez - préstamo devuelto
+GO
+
+-- =====================================================================
+-- 15. Seed data: ReservasLab
+-- =====================================================================
+
+INSERT INTO dbo.ReservasLab (UsuarioId,LaboratorioId,Fecha,HoraInicio,HoraFin,Estado)
+VALUES
+(2,1,'2026-08-14','09:00','11:00','Confirmada'), -- Juan Pérez
+(3,2,'2026-08-14','14:00','16:00','Pendiente'), -- María Gómez
+(2,3,'2026-08-15','10:00','12:00','Confirmada'), -- Juan Pérez
+(3,1,'2026-08-14','11:00','13:00','Pendiente'), -- María Gómez
+(2,4,'2026-08-10','09:00','11:00','Finalizada'), -- Juan Pérez - reserva ya realizada
+(3,3,'2026-08-08','15:00','17:00','Cancelada'), -- María Gómez - reserva cancelada
+(1,1,'2026-08-17','08:00','09:30','Confirmada'), -- Administrador
+(2,2,'2026-08-18','16:00','18:00','Pendiente'); -- Juan Pérez
+GO
+
+
+-- =====================================================================
+-- 16. Seed data: Penalizaciones
+-- =====================================================================
+
+INSERT INTO dbo.Penalizaciones (UsuarioId,PrestamoId, ReservaLabId,Tipo,Motivo,Monto,FechaGeneracion,FechaResolucion,Estado)
+VALUES
+(3,4,NULL, 'DevolucionTardia','Devolución tardía del libro "Introduction to Algorithms".',15.00,'2026-08-06 08:00:00',NULL,'Pendiente'), -- Penalización por devolución tardía
+(2,NULL,5,'DanioEquipo','Daño reportado en un equipo utilizado durante la reserva del laboratorio.',75.00,'2026-08-11 10:00:00',NULL,'Pendiente'), -- Penalización por daño de equipo asociado a una reserva
+(2,3,NULL,'DevolucionTardia','Devolución tardía registrada en un préstamo anterior.',10.00,'2026-07-31 09:00:00','2026-08-02 14:30:00','Pagada'), -- Penalización ya pagada
+(3,NULL,6,'Otro','Incidencia registrada durante una reserva posteriormente anulada.',20.00,'2026-08-09 09:00:00','2026-08-10 11:00:00','Anulada'); -- Penalización anulada
 GO

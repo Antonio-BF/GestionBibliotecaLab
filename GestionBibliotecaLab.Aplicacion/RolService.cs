@@ -47,7 +47,7 @@ namespace GestionBibliotecaLab.Aplicacion
         {
             var NombreRol = request.Nombre.Trim().ToLower();
 
-            if (await _context.Roles.AnyAsync(x => x.Nombre.ToLower() == NombreRol))
+            if (await _context.Roles.AnyAsync(x => x.Nombre == NombreRol))
                 throw new DuplicateResourceException($"El nombre {NombreRol} ya se encuenta registrado en el sistema");
 
             var rol = new Rol
@@ -74,7 +74,7 @@ namespace GestionBibliotecaLab.Aplicacion
 
             var NombreRol = request.Nombre.Trim().ToLower();
 
-            if (await _context.Roles.AnyAsync(x => x.Id != id && x.Nombre.ToLower() == NombreRol))
+            if (await _context.Roles.AnyAsync(x => x.Id != id && x.Nombre == NombreRol))
                 throw new DuplicateResourceException($"El nombre {NombreRol} ya se encuenta registrado en el sistema");
 
             rol.Nombre = NombreRol;
@@ -87,7 +87,7 @@ namespace GestionBibliotecaLab.Aplicacion
             var rol = await _context.Roles.FindAsync(id)
                ?? throw new ResourceNotFoundException($"No se pudo encontrar el rol con le ID {id}");
 
-            if (await _context.Usuarios.AnyAsync(x => x.RolId == id))
+            if (await _context.Usuarios.IgnoreQueryFilters().AnyAsync(x => x.RolId == id))
                 throw new ConflictException("No se puede eliminar el rol porque hay usuarios registrados con ese rol");
 
             _context.Roles.Remove(rol);
