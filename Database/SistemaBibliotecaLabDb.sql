@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Sistema de Gestión de Biblioteca y Reserva de Laboratorios
--- Script de creación de base de datos — SQL Server
+-- Script de creación de base de datos — SQL Server (Diseño Completo e Inicial)
 -- =====================================================================
 
 CREATE DATABASE SistemaBibliotecaLabDb;
@@ -13,9 +13,9 @@ GO
 -- 1. Roles
 -- =====================================================================
 CREATE TABLE dbo.Roles (
-    Id          INT IDENTITY(1,1)   NOT NULL,
-    Nombre      NVARCHAR(50)        NOT NULL,
-    Descripcion NVARCHAR(200)       NULL,
+    Id                  INT IDENTITY(1,1)   NOT NULL,
+    Nombre              NVARCHAR(50)        NOT NULL,
+    Descripcion         NVARCHAR(200)       NULL,
     CONSTRAINT PK_Roles PRIMARY KEY CLUSTERED (Id)
 );
 GO
@@ -24,7 +24,21 @@ CREATE UNIQUE INDEX UQ_Roles_Nombre ON dbo.Roles(Nombre);
 GO
 
 -- =====================================================================
--- 2. Usuarios
+-- 2. Categorias 
+-- =====================================================================
+CREATE TABLE dbo.Categorias (
+    Id                  INT IDENTITY(1,1)   NOT NULL,
+    Nombre              NVARCHAR(100)       NOT NULL,
+    Descripcion         NVARCHAR(300)       NULL,
+    CONSTRAINT PK_Categorias PRIMARY KEY CLUSTERED (Id)
+);
+GO
+
+CREATE UNIQUE INDEX UQ_Categorias_Nombre ON dbo.Categorias(Nombre);
+GO
+
+-- =====================================================================
+-- 3. Usuarios
 -- =====================================================================
 CREATE TABLE dbo.Usuarios (
     Id                  INT IDENTITY(1,1)   NOT NULL,
@@ -41,7 +55,6 @@ CREATE TABLE dbo.Usuarios (
 );
 GO
 
--- Único solo entre usuarios activos.
 CREATE UNIQUE INDEX UQ_Usuarios_Email_Activos ON dbo.Usuarios(Email) WHERE IsDeleted = 0;
 GO
 
@@ -49,13 +62,18 @@ CREATE INDEX IX_Usuarios_RolId ON dbo.Usuarios(RolId);
 GO
 
 -- =====================================================================
--- 3. Libros
+-- 4. Libros 
 -- =====================================================================
 CREATE TABLE dbo.Libros (
     Id                  INT IDENTITY(1,1)   NOT NULL,
     Titulo              NVARCHAR(250)       NOT NULL,
     Autor               NVARCHAR(150)       NOT NULL,
     ISBN                NVARCHAR(20)        NOT NULL,
+    Editorial           NVARCHAR(150)       NULL,
+    AnioPublicacion     SMALLINT            NULL,
+    CategoriaId         INT                 NULL,
+    Portada             NVARCHAR(500)       NULL,
+    Descripcion         NVARCHAR(1000)      NULL,
     CantidadTotal       INT                 NOT NULL,
     CantidadDisponible  INT                 NOT NULL,
     Estado              NVARCHAR(20)        NOT NULL CONSTRAINT DF_Libros_Estado DEFAULT 'Activo',
@@ -64,22 +82,23 @@ CREATE TABLE dbo.Libros (
     FechaActualizacion  DATETIME2           NULL,
     IsDeleted           BIT                 NOT NULL CONSTRAINT DF_Libros_IsDeleted DEFAULT 0,
     CONSTRAINT PK_Libros PRIMARY KEY CLUSTERED (Id),
+    CONSTRAINT FK_Libros_Categorias_CategoriaId FOREIGN KEY (CategoriaId) REFERENCES dbo.Categorias(Id),
     CONSTRAINT CK_Libros_Estado CHECK (Estado IN ('Activo', 'Descontinuado')),
-    CONSTRAINT CK_Libros_CantidadDisponible CHECK (CantidadDisponible >= 0 AND CantidadDisponible <= CantidadTotal)
+    CONSTRAINT CK_Libros_CantidadDisponible CHECK (CantidadDisponible >= 0 AND CantidadDisponible <= CantidadTotal),
+    CONSTRAINT CK_Libros_AnioPublicacion CHECK (AnioPublicacion IS NULL OR AnioPublicacion BETWEEN 1000 AND 2100)
 );
 GO
 
-CREATE UNIQUE INDEX UQ_Libros_ISBN_Activos
-    ON dbo.Libros(ISBN)
-    WHERE IsDeleted = 0;
+CREATE UNIQUE INDEX UQ_Libros_ISBN_Activos ON dbo.Libros(ISBN) WHERE IsDeleted = 0;
 GO
 
 CREATE INDEX IX_Libros_Titulo ON dbo.Libros(Titulo);
 CREATE INDEX IX_Libros_Autor ON dbo.Libros(Autor);
+CREATE INDEX IX_Libros_CategoriaId ON dbo.Libros(CategoriaId);
 GO
 
 -- =====================================================================
--- 4. Prestamos
+-- 5. Prestamos
 -- =====================================================================
 CREATE TABLE dbo.Prestamos (
     Id                          INT IDENTITY(1,1)   NOT NULL,
@@ -102,21 +121,20 @@ GO
 
 CREATE INDEX IX_Prestamos_UsuarioId_Estado ON dbo.Prestamos(UsuarioId, Estado);
 CREATE INDEX IX_Prestamos_LibroId ON dbo.Prestamos(LibroId);
-
-CREATE INDEX IX_Prestamos_FechaDevolucionEsperada_Activos
-    ON dbo.Prestamos(FechaDevolucionEsperada)
-    WHERE Estado = 'Prestado';
+CREATE INDEX IX_Prestamos_FechaDevolucionEsperada_Activos ON dbo.Prestamos(FechaDevolucionEsperada) WHERE Estado = 'Prestado';
 GO
 
 -- =====================================================================
--- 5. Laboratorios
+-- 6. Laboratorios 
 -- =====================================================================
 CREATE TABLE dbo.Laboratorios (
     Id                  INT IDENTITY(1,1)   NOT NULL,
     Nombre              NVARCHAR(100)       NOT NULL,
     Capacidad           INT                 NOT NULL,
-    Equipamiento        NVARCHAR(500)       NULL,
     Ubicacion           NVARCHAR(150)       NOT NULL,
+    Equipamiento        NVARCHAR(500)       NULL,
+    Descripcion         NVARCHAR(1000)      NULL,
+    Imagen              NVARCHAR(500)       NULL,
     Estado              NVARCHAR(20)        NOT NULL CONSTRAINT DF_Laboratorios_Estado DEFAULT 'Disponible',
     RowVersion          ROWVERSION          NOT NULL,
     FechaCreacion       DATETIME2           NOT NULL CONSTRAINT DF_Laboratorios_FechaCreacion DEFAULT SYSUTCDATETIME(),
@@ -128,8 +146,11 @@ CREATE TABLE dbo.Laboratorios (
 );
 GO
 
+CREATE UNIQUE INDEX UQ_Laboratorios_Nombre_Activos ON dbo.Laboratorios(Nombre) WHERE IsDeleted = 0;
+GO
+
 -- =====================================================================
--- 6. ReservasLab
+-- 7. ReservasLab
 -- =====================================================================
 CREATE TABLE dbo.ReservasLab (
     Id                  INT IDENTITY(1,1)   NOT NULL,
@@ -150,10 +171,7 @@ CREATE TABLE dbo.ReservasLab (
 );
 GO
 
--- Salvaguarda contra reservas con el mismo bloque horario exacto.
-CREATE UNIQUE INDEX UQ_ReservasLab_Horario_Activas
-    ON dbo.ReservasLab(LaboratorioId,Fecha,HoraInicio,HoraFin)
-    WHERE IsDeleted = 0;
+CREATE UNIQUE INDEX UQ_ReservasLab_Horario_Activas ON dbo.ReservasLab(LaboratorioId,Fecha,HoraInicio,HoraFin) WHERE IsDeleted = 0;
 GO
 
 CREATE INDEX IX_ReservasLab_LaboratorioId_Fecha ON dbo.ReservasLab(LaboratorioId, Fecha);
@@ -161,7 +179,7 @@ CREATE INDEX IX_ReservasLab_UsuarioId ON dbo.ReservasLab(UsuarioId);
 GO
 
 -- =====================================================================
--- 7. Penalizaciones
+-- 8. Penalizaciones
 -- =====================================================================
 CREATE TABLE dbo.Penalizaciones (
     Id                  INT IDENTITY(1,1)   NOT NULL,
@@ -194,17 +212,17 @@ CREATE INDEX IX_Penalizaciones_UsuarioId_Estado ON dbo.Penalizaciones(UsuarioId,
 GO
 
 -- =====================================================================
--- 8. RefreshTokens
+-- 9. RefreshTokens
 -- =====================================================================
 CREATE TABLE dbo.RefreshTokens (
-    Id                      INT IDENTITY(1,1)   NOT NULL,
-    UsuarioId               INT                 NOT NULL,
-    Token                   NVARCHAR(200)       NOT NULL,
-    FechaExpiracion         DATETIME2           NOT NULL,
-    Revocado                BIT                 NOT NULL CONSTRAINT DF_RefreshTokens_Revocado DEFAULT 0,
-    FechaRevocacion         DATETIME2           NULL,
-    ReemplazadoPorToken     NVARCHAR(200)       NULL,
-    FechaCreacion           DATETIME2           NOT NULL CONSTRAINT DF_RefreshTokens_FechaCreacion DEFAULT SYSUTCDATETIME(),
+    Id                  INT IDENTITY(1,1)   NOT NULL,
+    UsuarioId           INT                 NOT NULL,
+    Token               NVARCHAR(200)       NOT NULL,
+    FechaExpiracion     DATETIME2           NOT NULL,
+    Revocado            BIT                 NOT NULL CONSTRAINT DF_RefreshTokens_Revocado DEFAULT 0,
+    FechaRevocacion     DATETIME2           NULL,
+    ReemplazadoPorToken NVARCHAR(200)       NULL,
+    FechaCreacion       DATETIME2           NOT NULL CONSTRAINT DF_RefreshTokens_FechaCreacion DEFAULT SYSUTCDATETIME(),
     CONSTRAINT PK_RefreshTokens PRIMARY KEY CLUSTERED (Id),
     CONSTRAINT FK_RefreshTokens_Usuarios_UsuarioId FOREIGN KEY (UsuarioId) REFERENCES dbo.Usuarios(Id) ON DELETE CASCADE,
     CONSTRAINT UQ_RefreshTokens_Token UNIQUE (Token)
@@ -212,29 +230,117 @@ CREATE TABLE dbo.RefreshTokens (
 GO
 
 CREATE INDEX IX_RefreshTokens_UsuarioId ON dbo.RefreshTokens(UsuarioId);
-
 CREATE INDEX IX_RefreshTokens_FechaExpiracion ON dbo.RefreshTokens(FechaExpiracion);
 GO
 
 -- =====================================================================
--- 9. Seed data: Roles
+-- 10. Seed data: Roles
 -- =====================================================================
 SET IDENTITY_INSERT dbo.Roles ON;
 
 INSERT INTO dbo.Roles (Id, Nombre, Descripcion) VALUES
     (1, 'Administrador', 'Gestiona inventario, laboratorios, usuarios y aprobaciones.'),
     (2, 'Estudiante', 'Solicita libros, reserva laboratorios y consulta su historial.'),
-    (3, 'Docente', 'Solicita libros, reserva laboratorios y consulta su historial.');
+    (3, 'Docente', 'Solicita libros, reserva laboratorios y consulta su historial.'),
+    (4, 'Bibliotecario', 'Gestiona reservas y prestamos');
 
 SET IDENTITY_INSERT dbo.Roles OFF;
 GO
 
 -- =====================================================================
--- 10. Procedimientos almacenados
+-- 11. Seed data: Categorias
+-- =====================================================================
+SET IDENTITY_INSERT dbo.Categorias ON;
+
+INSERT INTO dbo.Categorias (Id, Nombre, Descripcion) VALUES
+    (1, 'Ingeniería de Software', 'Libros sobre patrones, metodologías y calidad de código.'),
+    (2, 'Ciencias de la Computación', 'Algoritmos, estructuras de datos y teoría.'),
+    (3, 'Bases de Datos', 'Diseño, conceptos y administración de sistemas de BD.'),
+    (4, 'Inteligencia Artificial', 'Machine Learning, Deep Learning y sistemas inteligentes.'),
+    (5, 'Redes y Comunicaciones', 'Protocolos, arquitectura y redes de computadoras.');
+
+SET IDENTITY_INSERT dbo.Categorias OFF;
+GO
+
+-- =====================================================================
+-- 12. Seed data: Usuarios
+-- =====================================================================
+INSERT INTO dbo.Usuarios (Nombres, Apellidos, Email, PasswordHash, RolId) VALUES 
+('Administrador', 'Sistema', 'admin@bibliotecalab.com', '$2a$11$s1hs6IMqg9CfpjBdP70FS.L1VsqqIPh2zZ.sYbE1SR7pCKxu06z5W', 1), -- Password: Admin123!
+('Juan', 'Perez', 'juan.perez@bibliotecalab.com', '$2a$11$OmYmIGGK3M5.v8OuVKooF.ialAEwCN.41NJZOji6qvxcCaYi1T4ai', 2),  -- Password: Estudiante123!
+('Maria', 'Gomez', 'maria.gomez@bibliotecalab.com', '$2a$11$GGVB4SqUtoIkRTqeKVX2Wu42lYDK/EsFw11/9nbNxViaqBgsyd2Ka', 3); -- Password: Docente123!
+GO
+
+-- =====================================================================
+-- 13. Seed data: Libros
+-- =====================================================================
+INSERT INTO dbo.Libros (Titulo, Autor, ISBN, Editorial, AnioPublicacion, CategoriaId, Portada, Descripcion, CantidadTotal, CantidadDisponible, Estado) VALUES
+( 'Clean Code', 'Robert C. Martin', '9780132350884', 'Prentice Hall', 2008, 1, 'portada_cleancode.jpg', 'A Handbook of Agile Software Craftsmanship', 5, 4, 'Activo' ),
+( 'The Pragmatic Programmer', 'David Thomas y Andrew Hunt', '9780135957059', 'Addison-Wesley Professional', 2019, 1, 'portada_pragmatic.jpg', 'Your journey to mastery', 3, 2, 'Activo' ),
+( 'Design Patterns', 'Erich Gamma, Richard Helm, Ralph Johnson y John Vlissides', '9780201633610', 'Addison-Wesley Professional', 1994, 1, 'portada_designpatterns.jpg', 'Elements of Reusable Object-Oriented Software', 4, 4, 'Activo' ),
+( 'Introduction to Algorithms', 'Thomas H. Cormen', '9780262046305', 'MIT Press', 2022, 2, 'portada_clrs.jpg', 'Comprehensive guide to algorithms', 2, 1, 'Activo' ),
+( 'Database System Concepts', 'Abraham Silberschatz', '9780078022159', 'McGraw-Hill Education', 2019, 3, 'portada_dbconcepts.jpg', 'Fundamentals of database system concepts', 6, 6, 'Activo' ),
+( 'Artificial Intelligence: A Modern Approach', 'Stuart Russell y Peter Norvig', '9780134610993', 'Pearson', 2020, 4, 'portada_aima.jpg', 'The comprehensive guide to AI', 2, 1, 'Activo' ),
+( 'Computer Networks', 'Andrew S. Tanenbaum', '9780132126953', 'Pearson', 2010, 5, 'portada_computernetworks.jpg', 'Layered network architecture', 3, 3, 'Activo' ),
+( 'Refactoring', 'Martin Fowler', '9780134757599', 'Addison-Wesley Professional', 2018, 1, 'portada_refactoring.jpg', 'Improving the Design of Existing Code', 5, 5, 'Activo' ),
+( 'Legacy Programming Guide', 'Editorial Técnica', '9789999999991', 'Editorial Técnica', 2005, 1, 'portada_legacy.jpg', 'Guide to old legacy systems', 2, 2, 'Descontinuado' );
+GO
+
+-- =====================================================================
+-- 14. Seed data: Laboratorios
+-- =====================================================================
+INSERT INTO dbo.Laboratorios (Nombre, Capacidad, Ubicacion, Equipamiento, Descripcion, Imagen, Estado) VALUES
+( 'Laboratorio de Computación 1', 30, 'Pabellón A - Primer Piso', '30 PCs Intel Core i5, proyector, pizarra digital, acceso a Internet', 'Laboratorio principal para programación', 'lab1.jpg', 'Disponible' ),
+( 'Laboratorio de Computación 2', 25, 'Pabellón A - Segundo Piso', '25 PCs Intel Core i7, proyector, pizarra digital, acceso a Internet', 'Laboratorio avanzado de cómputo', 'lab2.jpg', 'Disponible' ),
+( 'Laboratorio de Redes', 20, 'Pabellón B - Primer Piso', '20 PCs, routers Cisco, switches administrables, racks de comunicaciones', 'Laboratorio especializado en redes', 'lab3.jpg', 'Disponible' ),
+( 'Laboratorio de Inteligencia Artificial', 20, 'Pabellón B - Segundo Piso', '20 PCs con GPU, servidores de entrenamiento, proyector', 'Laboratorio enfocado en IA y procesamiento de datos', 'lab4.jpg', 'Disponible' ),
+( 'Laboratorio de Electrónica', 15, 'Pabellón C - Primer Piso', 'Osciloscopios, fuentes de poder, multímetros, generadores de señales', 'Laboratorio de circuitos y hardware', 'lab5.jpg', 'Mantenimiento' );
+GO
+
+-- =====================================================================
+-- 15. Seed data: Prestamos
+-- =====================================================================
+INSERT INTO dbo.Prestamos (UsuarioId, LibroId, FechaPrestamo, FechaDevolucionEsperada, FechaDevolucionReal, Estado) VALUES
+( 2, 1, '2026-08-10 09:00:00', '2026-08-20 23:59:59', NULL, 'Prestado' ),
+( 3, 2, '2026-08-11 10:30:00', '2026-08-18 23:59:59', NULL, 'Prestado' ),
+( 2, 3, '2026-07-20 11:00:00', '2026-08-03 23:59:59', '2026-07-30 15:30:00', 'Devuelto' ),
+( 3, 4, '2026-07-25 09:30:00', '2026-08-05 23:59:59', NULL, 'EnMora' ),
+( 2, 5, '2026-07-10 14:00:00', '2026-07-24 23:59:59', '2026-07-22 16:00:00', 'Devuelto' ),
+( 3, 6, '2026-08-12 08:30:00', '2026-08-25 23:59:59', NULL, 'Prestado' ),
+( 1, 7, '2026-06-15 10:00:00', '2026-06-29 23:59:59', '2026-06-25 12:00:00', 'Devuelto' ),
+( 2, 8, '2026-07-01 09:00:00', '2026-07-15 23:59:59', '2026-07-12 17:00:00', 'Devuelto' );
+GO
+
+-- =====================================================================
+-- 16. Seed data: ReservasLab
+-- =====================================================================
+INSERT INTO dbo.ReservasLab (UsuarioId, LaboratorioId, Fecha, HoraInicio, HoraFin, Estado) VALUES
+(2, 1, '2026-08-14', '09:00', '11:00', 'Confirmada'),
+(3, 2, '2026-08-14', '14:00', '16:00', 'Pendiente'),
+(2, 3, '2026-08-15', '10:00', '12:00', 'Confirmada'),
+(3, 1, '2026-08-14', '11:00', '13:00', 'Pendiente'),
+(2, 4, '2026-08-10', '09:00', '11:00', 'Finalizada'),
+(3, 3, '2026-08-08', '15:00', '17:00', 'Cancelada'),
+(1, 1, '2026-08-17', '08:00', '09:30', 'Confirmada'),
+(2, 2, '2026-08-18', '16:00', '18:00', 'Pendiente');
+GO
+
+-- =====================================================================
+-- 17. Seed data: Penalizaciones
+-- =====================================================================
+INSERT INTO dbo.Penalizaciones (UsuarioId, PrestamoId, ReservaLabId, Tipo, Motivo, Monto, FechaGeneracion, FechaResolucion, Estado) VALUES
+(3, 4, NULL, 'DevolucionTardia', 'Devolución tardía del libro "Introduction to Algorithms".', 15.00, '2026-08-06 08:00:00', NULL, 'Pendiente'),
+(2, NULL, 5, 'DanioEquipo', 'Daño reportado en un equipo utilizado durante la reserva del laboratorio.', 75.00, '2026-08-11 10:00:00', NULL, 'Pendiente'),
+(2, 3, NULL, 'DevolucionTardia', 'Devolución tardía registrada en un préstamo anterior.', 10.00, '2026-07-31 09:00:00', '2026-08-02 14:30:00', 'Pagada'),
+(3, NULL, 6, 'Otro', 'Incidencia registrada durante una reserva posteriormente anulada.', 20.00, '2026-08-09 09:00:00', '2026-08-10 11:00:00', 'Anulada');
+GO
+
+-- =====================================================================
+-- 18. Procedimientos almacenados
 -- =====================================================================
 
 -- =====================================================================
--- 10.1 Verificación rápida de disponibilidad
+-- 18.1 Verificación rápida de disponibilidad
 -- =====================================================================
 CREATE OR ALTER PROCEDURE dbo.sp_VerificarDisponibilidadLaboratorio
     @LaboratorioId INT,
@@ -246,7 +352,16 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        CASE 
+        CASE
+            WHEN NOT EXISTS (
+                SELECT 1
+                FROM dbo.Laboratorios lab
+                WHERE lab.Id = @LaboratorioId
+                  AND lab.IsDeleted = 0
+                  AND lab.Estado = 'Disponible'
+            )
+                THEN CAST(0 AS BIT)
+
             WHEN EXISTS (
                 SELECT 1
                 FROM dbo.ReservasLab r
@@ -256,15 +371,15 @@ BEGIN
                   AND r.Estado IN ('Pendiente', 'Confirmada')
                   AND r.HoraInicio < @HoraFin
                   AND r.HoraFin > @HoraInicio
-            ) 
-            THEN CAST(0 AS BIT)
+            )
+                THEN CAST(0 AS BIT)
+
             ELSE CAST(1 AS BIT)
         END AS Disponible;
 END
 GO
-
 -- =====================================================================
--- 10.2 Generación batch de moras por préstamos vencidos
+-- 18.2 Generación batch de moras por préstamos vencidos
 -- =====================================================================
 CREATE OR ALTER PROCEDURE dbo.sp_GenerarMorasPorPrestamosVencidos
 AS
@@ -321,7 +436,7 @@ END
 GO
 
 -- =====================================================================
--- 10.3 Historial consolidado de un usuario
+-- 18.3 Historial consolidado de un usuario
 -- =====================================================================
 CREATE OR ALTER PROCEDURE dbo.sp_HistorialUsuario
     @UsuarioId INT
@@ -360,7 +475,7 @@ END
 GO
 
 -- =====================================================================
--- 10.4 Limpieza de RefreshTokens expirados
+-- 18.4 Limpieza de RefreshTokens expirados
 -- =====================================================================
 CREATE OR ALTER PROCEDURE dbo.sp_LimpiarRefreshTokensExpirados
     @DiasRetencion INT = 30
@@ -375,88 +490,4 @@ BEGIN
         SYSUTCDATETIME()
     );
 END
-GO
-
--- =====================================================================
--- 11. Seed data: Usuarios
--- =====================================================================
-
-INSERT INTO dbo.Usuarios ( Nombres, Apellidos, Email, PasswordHash, RolId ) VALUES 
-( 'Administrador', 'Sistema', 'admin@bibliotecalab.com', '$2a$11$s1hs6IMqg9CfpjBdP70FS.L1VsqqIPh2zZ.sYbE1SR7pCKxu06z5W', 1 ), -- Password: Admin123!
-( 'Juan', 'Perez', 'juan.perez@bibliotecalab.com', '$2a$11$OmYmIGGK3M5.v8OuVKooF.ialAEwCN.41NJZOji6qvxcCaYi1T4ai', 2 ),  -- Password: Estudiante123!
-( 'Maria', 'Gomez', 'maria.gomez@bibliotecalab.com', '$2a$11$GGVB4SqUtoIkRTqeKVX2Wu42lYDK/EsFw11/9nbNxViaqBgsyd2Ka', 3 );  -- Password: Docente123!
-GO
-
--- =====================================================================
--- 12. Seed data: Libros
--- =====================================================================
-
-INSERT INTO dbo.Libros (Titulo, Autor, ISBN, CantidadTotal, CantidadDisponible, Estado) VALUES
-( 'Clean Code', 'Robert C. Martin', '9780132350884', 5, 4, 'Activo' ),
-( 'The Pragmatic Programmer', 'David Thomas y Andrew Hunt', '9780135957059', 3, 2, 'Activo' ),
-( 'Design Patterns', 'Erich Gamma, Richard Helm, Ralph Johnson y John Vlissides', '9780201633610', 4, 4, 'Activo' ),
-( 'Introduction to Algorithms', 'Thomas H. Cormen', '9780262046305', 2, 1, 'Activo' ),
-( 'Database System Concepts', 'Abraham Silberschatz', '9780078022159', 6, 6, 'Activo' ),
-( 'Artificial Intelligence: A Modern Approach', 'Stuart Russell y Peter Norvig', '9780134610993', 2, 1, 'Activo' ),
-( 'Computer Networks', 'Andrew S. Tanenbaum', '9780132126953', 3, 3, 'Activo' ),
-( 'Refactoring', 'Martin Fowler', '9780134757599', 5, 5, 'Activo' ),
-( 'Legacy Programming Guide', 'Editorial Técnica', '9789999999991', 2, 2, 'Descontinuado' );
-GO
-
-
--- =====================================================================
--- 13. Seed data: Laboratorios
--- =====================================================================
-
-INSERT INTO dbo.Laboratorios (Nombre, Capacidad, Equipamiento, Ubicacion, Estado) VALUES
-( 'Laboratorio de Computación 1', 30, '30 PCs Intel Core i5, proyector, pizarra digital, acceso a Internet', 'Pabellón A - Primer Piso', 'Disponible' ),
-( 'Laboratorio de Computación 2', 25, '25 PCs Intel Core i7, proyector, pizarra digital, acceso a Internet', 'Pabellón A - Segundo Piso', 'Disponible' ),
-( 'Laboratorio de Redes', 20, '20 PCs, routers Cisco, switches administrables, racks de comunicaciones', 'Pabellón B - Primer Piso', 'Disponible' ),
-( 'Laboratorio de Inteligencia Artificial', 20, '20 PCs con GPU, servidores de entrenamiento, proyector', 'Pabellón B - Segundo Piso', 'Disponible' ),
-( 'Laboratorio de Electrónica', 15, 'Osciloscopios, fuentes de poder, multímetros, generadores de señales', 'Pabellón C - Primer Piso', 'Mantenimiento' );
-GO
-
-
--- =====================================================================
--- 14. Seed data: Prestamos
--- =====================================================================
-
-INSERT INTO dbo.Prestamos (UsuarioId, LibroId, FechaPrestamo, FechaDevolucionEsperada, FechaDevolucionReal, Estado) VALUES
-( 2, 1, '2026-08-10 09:00:00', '2026-08-20 23:59:59', NULL, 'Prestado' ), -- Juan Pérez - préstamo activo
-( 3, 2, '2026-08-11 10:30:00', '2026-08-18 23:59:59', NULL, 'Prestado' ), -- María Gómez - préstamo activo
-( 2, 3, '2026-07-20 11:00:00', '2026-08-03 23:59:59', '2026-07-30 15:30:00', 'Devuelto' ), -- Juan Pérez - préstamo devuelto
-( 3, 4, '2026-07-25 09:30:00', '2026-08-05 23:59:59', NULL, 'EnMora' ), -- María Gómez - préstamo vencido
-( 2, 5, '2026-07-10 14:00:00', '2026-07-24 23:59:59', '2026-07-22 16:00:00', 'Devuelto' ), -- Juan Pérez - préstamo devuelto
-( 3, 6, '2026-08-12 08:30:00', '2026-08-25 23:59:59', NULL, 'Prestado' ), -- María Gómez - préstamo activo
-( 1, 7, '2026-06-15 10:00:00', '2026-06-29 23:59:59', '2026-06-25 12:00:00', 'Devuelto' ), -- Administrador - préstamo devuelto
-( 2, 8, '2026-07-01 09:00:00', '2026-07-15 23:59:59', '2026-07-12 17:00:00', 'Devuelto' ); -- Juan Pérez - préstamo devuelto
-GO
-
--- =====================================================================
--- 15. Seed data: ReservasLab
--- =====================================================================
-
-INSERT INTO dbo.ReservasLab (UsuarioId,LaboratorioId,Fecha,HoraInicio,HoraFin,Estado)
-VALUES
-(2,1,'2026-08-14','09:00','11:00','Confirmada'), -- Juan Pérez
-(3,2,'2026-08-14','14:00','16:00','Pendiente'), -- María Gómez
-(2,3,'2026-08-15','10:00','12:00','Confirmada'), -- Juan Pérez
-(3,1,'2026-08-14','11:00','13:00','Pendiente'), -- María Gómez
-(2,4,'2026-08-10','09:00','11:00','Finalizada'), -- Juan Pérez - reserva ya realizada
-(3,3,'2026-08-08','15:00','17:00','Cancelada'), -- María Gómez - reserva cancelada
-(1,1,'2026-08-17','08:00','09:30','Confirmada'), -- Administrador
-(2,2,'2026-08-18','16:00','18:00','Pendiente'); -- Juan Pérez
-GO
-
-
--- =====================================================================
--- 16. Seed data: Penalizaciones
--- =====================================================================
-
-INSERT INTO dbo.Penalizaciones (UsuarioId,PrestamoId, ReservaLabId,Tipo,Motivo,Monto,FechaGeneracion,FechaResolucion,Estado)
-VALUES
-(3,4,NULL, 'DevolucionTardia','Devolución tardía del libro "Introduction to Algorithms".',15.00,'2026-08-06 08:00:00',NULL,'Pendiente'), -- Penalización por devolución tardía
-(2,NULL,5,'DanioEquipo','Daño reportado en un equipo utilizado durante la reserva del laboratorio.',75.00,'2026-08-11 10:00:00',NULL,'Pendiente'), -- Penalización por daño de equipo asociado a una reserva
-(2,3,NULL,'DevolucionTardia','Devolución tardía registrada en un préstamo anterior.',10.00,'2026-07-31 09:00:00','2026-08-02 14:30:00','Pagada'), -- Penalización ya pagada
-(3,NULL,6,'Otro','Incidencia registrada durante una reserva posteriormente anulada.',20.00,'2026-08-09 09:00:00','2026-08-10 11:00:00','Anulada'); -- Penalización anulada
 GO
