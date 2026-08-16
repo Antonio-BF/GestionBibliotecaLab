@@ -13,6 +13,16 @@ public partial class Libro
 
     public string Isbn { get; set; } = null!;
 
+    public string? Editorial { get; set; }
+
+    public short? AnioPublicacion { get; set; }
+
+    public int? CategoriaId { get; set; }
+
+    public string? Portada { get; set; }
+
+    public string? Descripcion { get; set; }
+
     public int CantidadTotal { get; set; }
 
     public int CantidadDisponible { get; set; }
@@ -26,6 +36,8 @@ public partial class Libro
     public DateTime? FechaActualizacion { get; set; }
 
     public bool IsDeleted { get; set; }
+
+    public virtual Categoria? Categoria { get; set; }
 
     public virtual ICollection<Prestamo> Prestamos { get; set; } = new List<Prestamo>();
 }

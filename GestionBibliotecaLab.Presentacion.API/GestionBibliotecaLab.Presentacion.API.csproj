@@ -17,4 +17,8 @@
     <ProjectReference Include="..\GestionBibliotecaLab.Aplicacion\GestionBibliotecaLab.Aplicacion.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\" />
+  </ItemGroup>
+
 </Project>

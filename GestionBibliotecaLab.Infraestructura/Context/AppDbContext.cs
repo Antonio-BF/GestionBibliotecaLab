@@ -11,6 +11,9 @@ public partial class AppDbContext : DbContext
         : base(options)
     {
     }
+
+    public virtual DbSet<Categoria> Categorias { get; set; }
+
     public virtual DbSet<Laboratorio> Laboratorios { get; set; }
 
     public virtual DbSet<Libro> Libros { get; set; }
@@ -29,13 +32,27 @@ public partial class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Categoria>(entity =>
+        {
+            entity.HasIndex(e => e.Nombre, "UQ_Categorias_Nombre").IsUnique();
+
+            entity.Property(e => e.Descripcion).HasMaxLength(300);
+            entity.Property(e => e.Nombre).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<Laboratorio>(entity =>
         {
+            entity.HasIndex(e => e.Nombre, "UQ_Laboratorios_Nombre_Activos")
+                .IsUnique()
+                .HasFilter("([IsDeleted]=(0))");
+
+            entity.Property(e => e.Descripcion).HasMaxLength(1000);
             entity.Property(e => e.Equipamiento).HasMaxLength(500);
             entity.Property(e => e.Estado)
                 .HasMaxLength(20)
                 .HasDefaultValue("Disponible", "DF_Laboratorios_Estado");
             entity.Property(e => e.FechaCreacion).HasDefaultValueSql("(sysutcdatetime())", "DF_Laboratorios_FechaCreacion");
+            entity.Property(e => e.Imagen).HasMaxLength(500);
             entity.Property(e => e.Nombre).HasMaxLength(100);
             entity.Property(e => e.RowVersion)
                 .IsRowVersion()
@@ -47,6 +64,8 @@ public partial class AppDbContext : DbContext
         {
             entity.HasIndex(e => e.Autor, "IX_Libros_Autor");
 
+            entity.HasIndex(e => e.CategoriaId, "IX_Libros_CategoriaId");
+
             entity.HasIndex(e => e.Titulo, "IX_Libros_Titulo");
 
             entity.HasIndex(e => e.Isbn, "UQ_Libros_ISBN_Activos")
@@ -54,6 +73,8 @@ public partial class AppDbContext : DbContext
                 .HasFilter("([IsDeleted]=(0))");
 
             entity.Property(e => e.Autor).HasMaxLength(150);
+            entity.Property(e => e.Descripcion).HasMaxLength(1000);
+            entity.Property(e => e.Editorial).HasMaxLength(150);
             entity.Property(e => e.Estado)
                 .HasMaxLength(20)
                 .HasDefaultValue("Activo", "DF_Libros_Estado");
@@ -61,10 +82,13 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Isbn)
                 .HasMaxLength(20)
                 .HasColumnName("ISBN");
+            entity.Property(e => e.Portada).HasMaxLength(500);
             entity.Property(e => e.RowVersion)
                 .IsRowVersion()
                 .IsConcurrencyToken();
             entity.Property(e => e.Titulo).HasMaxLength(250);
+
+            entity.HasOne(d => d.Categoria).WithMany(p => p.Libros).HasForeignKey(d => d.CategoriaId);
         });
 
         modelBuilder.Entity<Penalizacion>(entity =>
