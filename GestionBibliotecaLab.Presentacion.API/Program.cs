@@ -1,5 +1,6 @@
 using GestionBibliotecaLab.Aplicacion;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.job;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
 using GestionBibliotecaLab.Infraestructura.Context;
 using GestionBibliotecaLab.Infraestructura.Jobs;
@@ -94,11 +95,20 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
+builder.Services.Configure<PrestamoMoraOptions>(builder.Configuration.GetSection("PrestamoMora"));
+builder.Services.AddHostedService<PrestamoMoraJob>();
+
+builder.Services.Configure<ReservaEstadoOptions>(builder.Configuration.GetSection("ReservaEstado"));
+builder.Services.AddHostedService<ReservaEstadoJob>();
+
 builder.Services.AddScoped<IRolService, RolService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<ILibroService, LibroService>();
 builder.Services.AddScoped<ILaboratorioService, LaboratorioService>();
+builder.Services.AddScoped<IPenalizacionService, PenalizacionService>(); 
+builder.Services.AddScoped<IPrestamoService, PrestamoService>();
+builder.Services.AddScoped<IReservaService, ReservaService>();
 
 
 var app = builder.Build();

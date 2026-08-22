@@ -2,6 +2,7 @@
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
+using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
 using GestionBibliotecaLab.Infraestructura.Context;
@@ -137,11 +138,7 @@ namespace GestionBibliotecaLab.Aplicacion
         //---------------------------------------------------------------
         private async Task ValidarSinReservasActivasAsync(int laboratorioId)
         {
-            var tieneReservasActivas = await _context.ReservasLabs
-                .AnyAsync(r => r.LaboratorioId == laboratorioId &&
-                    (r.Estado == EstadoReserva.Pendiente.ToString() || r.Estado == EstadoReserva.Confirmada.ToString()));
-
-            if (tieneReservasActivas)
+            if (await EstadosActivosQueries.LaboratorioTieneReservasActivasAsync(_context, laboratorioId))
                 throw new ConflictException("No se puede dar de baja el laboratorio porque tiene reservas pendientes o confirmadas.");
         }
         private async Task ValidarNombreDisponibleAsync(string nombre, int? idAExcluir = null)

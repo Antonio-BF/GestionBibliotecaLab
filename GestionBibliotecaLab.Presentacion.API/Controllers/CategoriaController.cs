@@ -1,5 +1,6 @@
 ﻿using GestionBibliotecaLab.Aplicacion.Dtos.Categoria;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.Seguridad;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
             
         [HttpPost]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult<CategoriaResponse>> Registrar(CategoriaRequest request)
         {
             var categoria = await _service.RegistrarAsync(request);
@@ -40,7 +41,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult> Actualizar(int id, CategoriaRequest request)
         {
             await _service.ActualizarAsync(id, request);
@@ -48,7 +49,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult> Eliminar(int id)
         {
             await _service.EliminarAsync(id);

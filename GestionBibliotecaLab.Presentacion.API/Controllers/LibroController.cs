@@ -1,5 +1,6 @@
 ﻿using GestionBibliotecaLab.Aplicacion.Dtos.Libro;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.Seguridad;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult<LibroResponse>> Registrar(CreateLibroRequest request)
         {
             var libro = await _service.RegistrarAsync(request);
@@ -39,7 +40,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult> Actualizar(int id, UpdateLibroRequest request)
         {
             await _service.ActualizarAsync(id, request);
@@ -47,7 +48,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpPost("{id:int}/portada")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         [RequestSizeLimit(3 * 1024 * 1024)]
         public async Task<ActionResult<LibroResponse>> SubirPortada(int id, IFormFile archivo)
         {
@@ -61,7 +62,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
 
 
         [HttpPatch("{id:int}/estado")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult> CambiarEstado(int id)
         {
             await _service.CambiarEstadoAsync(id);

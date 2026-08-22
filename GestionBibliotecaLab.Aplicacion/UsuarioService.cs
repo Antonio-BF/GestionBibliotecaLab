@@ -1,6 +1,7 @@
 ﻿using GestionBibliotecaLab.Aplicacion.Dtos.Usuario;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
 using GestionBibliotecaLab.Infraestructura.Context;
@@ -88,7 +89,7 @@ namespace GestionBibliotecaLab.Aplicacion
             {
                 usuario.PasswordHash = _passwordHasher.HashPassword(request.Password);
             }
-               
+
 
             try
             {
@@ -103,8 +104,8 @@ namespace GestionBibliotecaLab.Aplicacion
         public async Task CambiarEstadoAsync(int id)
         {
             var usuarioIdActual = _currentUserService.ObtenerUsuarioIdAutenticado();
-            
-            if(id == usuarioIdActual)
+
+            if (id == usuarioIdActual)
                 throw new ForbiddenException("No puedes cambiar el estado de tu propia cuenta");
 
             var usuario = await _context.Usuarios
@@ -146,17 +147,13 @@ namespace GestionBibliotecaLab.Aplicacion
 
         private async Task ValidarSinRecursosActivosAsync(int usuarioId)
         {
-            if (await _context.Penalizaciones.AnyAsync(p =>
-                    p.UsuarioId == usuarioId && p.Estado == EstadoPenalizacion.Pendiente.ToString()))
+            if (await EstadosActivosQueries.UsuarioTienePenalizacionesPendientesAsync(_context, usuarioId))
                 throw new ConflictException("No se puede cambiar el estado del usuario ya que cuenta con penalizaciones activas");
 
-            if (await _context.Prestamos.AnyAsync(pr =>
-                    pr.UsuarioId == usuarioId && pr.Estado != EstadoPrestamo.Devuelto.ToString()))
+            if (await EstadosActivosQueries.UsuarioTienePrestamosActivosAsync(_context, usuarioId))
                 throw new ConflictException("No se puede eliminar/desactivar al usuario porque cuenta con libros prestados o en mora");
 
-            if (await _context.ReservasLabs.AnyAsync(r =>
-                    r.UsuarioId == usuarioId &&
-                    (r.Estado == EstadoReserva.Pendiente.ToString() || r.Estado == EstadoReserva.Confirmada.ToString())))
+            if (await EstadosActivosQueries.UsuarioTieneReservasActivasAsync(_context, usuarioId))
                 throw new ConflictException("No se puede eliminar/desactivar al usuario porque cuenta con reservas pendientes o confirmadas");
         }
 

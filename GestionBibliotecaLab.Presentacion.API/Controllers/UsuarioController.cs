@@ -1,5 +1,6 @@
 ﻿using GestionBibliotecaLab.Aplicacion.Dtos.Usuario;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.Seguridad;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = RolesSistema.Administrador)]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;

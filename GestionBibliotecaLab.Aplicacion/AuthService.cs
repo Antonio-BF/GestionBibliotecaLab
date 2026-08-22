@@ -38,14 +38,14 @@ namespace GestionBibliotecaLab.Aplicacion
             var rol = await _context.Roles.FirstOrDefaultAsync(r => r.Id == request.RolId)
                 ?? throw new ResourceNotFoundException($"No se encontró el rol con el ID {request.RolId}.");
 
-            if (string.Equals(rol.Nombre, "Administrador", StringComparison.OrdinalIgnoreCase))
-                throw new ForbiddenException("No es posible autorregistrarse con el rol Administrador.");
+            if (string.Equals(rol.Nombre, "Administrador", StringComparison.OrdinalIgnoreCase) || string.Equals(rol.Nombre, "Bibliotecario", StringComparison.OrdinalIgnoreCase))
+                throw new ForbiddenException("No es posible autorregistrarse con el rol Administrador o Bibliotecario.");
 
             var usuario = new Usuario
             {
                 Nombres = request.Nombres.Trim(),
                 Apellidos = request.Apellidos.Trim(),
-                Email = email, 
+                Email = email,
                 PasswordHash = _passwordHasher.HashPassword(request.Password),
                 RolId = request.RolId
             };
@@ -54,7 +54,7 @@ namespace GestionBibliotecaLab.Aplicacion
             try
             {
                 _context.Usuarios.Add(usuario);
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
 
                 usuario.Rol = rol;
                 var response = await GenerarRespuestaConNuevoRefreshTokenAsync(usuario);
@@ -89,7 +89,7 @@ namespace GestionBibliotecaLab.Aplicacion
         public async Task<AuthResponse> RefrescarTokenAsync(RefreshRequest request)
         {
             var hashRecibido = _jwtService.HashRefreshToken(request.RefreshToken);
-            var fechaActual = DateTime.UtcNow; 
+            var fechaActual = DateTime.UtcNow;
 
             var refreshToken = await _context.RefreshTokens
                 .Include(rt => rt.Usuario)
@@ -99,7 +99,7 @@ namespace GestionBibliotecaLab.Aplicacion
             if (refreshToken is null)
                 throw new UnauthorizedException("El token de actualización no es válido.");
 
-            if(refreshToken.Usuario.IsDeleted)
+            if (refreshToken.Usuario.IsDeleted)
                 throw new UnauthorizedException("El usuario se encuentar inactivo en el sistema");
 
             if (refreshToken.Revocado)

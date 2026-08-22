@@ -2,6 +2,7 @@
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
+using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
 using GestionBibliotecaLab.Infraestructura.Context;
@@ -180,10 +181,7 @@ namespace GestionBibliotecaLab.Aplicacion
 
         private async Task ValidarSinPrestamosActivosAsync(int libroId)
         {
-            var tienePrestamosActivos = await _context.Prestamos
-                .AnyAsync(p => p.LibroId == libroId && p.Estado != EstadoPrestamo.Devuelto.ToString());
-
-            if (tienePrestamosActivos)
+            if (await EstadosActivosQueries.LibroTienePrestamosActivosAsync(_context, libroId))
                 throw new ConflictException("No se puede dar de baja el libro porque tiene préstamos activos o en mora.");
         }
 

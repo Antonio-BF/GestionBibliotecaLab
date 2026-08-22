@@ -3,9 +3,7 @@ using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Infraestructura.Context;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using GestionBibliotecaLab.Dominio.Entidades;
-using BCrypt.Net;
 
 namespace GestionBibliotecaLab.Aplicacion
 {
