@@ -21,7 +21,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter(
-                namingPolicy: null,    
+                namingPolicy: null,
                 allowIntegerValues: false
             ));
     });
@@ -30,6 +30,24 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddEndpointsApiExplorer();
+
+// ---------- CORS ----------
+var origenesPermitidos = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>()
+    ?? throw new InvalidOperationException("La sección 'Cors:AllowedOrigins' no está configurada en appsettings.");
+
+const string PoliticaCorsAngular = "AngularClient";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(PoliticaCorsAngular, policy =>
+    {
+        policy.WithOrigins(origenesPermitidos)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 // ---------- Configuración JWT ----------
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
@@ -62,7 +80,8 @@ builder.Services.AddSwaggerGen(options =>
         });
 });
 
-builder.Services.AddDbContext<AppDbContext>(options => {
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
@@ -82,7 +101,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SigningKey)),
 
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromSeconds(30) 
+            ClockSkew = TimeSpan.FromSeconds(30)
         };
     });
 
@@ -106,7 +125,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<ILibroService, LibroService>();
 builder.Services.AddScoped<ILaboratorioService, LaboratorioService>();
-builder.Services.AddScoped<IPenalizacionService, PenalizacionService>(); 
+builder.Services.AddScoped<IPenalizacionService, PenalizacionService>();
 builder.Services.AddScoped<IPrestamoService, PrestamoService>();
 builder.Services.AddScoped<IReservaService, ReservaService>();
 
@@ -122,6 +141,8 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
+
+app.UseCors(PoliticaCorsAngular);
 
 app.UseAuthentication();
 app.UseAuthorization();

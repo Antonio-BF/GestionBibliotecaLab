@@ -38,7 +38,7 @@ namespace GestionBibliotecaLab.Aplicacion
             var rol = await _context.Roles.FirstOrDefaultAsync(r => r.Id == request.RolId)
                 ?? throw new ResourceNotFoundException($"No se encontró el rol con el ID {request.RolId}.");
 
-            if (string.Equals(rol.Nombre, "Administrador", StringComparison.OrdinalIgnoreCase) || string.Equals(rol.Nombre, "Bibliotecario", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(rol.Nombre, RolesSistema.Administrador, StringComparison.OrdinalIgnoreCase) || string.Equals(rol.Nombre, RolesSistema.Bibliotecario, StringComparison.OrdinalIgnoreCase))
                 throw new ForbiddenException("No es posible autorregistrarse con el rol Administrador o Bibliotecario.");
 
             var usuario = new Usuario

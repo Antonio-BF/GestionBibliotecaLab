@@ -62,7 +62,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpPatch("{id:int}/anulacion")]
-        [Authorize(Roles = RolesSistema.Administrador)]
+        [Authorize(Roles = RolesSistema.AdminYBibliotecario)]
         public async Task<ActionResult> Anular(int id)
         {
             await _service.AnularAsync(id);
