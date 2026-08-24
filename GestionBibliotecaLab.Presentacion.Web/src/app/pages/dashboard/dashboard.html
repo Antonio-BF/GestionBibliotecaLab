@@ -1,0 +1,29 @@
+<section class="dashboard">
+  @if (usuario(); as u) {
+  <header class="dashboard__bienvenida">
+    <h1>Bienvenido(a), {{ u.nombres }}</h1>
+    <p>
+      Has ingresado como <strong>{{ u.rol }}</strong>.
+      @if (esPersonalDeGestion()) {
+      Desde aquí podrás gestionar préstamos, reservas y penalizaciones del sistema.
+      } @else {
+      Desde aquí podrás consultar el catálogo y tu historial de préstamos y reservas.
+      }
+    </p>
+  </header>
+  }
+
+  <div class="dashboard__grid">
+    @for (modulo of modulos(); track modulo.ruta) {
+    <article class="card dashboard__card" [class.dashboard__card--pendiente]="!modulo.habilitado">
+      <h2 class="dashboard__card-titulo">{{ modulo.etiqueta }}</h2>
+      @if (modulo.habilitado) {
+      <p class="dashboard__card-texto">Disponible.</p>
+      } @else {
+      <p class="dashboard__card-texto">Módulo disponible en la API; pantalla en construcción.</p>
+      <span class="badge badge--pendiente">Próximamente</span>
+      }
+    </article>
+    }
+  </div>
+</section>

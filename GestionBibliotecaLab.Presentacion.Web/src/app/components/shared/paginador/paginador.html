@@ -1,0 +1,11 @@
+<div class="paginador" role="navigation" aria-label="Paginación">
+    <button type="button" class="btn btn--outline-primary btn--sm" (click)="anterior()"
+        [disabled]="paginaActual() <= 1">
+        ← Anterior
+    </button>
+    <span class="paginador__info">Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
+    <button type="button" class="btn btn--outline-primary btn--sm" (click)="siguiente()"
+        [disabled]="paginaActual() >= totalPaginas()">
+        Siguiente →
+    </button>
+</div>

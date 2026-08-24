@@ -1,0 +1,44 @@
+<div class="login">
+  <div class="login__panel">
+    <div class="login__marca">
+      <span class="login__logo" aria-hidden="true"></span>
+      <h1 class="login__titulo">GestionBibliotecaLab</h1>
+      <p class="login__subtitulo">Sistema de Gestión de Biblioteca y Reserva de Laboratorios</p>
+    </div>
+
+    <form class="login__form" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">Correo electrónico</label>
+        <input id="email" type="email" class="form-control" formControlName="email" autocomplete="email"
+          placeholder="usuario@bibliotecalab.com" />
+        @if (controles.email.invalid && controles.email.touched) {
+        <span class="form-error">
+          @if (controles.email.errors?.['required']) {
+          El correo es requerido.
+          } @else if (controles.email.errors?.['email']) {
+          Ingresa un correo con formato válido.
+          }
+        </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Contraseña</label>
+        <input id="password" type="password" class="form-control" formControlName="password"
+          autocomplete="current-password" placeholder="••••••••" />
+        @if (controles.password.invalid && controles.password.touched) {
+        <span class="form-error">La contraseña es requerida.</span>
+        }
+      </div>
+
+      @if (errorServidor()) {
+      <div class="login__error" role="alert">{{ errorServidor() }}</div>
+      }
+
+      <button type="submit" class="btn btn--primary btn--block" [disabled]="cargando()">
+        {{ cargando() ? 'Ingresando…' : 'Ingresar' }}
+      </button>
+      <a [routerLink]="[appRoutes.REGISTRO]" class="login__link">¿No tienes cuenta? Regístrate aquí</a>
+    </form>
+  </div>
+</div>

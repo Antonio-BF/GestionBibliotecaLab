@@ -1,0 +1,22 @@
+<header class="header">
+  <div class="header__marca">
+    <span class="header__logo" aria-hidden="true"></span>
+    <div class="header__titulo">
+      <span class="header__titulo-principal">GestionBibliotecaLab</span>
+      <span class="header__titulo-secundario">Biblioteca y Laboratorios</span>
+    </div>
+  </div>
+
+  @if (usuario(); as u) {
+    <div class="header__usuario">
+      <div class="header__usuario-datos">
+        <span class="header__usuario-nombre">{{ u.nombres }} {{ u.apellidos }}</span>
+        <span class="badge badge--rol">{{ u.rol }}</span>
+      </div>
+      <div class="header__avatar" aria-hidden="true">{{ obtenerIniciales() }}</div>
+      <button type="button" class="btn btn--outline btn--sm" (click)="cerrarSesion()">
+        Cerrar sesión
+      </button>
+    </div>
+  }
+</header>

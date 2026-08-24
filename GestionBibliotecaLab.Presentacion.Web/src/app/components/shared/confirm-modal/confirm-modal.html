@@ -1,0 +1,16 @@
+@if (visible()) {
+<div class="modal-overlay" (click)="cancelar.emit()">
+    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <h2 class="modal__titulo">{{ titulo() }}</h2>
+        <p class="modal__mensaje">{{ mensaje() }}</p>
+        <div class="modal__acciones">
+            <button type="button" class="btn btn--outline-primary btn--sm" (click)="cancelar.emit()">
+                {{ textoCancelar() }}
+            </button>
+            <button type="button" class="btn btn--danger btn--sm" (click)="confirmar.emit()">
+                {{ textoConfirmar() }}
+            </button>
+        </div>
+    </div>
+</div>
+}

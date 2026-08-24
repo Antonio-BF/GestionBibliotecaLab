@@ -1,0 +1,8 @@
+@if (notificacion(); as n) {
+<div class="alerta" [class]="'alerta--' + n.tipo" role="alert">
+  <span class="alerta__texto">{{ n.texto }}</span>
+  <button type="button" class="alerta__cerrar" (click)="cerrar()" aria-label="Cerrar notificación">
+    &times;
+  </button>
+</div>
+}
