@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Header } from '../header/header';
 import { Sidebar } from '../sidebar/sidebar';
+import { LayoutUiService } from '../../../services/layout-ui.service';
 
 /**
  * Layout de las pantallas autenticadas: header fijo + sidebar de navegación +
- * contenido de la ruta hija activa. LoginComponent NO usa este layout (se
- * renderiza solo, fuera de header/sidebar) — ver app.routes.ts.
+ * contenido de la ruta hija activa. 
  */
 @Component({
   selector: 'app-main-layout',
@@ -15,4 +15,6 @@ import { Sidebar } from '../sidebar/sidebar';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',
 })
-export class MainLayout {}
+export class MainLayout {
+  readonly layoutUi = inject(LayoutUiService);
+}

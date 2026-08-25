@@ -47,6 +47,10 @@ export const routes: Routes = [
                             import('./pages/libros/libro-formulario/libro-formulario').then((m) => m.LibroFormulario),
                     },
                     {
+                        path: ':id',
+                        loadComponent: () => import('./pages/libros/libro-detalle/libro-detalle').then((m) => m.LibroDetalle),
+                    },
+                    {
                         path: ':id/editar',
                         canActivate: [roleGuard],
                         data: { roles: ROLES_GESTION },

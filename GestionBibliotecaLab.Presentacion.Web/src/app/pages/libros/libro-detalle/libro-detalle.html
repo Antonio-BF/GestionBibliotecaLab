@@ -1,0 +1,42 @@
+<section class="page">
+    <div class="page__header">
+        <h1 class="page__titulo">Detalle del libro</h1>
+        <a [routerLink]="[appRoutes.LIBROS]" class="btn btn--outline-primary btn--sm">Volver al catálogo</a>
+    </div>
+
+    @if (cargando()) {
+    <p class="page__estado">Cargando…</p>
+    } @else if (libro(); as libro) {
+    <article class="detalle card">
+        <div class="detalle__portada">
+            <app-cover-imagen [portada]="libro.portada" [titulo]="libro.titulo" tamanio="lg" />
+        </div>
+
+        <div class="detalle__info">
+            <header class="detalle__encabezado">
+                <h2 class="detalle__titulo">{{ libro.titulo }}</h2>
+                <span class="badge" [class.badge--activo]="libro.estado === 'Activo'"
+                    [class.badge--inactivo]="libro.estado !== 'Activo'">
+                    {{ libro.estado }}
+                </span>
+            </header>
+
+            <app-ficha-detalle [items]="ficha()" />
+
+            <section class="detalle__descripcion">
+                <h3 class="detalle__descripcion-titulo">Descripción</h3>
+                <p class="detalle__descripcion-texto">
+                    {{ libro.descripcion || 'Este libro todavía no tiene una descripción registrada.' }}
+                </p>
+            </section>
+
+            @if (puedeGestionar()) {
+            <div class="detalle__acciones">
+                <a [routerLink]="[appRoutes.LIBROS, libro.id, 'editar']" class="btn btn--primary btn--sm">Editar
+                    libro</a>
+            </div>
+            }
+        </div>
+    </article>
+    }
+</section>

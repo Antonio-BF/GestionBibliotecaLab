@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
+import { LayoutUiService } from '../../../services/layout-ui.service';
 
 @Component({
   selector: 'app-header',
@@ -9,6 +10,7 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class Header {
   private readonly authService = inject(AuthService);
+  readonly layoutUi = inject(LayoutUiService);
 
   readonly usuario = this.authService.usuario;
 

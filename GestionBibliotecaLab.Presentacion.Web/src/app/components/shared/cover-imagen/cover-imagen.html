@@ -1,4 +1,4 @@
-<div class="cover-imagen" [class.cover-imagen--sm]="tamanio() === 'sm'">
+<div class="cover-imagen" [class]="'cover-imagen--' + tamanio()">
     @if (url(); as src) {
     <img [src]="src" [alt]="'Portada de ' + titulo()" loading="lazy" (error)="onError()" class="cover-imagen__img" />
     } @else {

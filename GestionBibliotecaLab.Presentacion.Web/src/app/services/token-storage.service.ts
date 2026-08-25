@@ -17,11 +17,6 @@ export class TokenStorageService {
     localStorage.setItem(STORAGE_KEYS.USUARIO, JSON.stringify(this.construirUsuario(auth)));
   }
 
-  actualizarTokens(auth: AuthResponse): void {
-    // Usado tras un refresh: los tokens cambian, los datos de usuario se mantienen iguales.
-    this.guardarSesion(auth);
-  }
-
   obtenerAccessToken(): string | null {
     return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
   }

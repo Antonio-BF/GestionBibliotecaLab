@@ -1,0 +1,8 @@
+<dl class="ficha">
+    @for (item of items(); track item.etiqueta) {
+    <div class="ficha__item">
+        <dt class="ficha__etiqueta">{{ item.etiqueta }}</dt>
+        <dd class="ficha__valor">{{ item.valor }}</dd>
+    </div>
+    }
+</dl>

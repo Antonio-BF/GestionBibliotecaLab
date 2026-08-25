@@ -5,17 +5,41 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.5rem;
+  padding: 0 1.25rem;
   box-shadow: var(--shadow);
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 50;
+  gap: 0.75rem;
+}
+
+.header__inicio {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.header__hamburguesa {
+  display: none;
+  background: none;
+  border: 1px solid rgba(248, 245, 237, 0.4);
+  color: var(--color-on-primary);
+  border-radius: var(--radius);
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .header__marca {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .header__logo {
@@ -39,17 +63,21 @@
   display: flex;
   flex-direction: column;
   line-height: 1.15;
+  min-width: 0;
 }
 
 .header__titulo-principal {
   font-family: var(--font-heading);
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header__titulo-secundario {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--color-accent-light);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -58,7 +86,8 @@
 .header__usuario {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .header__usuario-datos {
@@ -74,8 +103,8 @@
 }
 
 .header__avatar {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: var(--color-accent);
   color: var(--color-primary-dark);
@@ -83,8 +112,14 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .header__hamburguesa {
+    display: inline-flex;
+  }
 }
 
 @media (max-width: 640px) {
@@ -93,6 +128,16 @@
   }
 
   .header__usuario-nombre {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0 0.75rem;
+  }
+
+  .header__usuario-datos {
     display: none;
   }
 }

@@ -1,23 +1,19 @@
-<aside class="sidebar">
+<aside class="sidebar" [class.sidebar--abierto]="layoutUi.sidebarAbierto()">
   <nav class="sidebar__nav">
     <ul class="sidebar__lista">
       @for (item of itemsVisibles(); track item.ruta) {
-        <li>
-          @if (item.habilitado) {
-            <a
-              class="sidebar__link"
-              [routerLink]="item.ruta"
-              routerLinkActive="sidebar__link--activo"
-            >
-              {{ item.etiqueta }}
-            </a>
-          } @else {
-            <span class="sidebar__link sidebar__link--deshabilitado" title="Disponible próximamente">
-              {{ item.etiqueta }}
-              <span class="badge badge--pendiente">Próx.</span>
-            </span>
-          }
-        </li>
+      <li>
+        @if (item.habilitado) {
+        <a class="sidebar__link" [routerLink]="item.ruta" routerLinkActive="sidebar__link--activo">
+          {{ item.etiqueta }}
+        </a>
+        } @else {
+        <span class="sidebar__link sidebar__link--deshabilitado" title="Disponible próximamente">
+          {{ item.etiqueta }}
+          <span class="badge badge--pendiente">Próx.</span>
+        </span>
+        }
+      </li>
       }
     </ul>
   </nav>

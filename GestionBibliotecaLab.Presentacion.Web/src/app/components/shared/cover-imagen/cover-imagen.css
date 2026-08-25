@@ -1,14 +1,14 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
 .cover-imagen {
-    width: 120px;
+    width: 100%;
     aspect-ratio: 2 / 3;
     border-radius: var(--radius);
     overflow: hidden;
     border: 1px solid var(--color-border);
-    flex-shrink: 0;
-}
-
-.cover-imagen--sm {
-    width: 40px;
 }
 
 .cover-imagen__img {
@@ -30,10 +30,14 @@
 .cover-imagen__iniciales {
     font-family: var(--font-heading);
     color: var(--color-on-primary);
-    font-size: 1.1rem;
     font-weight: 700;
+    font-size: 1.1rem;
 }
 
 .cover-imagen--sm .cover-imagen__iniciales {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+}
+
+.cover-imagen--lg .cover-imagen__iniciales {
+    font-size: 1.7rem;
 }

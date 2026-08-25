@@ -4,8 +4,7 @@ import { NotificationService } from '../../../services/notification.service';
 /**
  * Banner global de notificaciones (error / éxito / info). Se monta una sola
  * vez en el AppComponent raíz y reacciona al signal de NotificationService,
- * así cualquier servicio (típicamente errorInterceptor) puede reportar un
- * mensaje sin acoplarse a ningún componente en particular.
+ * así cualquier servicio puede reportar un mensaje sin acoplarse a ningún componente en particular.
  */
 @Component({
   selector: 'app-alert',

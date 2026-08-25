@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, throwError } from 'rxjs';
 import { TokenStorageService } from './token-storage.service';
@@ -7,6 +7,7 @@ import { UsuarioAutenticado } from '../models/usuario.model';
 import { AuthResponse, LoginRequest, RegistroRequest } from '../models/auth.model';
 import { API_ENDPOINTS } from '../core/constants/api-endpoints.constants';
 import { APP_ROUTES } from '../core/constants/app-routes.constants';
+import { SILENCIAR_ERROR_GLOBAL } from '../core/constants/http-context-tokens';
 
 /**
  * Único punto de la app que sabe hablar con /api/auth/*. Mantiene el estado
@@ -17,39 +18,31 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly router = inject(Router);
+  private readonly contextoSilencioso = new HttpContext().set(SILENCIAR_ERROR_GLOBAL, true);
 
   private readonly usuarioSignal = signal<UsuarioAutenticado | null>(this.tokenStorage.obtenerUsuario());
-
-  /** Usuario autenticado actual (o null). Solo lectura desde fuera. */
   readonly usuario = this.usuarioSignal.asReadonly();
-
-  /** true si hay usuario + access token presentes. */
   readonly estaAutenticado = computed(() => !!this.usuarioSignal() && !!this.tokenStorage.obtenerAccessToken());
 
   login(request: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, request).pipe(
-      tap((auth) => this.persistirSesion(auth))
-    );
+    return this.http
+      .post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, request, { context: this.contextoSilencioso })
+      .pipe(tap((auth) => this.persistirSesion(auth)));
   }
 
-  /**
-   * Refresca el access token usando el refresh token guardado.
-   * Usado internamente por errorInterceptor ante un 401
-   */
+  registrar(request: RegistroRequest): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTRO, request, { context: this.contextoSilencioso })
+      .pipe(tap((auth) => this.persistirSesion(auth)));
+  }
+
   refrescarToken(): Observable<AuthResponse> {
     const refreshToken = this.tokenStorage.obtenerRefreshToken();
     if (!refreshToken) {
       return throwError(() => new Error('No hay sesión activa para refrescar.'));
     }
-
-    return this.http.post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH, { refreshToken }).pipe(
-      tap((auth) => this.persistirSesion(auth))
-    );
-  }
-
-  registrar(request: RegistroRequest): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTRO, request)
+      .post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH, { refreshToken }, { context: this.contextoSilencioso })
       .pipe(tap((auth) => this.persistirSesion(auth)));
   }
 
@@ -66,14 +59,11 @@ export class AuthService {
       return;
     }
 
-    // LogoutAsync es idempotente en el backend: si falla igual cerramos sesión local.
-    this.http.post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken }).subscribe({
-      next: finalizarSesionLocal,
-      error: finalizarSesionLocal,
-    });
+    this.http
+      .post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken }, { context: this.contextoSilencioso })
+      .subscribe({ next: finalizarSesionLocal, error: finalizarSesionLocal });
   }
 
-  /** true si el usuario autenticado tiene alguno de los roles indicados. */
   tieneAlgunRol(...rolesPermitidos: string[]): boolean {
     const rolActual = this.usuarioSignal()?.rol;
     return !!rolActual && rolesPermitidos.includes(rolActual);

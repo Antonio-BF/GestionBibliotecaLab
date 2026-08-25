@@ -25,7 +25,6 @@ export class Registro {
   readonly cargando = signal(false);
   readonly errorServidor = signal<string | null>(null);
 
-  // Mismas reglas que RegistroRequest en el backend (Data Annotations).
   readonly formulario = this.fb.nonNullable.group({
     nombres: ['', [Validators.required, Validators.maxLength(100)]],
     apellidos: ['', [Validators.required, Validators.maxLength(100)]],

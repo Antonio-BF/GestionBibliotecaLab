@@ -1,5 +1,6 @@
 .layout {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
@@ -8,16 +9,26 @@
 .layout__cuerpo {
   flex: 1;
   display: flex;
+  position: relative;
 }
 
 .layout__contenido {
   flex: 1;
-  padding: 1.75rem;
   min-width: 0;
 }
 
-@media (max-width: 900px) {
-  .layout__cuerpo {
-    flex-direction: column;
+.layout__backdrop {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(23, 46, 38, 0.45);
+  z-index: 55;
+}
+
+@media (min-width: 901px) {
+  .layout__backdrop {
+    display: none;
   }
 }

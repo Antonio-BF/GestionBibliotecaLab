@@ -1,29 +1,46 @@
-<section class="dashboard">
+<section class="dashboard page">
   @if (usuario(); as u) {
-  <header class="dashboard__bienvenida">
-    <h1>Bienvenido(a), {{ u.nombres }}</h1>
-    <p>
-      Has ingresado como <strong>{{ u.rol }}</strong>.
-      @if (esPersonalDeGestion()) {
-      Desde aquí podrás gestionar préstamos, reservas y penalizaciones del sistema.
-      } @else {
-      Desde aquí podrás consultar el catálogo y tu historial de préstamos y reservas.
-      }
-    </p>
+  <header class="dashboard__hero card">
+    <div class="dashboard__hero-contenido">
+      <div class="dashboard__hero-encabezado">
+        <h1 class="dashboard__titulo">Bienvenido(a), {{ u.nombres }}</h1>
+        <span class="badge badge--rol">{{ u.rol }}</span>
+      </div>
+      <p class="dashboard__subtitulo">
+        @if (esPersonalDeGestion()) {
+        Desde aquí podrás gestionar préstamos, reservas y penalizaciones del sistema.
+        } @else {
+        Desde aquí podrás consultar el catálogo y tu historial de préstamos y reservas.
+        }
+      </p>
+    </div>
   </header>
   }
 
-  <div class="dashboard__grid">
-    @for (modulo of modulos(); track modulo.ruta) {
-    <article class="card dashboard__card" [class.dashboard__card--pendiente]="!modulo.habilitado">
-      <h2 class="dashboard__card-titulo">{{ modulo.etiqueta }}</h2>
+  <div class="dashboard__seccion">
+    <h2 class="dashboard__seccion-titulo">Módulos del Sistema</h2>
+
+    <div class="dashboard__grid">
+      @for (modulo of modulos(); track modulo.ruta) {
       @if (modulo.habilitado) {
-      <p class="dashboard__card-texto">Disponible.</p>
+      <a [routerLink]="[modulo.ruta]" class="card dashboard__card dashboard__card--activo">
+        <div class="dashboard__card-header">
+          <h3 class="dashboard__card-titulo">{{ modulo.etiqueta }}</h3>
+          <span class="badge badge--activo">Disponible</span>
+        </div>
+        <p class="dashboard__card-texto">Acceso directo a las funciones de {{ modulo.etiqueta | lowercase }}.</p>
+        <span class="dashboard__card-link">Acceder &rarr;</span>
+      </a>
       } @else {
-      <p class="dashboard__card-texto">Módulo disponible en la API; pantalla en construcción.</p>
-      <span class="badge badge--pendiente">Próximamente</span>
+      <article class="card dashboard__card dashboard__card--pendiente">
+        <div class="dashboard__card-header">
+          <h3 class="dashboard__card-titulo">{{ modulo.etiqueta }}</h3>
+          <span class="badge badge--pendiente">Próximamente</span>
+        </div>
+        <p class="dashboard__card-texto">Módulo disponible en la API; pantalla en construcción.</p>
+      </article>
       }
-    </article>
-    }
+      }
+    </div>
   </div>
 </section>

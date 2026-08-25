@@ -6,6 +6,8 @@ import { Component, input, output } from '@angular/core';
   imports: [],
   templateUrl: './confirm-modal.html',
   styleUrl: './confirm-modal.css',
+  host: { '(document:keydown.escape)': 'onEscape()' },
+
 })
 export class ConfirmModal {
   readonly visible = input<boolean>(false);
@@ -16,4 +18,8 @@ export class ConfirmModal {
 
   readonly confirmar = output<void>();
   readonly cancelar = output<void>();
+
+  onEscape(): void {
+    if (this.visible()) this.cancelar.emit();
+  }
 }

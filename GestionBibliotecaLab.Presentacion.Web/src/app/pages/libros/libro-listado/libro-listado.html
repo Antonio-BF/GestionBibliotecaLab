@@ -50,66 +50,56 @@
     } @else if (librosPaginados().length === 0) {
     <p class="page__estado">No se encontraron libros con los filtros seleccionados.</p>
     } @else {
-    <div class="tabla-wrapper card">
-        <table class="tabla">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Título</th>
-                    <th>Autor</th>
-                    <th>ISBN</th>
-                    <th>Categoría</th>
-                    <th>Año</th>
-                    <th>Disponibilidad</th>
-                    <th>Estado</th>
+    <ul class="tarjetas-grid">
+        @for (libro of librosPaginados(); track libro.id) {
+        <li class="tarjeta tarjeta-libro card">
+            <a class="tarjeta-libro__portada" [routerLink]="[appRoutes.LIBROS, libro.id]">
+                <app-cover-imagen [portada]="libro.portada" [titulo]="libro.titulo" tamanio="md" />
+            </a>
+
+            <div class="tarjeta-libro__cuerpo">
+                <a class="tarjeta-libro__titulo" [routerLink]="[appRoutes.LIBROS, libro.id]">{{ libro.titulo }}</a>
+                <p class="tarjeta-libro__autor">{{ libro.autor }}</p>
+
+                <div class="tarjeta-libro__meta">
+                    <span class="badge" [class.badge--activo]="libro.estado === 'Activo'"
+                        [class.badge--inactivo]="libro.estado !== 'Activo'">
+                        {{ libro.estado }}
+                    </span>
+                    <span class="tarjeta-libro__categoria">{{ libro.nombreCategoria ?? 'Sin categoría' }}</span>
+                </div>
+
+                <p class="tarjeta-libro__disponibilidad">
+                    {{ libro.cantidadDisponible }} de {{ libro.cantidadTotal }} disponibles
+                    @if (libro.anioPublicacion) { · {{ libro.anioPublicacion }} }
+                </p>
+
+                <div class="tarjeta-libro__acciones">
+                    <a [routerLink]="[appRoutes.LIBROS, libro.id]" class="btn btn--outline-primary btn--sm">Ver
+                        detalle</a>
                     @if (puedeGestionar()) {
-                    <th>Acciones</th>
+                    <a [routerLink]="[appRoutes.LIBROS, libro.id, 'editar']"
+                        class="btn btn--outline-primary btn--sm">Editar</a>
+                    <button type="button" class="btn btn--danger btn--sm" (click)="solicitarBaja(libro)">Dar de
+                        baja</button>
                     }
-                </tr>
-            </thead>
-            <tbody>
-                @for (libro of librosPaginados(); track libro.id) {
-                <tr>
-                    <td class="tabla__portada">
-                        <app-cover-imagen [portada]="libro.portada" [titulo]="libro.titulo" tamanio="sm" />
-                    </td>
-                    <td>{{ libro.titulo }}</td>
-                    <td>{{ libro.autor }}</td>
-                    <td>{{ libro.isbn }}</td>
-                    <td>{{ libro.nombreCategoria ?? 'Sin categoría' }}</td>
-                    <td>{{ libro.anioPublicacion ?? '—' }}</td>
-                    <td>{{ libro.cantidadDisponible }} / {{ libro.cantidadTotal }}</td>
-                    <td>
-                        <span class="badge" [class.badge--activo]="libro.estado === 'Activo'"
-                            [class.badge--inactivo]="libro.estado !== 'Activo'">
-                            {{ libro.estado }}
-                        </span>
-                    </td>
-                    @if (puedeGestionar()) {
-                    <td class="tabla__acciones">
-                        <a [routerLink]="[appRoutes.LIBROS, libro.id, 'editar']"
-                            class="btn btn--outline-primary btn--sm">Editar</a>
-                        <button type="button" class="btn btn--danger btn--sm" (click)="solicitarBaja(libro)">Dar de
-                            baja</button>
-                    </td>
-                    }
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </div>
+            </div>
+        </li>
+        }
+    </ul>
 
     <app-paginador 
     [total]="totalFiltrados()" 
     [tamanioPagina]="tamanioPagina" 
-    [paginaActual]="paginaActual()"
-    (paginaActualChange)="paginaActual.set($event)" />
+    [(paginaActual)]="paginaActual" />
     }
 </section>
 
 <app-confirm-modal 
 [visible]="!!libroParaDarDeBaja()" 
 titulo="Dar de baja el libro"
-[mensaje]="'¿Confirmas dar de baja &quot;' + 
-(libroParaDarDeBaja()?.titulo ?? '') + '&quot;? No podrás verlo ni reactivarlo desde esta pantalla.'"
-textoConfirmar="Dar de baja" (confirmar)="confirmarBaja()" (cancelar)="cancelarBaja()" />
+[mensaje]="'¿Confirmas dar de baja &quot;' + (libroParaDarDeBaja()?.titulo ?? '') + '&quot;? No podrás verlo ni reactivarlo desde esta pantalla.'"
+textoConfirmar="Dar de baja" 
+(confirmar)="confirmarBaja()" 
+(cancelar)="cancelarBaja()" />

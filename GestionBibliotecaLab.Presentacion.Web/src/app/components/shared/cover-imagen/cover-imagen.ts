@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, effect, input, signal } from '@angular/core';
 import { resolverUrlPortada } from '../../../core/utils/imagen.util';
 
 @Component({
@@ -11,7 +11,7 @@ import { resolverUrlPortada } from '../../../core/utils/imagen.util';
 export class CoverImagen {
   readonly portada = input<string | null>(null);
   readonly titulo = input<string>('Sin título');
-  readonly tamanio = input<'sm' | 'md'>('md');
+  readonly tamanio = input<'sm' | 'md' | 'lg'>('md');
 
   private readonly errorCarga = signal(false);
 
@@ -22,6 +22,13 @@ export class CoverImagen {
     const letras = palabras.slice(0, 2).map((p) => p.charAt(0).toUpperCase());
     return letras.join('') || '?';
   });
+
+  constructor() {
+    effect(() => {
+      this.portada();
+      this.errorCarga.set(false);
+    });
+  }
 
   onError(): void {
     this.errorCarga.set(true);

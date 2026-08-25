@@ -1,7 +1,8 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { debounceTime } from 'rxjs';
 
 import { LibroService } from '../../../services/libro.service';
 import { CategoriaService } from '../../../services/categoria.service';
@@ -28,7 +29,7 @@ const TAMANIO_PAGINA = 8;
   styleUrl: './libro-listado.css',
 })
 export class LibroListado {
-  private readonly libroService = inject(LibroService);
+   private readonly libroService = inject(LibroService);
   private readonly categoriaService = inject(CategoriaService);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
@@ -55,9 +56,10 @@ export class LibroListado {
     estado: '',
   });
 
-  private readonly filtrosTexto = toSignal(this.filtrosForm.valueChanges, {
-    initialValue: this.filtrosForm.getRawValue(),
-  });
+  private readonly filtrosTexto = toSignal(
+    this.filtrosForm.valueChanges.pipe(debounceTime(300)),
+    { initialValue: this.filtrosForm.getRawValue() }
+  );
 
   readonly librosFiltrados = computed(() => {
     const filtros = this.filtrosTexto();
@@ -86,21 +88,18 @@ export class LibroListado {
     this.cargarLibros();
     this.categoriaService.obtenerTodas().subscribe({ next: (categorias) => this.categorias.set(categorias) });
 
-    // Cualquier cambio de filtro (texto o categoría) vuelve a la página 1.
-    effect(() => {
-      this.filtrosTexto();
-      this.categoriaIdFiltro();
-      this.paginaActual.set(1);
-    });
+    this.filtrosForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.paginaActual.set(1));
   }
 
   onCategoriaFiltroChange(categoriaId: number | null): void {
     this.categoriaIdFiltro.set(categoriaId);
+    this.paginaActual.set(1);
   }
 
   limpiarFiltros(): void {
     this.filtrosForm.reset({ titulo: '', autor: '', isbn: '', anioPublicacion: '', estado: '' });
     this.categoriaIdFiltro.set(null);
+    this.paginaActual.set(1);
   }
 
   solicitarBaja(libro: LibroResponse): void {
@@ -117,6 +116,7 @@ export class LibroListado {
         this.libros.update((lista) => lista.filter((l) => l.id !== libro.id));
         this.libroParaDarDeBaja.set(null);
       },
+  
       error: () => this.libroParaDarDeBaja.set(null),
     });
   }

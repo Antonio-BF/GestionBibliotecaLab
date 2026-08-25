@@ -2,6 +2,10 @@
   <app-header />
 
   <div class="layout__cuerpo">
+    @if (layoutUi.sidebarAbierto()) {
+    <div class="layout__backdrop" (click)="layoutUi.cerrarSidebar()"></div>
+    }
+
     <app-sidebar />
 
     <main class="layout__contenido">

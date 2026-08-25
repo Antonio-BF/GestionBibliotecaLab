@@ -6,9 +6,9 @@ import { NotificationService } from '../../services/notification.service';
 import { Router } from '@angular/router';
 import { APP_ROUTES } from '../constants/app-routes.constants';
 import { ApiError, ValidationProblemDetails } from '../../models/api-error.model';
+import { SILENCIAR_ERROR_GLOBAL } from '../constants/http-context-tokens';
 
-// Estado de refresh compartido entre requests concurrentes (fuera de la función
-// del interceptor a propósito: debe sobrevivir entre invocaciones, una por request).
+// Estado de refresh compartido entre requests concurrentes.
 let refrescandoToken = false;
 const nuevoTokenSubject = new BehaviorSubject<string | null>(null);
 
@@ -39,9 +39,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       const apiError = construirApiError(error);
+      const yaSeMuestraInline = req.context.get(SILENCIAR_ERROR_GLOBAL);
 
-      // Un 401 en un endpoint de auth no se muestra como notificación global para no duplicar el mensaje.
-      if (!(error.status === 401 && esRequestDeAuth)) {
+      if (!yaSeMuestraInline) {
         notificationService.mostrarError(apiError.message);
       }
 
@@ -76,7 +76,6 @@ function manejarNoAutorizado(
     );
   }
 
-  // Ya hay un refresh en curso disparado por otra request: esperar su resultado.
   return nuevoTokenSubject.pipe(
     filter((token): token is string => token !== null),
     take(1),
@@ -84,18 +83,6 @@ function manejarNoAutorizado(
   );
 }
 
-/**
- * El backend puede responder un error en dos formas distintas:
- *
- * a) ProblemDetails { status, title, ... } — armado por GlobalExceptionHandler
- *    para toda ExcepcionAplicacionBase (ConflictException, ResourceNotFoundException,
- *    etc.) y para 500 no controlados. El mensaje útil está en `title`.
- *
- * b) ValidationProblemDetails { errors: { campo: [mensajes] } } — generado
- *    automáticamente por ASP.NET Core ([ApiController]) cuando una Data
- *    Annotation falla, ANTES de llegar al controller/GlobalExceptionHandler.
- *    Aquí no hay `title` útil; los mensajes están en `errors`.
- */
 function construirApiError(error: HttpErrorResponse): ApiError {
   if (error.status === 0) {
     return {
