@@ -1,8 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { debounceTime } from 'rxjs';
+import { catchError, debounceTime, of, switchMap, tap } from 'rxjs';
 
 import { LibroService } from '../../../services/libro.service';
 import { CategoriaService } from '../../../services/categoria.service';
@@ -17,7 +17,7 @@ import { ConfirmModal } from '../../../components/shared/confirm-modal/confirm-m
 import { CategoriaSelect } from '../../../components/shared/categoria-select/categoria-select';
 
 import type { CategoriaResponse } from '../../../models/categoria.model';
-import type { LibroResponse } from '../../../models/libro.model';
+import type { EstadoLibro, LibroFiltro, LibroResponse } from '../../../models/libro.model';
 
 const TAMANIO_PAGINA = 8;
 
@@ -29,7 +29,7 @@ const TAMANIO_PAGINA = 8;
   styleUrl: './libro-listado.css',
 })
 export class LibroListado {
-   private readonly libroService = inject(LibroService);
+  private readonly libroService = inject(LibroService);
   private readonly categoriaService = inject(CategoriaService);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
@@ -40,6 +40,7 @@ export class LibroListado {
 
   readonly cargando = signal(true);
   readonly libros = signal<LibroResponse[]>([]);
+  readonly totalRegistros = signal(0);
   readonly categorias = signal<CategoriaResponse[]>([]);
 
   readonly categoriaIdFiltro = signal<number | null>(null);
@@ -57,38 +58,41 @@ export class LibroListado {
   });
 
   private readonly filtrosTexto = toSignal(
-    this.filtrosForm.valueChanges.pipe(debounceTime(300)),
+    this.filtrosForm.valueChanges.pipe(debounceTime(350)),
     { initialValue: this.filtrosForm.getRawValue() }
   );
 
-  readonly librosFiltrados = computed(() => {
-    const filtros = this.filtrosTexto();
-    const categoriaId = this.categoriaIdFiltro();
-
-    return this.libros().filter((libro) => {
-      return (
-        this.contiene(libro.titulo, filtros.titulo!) &&
-        this.contiene(libro.autor, filtros.autor!) &&
-        this.contiene(libro.isbn, filtros.isbn!) &&
-        (!filtros.anioPublicacion || libro.anioPublicacion === Number(filtros.anioPublicacion)) &&
-        (categoriaId === null || libro.categoriaId === categoriaId) &&
-        (!filtros.estado || libro.estado === filtros.estado)
-      );
-    });
-  });
-
-  readonly totalFiltrados = computed(() => this.librosFiltrados().length);
-
-  readonly librosPaginados = computed(() => {
-    const inicio = (this.paginaActual() - 1) * this.tamanioPagina;
-    return this.librosFiltrados().slice(inicio, inicio + this.tamanioPagina);
+  private readonly filtroActual = computed<LibroFiltro>(() => {
+    const texto = this.filtrosTexto();
+    return {
+      titulo: texto.titulo || undefined,
+      autor: texto.autor || undefined,
+      isbn: texto.isbn || undefined,
+      anioPublicacion: texto.anioPublicacion ? Number(texto.anioPublicacion) : undefined,
+      categoriaId: this.categoriaIdFiltro() ?? undefined,
+      estado: (texto.estado || undefined) as EstadoLibro | undefined,
+      pagina: this.paginaActual(),
+      tamanioPagina: this.tamanioPagina,
+    };
   });
 
   constructor() {
-    this.cargarLibros();
     this.categoriaService.obtenerTodas().subscribe({ next: (categorias) => this.categorias.set(categorias) });
-
     this.filtrosForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.paginaActual.set(1));
+
+    toObservable(this.filtroActual)
+      .pipe(
+        tap(() => this.cargando.set(true)),
+        switchMap((filtro) =>
+          this.libroService.obtenerTodos(filtro).pipe(catchError(() => of(null)))
+        ),
+        takeUntilDestroyed()
+      )
+      .subscribe((resultado) => {
+        this.libros.set(resultado?.items ?? []);
+        this.totalRegistros.set(resultado?.totalRegistros ?? 0);
+        this.cargando.set(false);
+      });
   }
 
   onCategoriaFiltroChange(categoriaId: number | null): void {
@@ -114,29 +118,14 @@ export class LibroListado {
       next: () => {
         this.notificationService.mostrarExito(`"${libro.titulo}" fue dado de baja correctamente.`);
         this.libros.update((lista) => lista.filter((l) => l.id !== libro.id));
+        this.totalRegistros.update((total) => Math.max(0, total - 1));
         this.libroParaDarDeBaja.set(null);
       },
-  
       error: () => this.libroParaDarDeBaja.set(null),
     });
   }
 
   cancelarBaja(): void {
     this.libroParaDarDeBaja.set(null);
-  }
-
-  private cargarLibros(): void {
-    this.cargando.set(true);
-    this.libroService.obtenerTodos().subscribe({
-      next: (libros) => {
-        this.libros.set(libros);
-        this.cargando.set(false);
-      },
-      error: () => this.cargando.set(false),
-    });
-  }
-
-  private contiene(valor: string, busqueda: string): boolean {
-    return !busqueda || valor.toLowerCase().includes(busqueda.trim().toLowerCase());
   }
 }

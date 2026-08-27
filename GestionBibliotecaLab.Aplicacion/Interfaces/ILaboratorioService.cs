@@ -1,10 +1,12 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Laboratorio;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Laboratorio;
 
 namespace GestionBibliotecaLab.Aplicacion.Interfaces
 {
     public interface ILaboratorioService
     {
-        Task<List<LaboratorioResponse>> GetAllAsync();
+        Task<PaginacionResultado<LaboratorioResponse>> GetAllAsync(LaboratorioFiltroRequest filtro);
+        Task<PaginacionResultado<LaboratorioResponse>> GetEliminadosAsync(LaboratorioFiltroRequest filtro);
         Task<LaboratorioResponse> GetByIdAsync(int id);
         Task<LaboratorioResponse> RegistrarAsync(CreateLaboratorioRequest request);
         Task ActualizarAsync(int id, UpdateLaboratorioRequest request);

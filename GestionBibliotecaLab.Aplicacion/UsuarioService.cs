@@ -1,9 +1,10 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Usuario;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Usuario;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.utils;
 using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
-using GestionBibliotecaLab.Dominio.Enums;
 using GestionBibliotecaLab.Infraestructura.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -23,11 +24,22 @@ namespace GestionBibliotecaLab.Aplicacion
             _currentUserService = currentUserService;
         }
 
-        public async Task<List<UsuarioResponse>> GetAllUsuarioAsync()
+        public async Task<PaginacionResultado<UsuarioResponse>> GetAllUsuarioAsync(UsuarioFiltroRequest filtro)
         {
-            return await _context.Usuarios.AsNoTracking()
-                .Select(UsuarioMapper)
-                .ToListAsync();
+            var query = AplicarFiltros(_context.Usuarios.AsNoTracking(), filtro)
+                .OrderBy(u => u.Apellidos).ThenBy(u => u.Nombres);
+
+            return await query.ToPaginadoAsync(filtro.Pagina, filtro.TamanioPagina, UsuarioMapper);
+        }
+
+        public async Task<PaginacionResultado<UsuarioResponse>> GetEliminadosAsync(UsuarioFiltroRequest filtro)
+        {
+            var query = AplicarFiltros(
+                    _context.Usuarios.IgnoreQueryFilters().AsNoTracking().Where(u => u.IsDeleted),
+                    filtro)
+                .OrderByDescending(u => u.FechaActualizacion);
+
+            return await query.ToPaginadoAsync(filtro.Pagina, filtro.TamanioPagina, UsuarioMapper);
         }
 
         public async Task<UsuarioResponse> GetByIdAsync(int id)
@@ -90,7 +102,6 @@ namespace GestionBibliotecaLab.Aplicacion
                 usuario.PasswordHash = _passwordHasher.HashPassword(request.Password);
             }
 
-
             try
             {
                 await _context.SaveChangesAsync();
@@ -125,8 +136,22 @@ namespace GestionBibliotecaLab.Aplicacion
         }
 
         // ---------------------------------------------------------------
-        // Helpers privados — responsabilidad única por método
-        // ---------------------------------------------------------------
+        private static IQueryable<Usuario> AplicarFiltros(IQueryable<Usuario> query, UsuarioFiltroRequest filtro)
+        {
+            if (!string.IsNullOrWhiteSpace(filtro.Busqueda))
+            {
+                var busqueda = filtro.Busqueda.Trim();
+                query = query.Where(u =>
+                    u.Nombres.Contains(busqueda) ||
+                    u.Apellidos.Contains(busqueda) ||
+                    u.Email.Contains(busqueda));
+            }
+
+            if (filtro.RolId.HasValue)
+                query = query.Where(u => u.RolId == filtro.RolId);
+
+            return query;
+        }
 
         private static string NormalizarEmail(string email) => email.Trim().ToLower();
 

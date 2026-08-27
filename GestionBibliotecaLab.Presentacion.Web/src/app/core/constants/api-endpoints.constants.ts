@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
     POR_ID: (id: number) => `${API_BASE_URL}/libro/${id}`,
     PORTADA: (id: number) => `${API_BASE_URL}/libro/${id}/portada`,
     ESTADO: (id: number) => `${API_BASE_URL}/libro/${id}/estado`,
+    ELIMINADOS: `${API_BASE_URL}/libro/eliminados`,
   },
   LABORATORIOS: `${API_BASE_URL}/laboratorio`,
   CATEGORIAS:{

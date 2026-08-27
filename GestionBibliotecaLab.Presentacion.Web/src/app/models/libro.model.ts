@@ -45,3 +45,14 @@ export interface UpdateLibroRequest {
   estado: EstadoLibro;
   rowVersion: string;
 }
+
+export interface LibroFiltro {
+  titulo?: string;
+  autor?: string;
+  isbn?: string;
+  anioPublicacion?: number;
+  categoriaId?: number;
+  estado?: EstadoLibro;
+  pagina?: number;
+  tamanioPagina?: number;
+}

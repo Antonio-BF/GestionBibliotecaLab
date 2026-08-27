@@ -1,10 +1,12 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Libro;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Libro;
 
 namespace GestionBibliotecaLab.Aplicacion.Interfaces
 {
     public interface ILibroService
     {
-        Task<List<LibroResponse>> GetAllAsync();
+        Task<PaginacionResultado<LibroResponse>> GetAllAsync(LibroFiltroRequest filtro);
+        Task<PaginacionResultado<LibroResponse>> GetEliminadosAsync(LibroFiltroRequest filtro);
         Task<LibroResponse> GetByIdAsync(int id);
         Task<LibroResponse> RegistrarAsync(CreateLibroRequest request);
         Task ActualizarAsync(int id, UpdateLibroRequest request);

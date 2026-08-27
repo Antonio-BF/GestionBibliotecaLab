@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace GestionBibliotecaLab.Aplicacion.Dtos.Laboratorio
+﻿namespace GestionBibliotecaLab.Aplicacion.Dtos.Laboratorio
 {
     public class LaboratorioResponse
     {

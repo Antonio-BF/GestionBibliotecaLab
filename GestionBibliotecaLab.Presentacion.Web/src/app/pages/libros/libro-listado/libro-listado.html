@@ -47,11 +47,11 @@
 
     @if (cargando()) {
     <p class="page__estado">Cargando catálogo…</p>
-    } @else if (librosPaginados().length === 0) {
+    } @else if (libros().length === 0) {
     <p class="page__estado">No se encontraron libros con los filtros seleccionados.</p>
     } @else {
     <ul class="tarjetas-grid">
-        @for (libro of librosPaginados(); track libro.id) {
+        @for (libro of libros(); track libro.id) {
         <li class="tarjeta tarjeta-libro card">
             <a class="tarjeta-libro__portada" [routerLink]="[appRoutes.LIBROS, libro.id]">
                 <app-cover-imagen [portada]="libro.portada" [titulo]="libro.titulo" tamanio="md" />
@@ -90,7 +90,7 @@
     </ul>
 
     <app-paginador 
-    [total]="totalFiltrados()" 
+    [total]="totalRegistros()" 
     [tamanioPagina]="tamanioPagina" 
     [(paginaActual)]="paginaActual" />
     }

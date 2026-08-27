@@ -1,4 +1,5 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Usuario;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Usuario;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
 using Microsoft.AspNetCore.Authorization;
@@ -20,9 +21,15 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<UsuarioResponse>>> ListarUsuarios()
+        public async Task<ActionResult<PaginacionResultado<UsuarioResponse>>> ListarUsuarios([FromQuery] UsuarioFiltroRequest filtro)
         {
-            return Ok(await _usuarioService.GetAllUsuarioAsync());
+            return Ok(await _usuarioService.GetAllUsuarioAsync(filtro));
+        }
+
+        [HttpGet("eliminados")]
+        public async Task<ActionResult<PaginacionResultado<UsuarioResponse>>> ListarEliminados([FromQuery] UsuarioFiltroRequest filtro)
+        {
+            return Ok(await _usuarioService.GetEliminadosAsync(filtro));
         }
 
         [HttpGet("{id:int}")]

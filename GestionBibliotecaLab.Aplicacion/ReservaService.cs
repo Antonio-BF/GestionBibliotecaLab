@@ -1,6 +1,8 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.ReservaLab;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.ReservaLab;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.utils;
 using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
@@ -19,14 +21,13 @@ namespace GestionBibliotecaLab.Aplicacion
             _context = context;
         }
 
-        public async Task<List<ReservaResponse>> GetAllAsync()
+        public async Task<PaginacionResultado<ReservaResponse>> GetAllAsync(ReservaFiltroRequest filtro)
         {
-            return await _context.ReservasLabs.AsNoTracking()
-                .OrderByDescending(r => r.Fecha).ThenBy(r => r.HoraInicio)
-                .Select(MapearAResponseExpr)
-                .ToListAsync();
-        }
+            var query = AplicarFiltros(_context.ReservasLabs.AsNoTracking(), filtro)
+                .OrderByDescending(r => r.Fecha).ThenBy(r => r.HoraInicio);
 
+            return await query.ToPaginadoAsync(filtro.Pagina, filtro.TamanioPagina, MapearAResponseExpr);
+        }
 
         public async Task<ReservaResponse> GetByIdAsync(int id)
         {
@@ -36,17 +37,6 @@ namespace GestionBibliotecaLab.Aplicacion
                 .FirstOrDefaultAsync()
                 ?? throw new ResourceNotFoundException($"No se encontró la reserva con el id {id}");
         }
-
-
-        public async Task<List<ReservaResponse>> GetPorUsuarioAsync(int usuarioId)
-        {
-            return await _context.ReservasLabs.AsNoTracking()
-                .Where(r => r.UsuarioId == usuarioId)
-                .OrderByDescending(r => r.Fecha).ThenBy(r => r.HoraInicio)
-                .Select(MapearAResponseExpr)
-                .ToListAsync();
-        }
-
 
         public Task<bool> VerificarDisponibilidadAsync(int laboratorioId, DateOnly fecha, TimeOnly horaInicio, TimeOnly horaFin) =>
             ReservaReglasValidacion.VerificarDisponibilidadAsync(_context, laboratorioId, fecha, horaInicio, horaFin);
@@ -113,7 +103,6 @@ namespace GestionBibliotecaLab.Aplicacion
             await _context.SaveChangesAsync();
         }
 
-        // Invocado por ReservaEstadoJob: Confirmada -> Finalizada, Pendiente -> Cancelada
         public async Task ActualizarEstadosVencidosAsync()
         {
             var ahoraLocal = ReservaReglasValidacion.ObtenerAhoraLocal();
@@ -137,12 +126,46 @@ namespace GestionBibliotecaLab.Aplicacion
             await _context.SaveChangesAsync();
         }
 
-        // ---------------- Mapeo ----------------
+        // ---------------------------------------------------------------
+        private static IQueryable<ReservaLab> AplicarFiltros(IQueryable<ReservaLab> query, ReservaFiltroRequest filtro)
+        {
+            if (filtro.UsuarioId.HasValue)
+                query = query.Where(r => r.UsuarioId == filtro.UsuarioId);
+
+            if (filtro.LaboratorioId.HasValue)
+                query = query.Where(r => r.LaboratorioId == filtro.LaboratorioId);
+
+            if (!string.IsNullOrWhiteSpace(filtro.BuscarUsuario))
+            {
+                var textoUsuario = filtro.BuscarUsuario.Trim();
+                query = query.Where(p => p.Usuario.Nombres.Contains(textoUsuario) ||
+                                         p.Usuario.Apellidos.Contains(textoUsuario) ||
+                                         p.Usuario.Email.Contains(textoUsuario));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtro.BuscarLaboratorio))
+            {
+                var textoLaboratorio = filtro.BuscarLaboratorio.Trim();
+                query = query.Where(l => l.Laboratorio.Nombre.Contains(textoLaboratorio));
+                                       
+            }
+
+
+            if (filtro.Estado.HasValue)
+                query = query.Where(r => r.Estado == filtro.Estado.Value.ToString());
+
+            if (filtro.Fecha.HasValue)
+                query = query.Where(r => r.Fecha == filtro.Fecha);
+
+            return query;
+        }
+
         private static readonly Expression<Func<ReservaLab, ReservaResponse>> MapearAResponseExpr = r => new ReservaResponse
         {
             Id = r.Id,
             UsuarioId = r.UsuarioId,
             NombreUsuario = r.Usuario.Nombres + " " + r.Usuario.Apellidos,
+            EmailUsuario = r.Usuario.Email,
             LaboratorioId = r.LaboratorioId,
             NombreLaboratorio = r.Laboratorio.Nombre,
             Fecha = r.Fecha,

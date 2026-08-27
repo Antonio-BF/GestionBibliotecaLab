@@ -1,7 +1,9 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Laboratorio;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Laboratorio;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
+using GestionBibliotecaLab.Aplicacion.utils;
 using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
@@ -19,14 +21,22 @@ namespace GestionBibliotecaLab.Aplicacion
             _context = context;
             _fileStorage = fileStorage;
         }
-
-        public async Task<List<LaboratorioResponse>> GetAllAsync()
+        public async Task<PaginacionResultado<LaboratorioResponse>> GetAllAsync(LaboratorioFiltroRequest filtro)
         {
-            var laboratorios = await _context.Laboratorios.AsNoTracking()
-                .OrderBy(l => l.Nombre)
-                .ToListAsync();
+            var query = AplicarFiltros(_context.Laboratorios.AsNoTracking(), filtro).OrderBy(l => l.Nombre);
+            var paginado = await query.ToPaginadoAsync(filtro.Pagina, filtro.TamanioPagina);
+            return paginado.Mapear(MapearAResponse);
+        }
 
-            return laboratorios.Select(MapearAResponse).ToList();
+        public async Task<PaginacionResultado<LaboratorioResponse>> GetEliminadosAsync(LaboratorioFiltroRequest filtro)
+        {
+            var query = AplicarFiltros(
+                    _context.Laboratorios.IgnoreQueryFilters().AsNoTracking().Where(l => l.IsDeleted),
+                    filtro)
+                .OrderByDescending(l => l.FechaActualizacion);
+
+            var paginado = await query.ToPaginadoAsync(filtro.Pagina, filtro.TamanioPagina);
+            return paginado.Mapear(MapearAResponse);
         }
 
         public async Task<LaboratorioResponse> GetByIdAsync(int id)
@@ -77,7 +87,6 @@ namespace GestionBibliotecaLab.Aplicacion
             await ValidarNombreDisponibleAsync(nombre, idAExcluir: id);
 
             laboratorio.Nombre = nombre;
-
             laboratorio.Capacidad = request.Capacidad;
             laboratorio.Equipamiento = request.Equipamiento?.Trim();
             laboratorio.Descripcion = request.Descripcion?.Trim();
@@ -127,20 +136,33 @@ namespace GestionBibliotecaLab.Aplicacion
             var seVaADesactivar = !laboratorio.IsDeleted;
 
             if (seVaADesactivar)
-            {
                 await ValidarSinReservasActivasAsync(id);
-            }
 
             laboratorio.IsDeleted = !laboratorio.IsDeleted;
             await _context.SaveChangesAsync();
         }
 
-        //---------------------------------------------------------------
+        // ---------------------------------------------------------------
+        private static IQueryable<Laboratorio> AplicarFiltros(IQueryable<Laboratorio> query, LaboratorioFiltroRequest filtro)
+        {
+            if (!string.IsNullOrWhiteSpace(filtro.Nombre))
+                query = query.Where(l => l.Nombre.Contains(filtro.Nombre));
+
+            if (!string.IsNullOrWhiteSpace(filtro.Ubicacion))
+                query = query.Where(l => l.Ubicacion.Contains(filtro.Ubicacion));
+
+            if (filtro.Estado.HasValue)
+                query = query.Where(l => l.Estado == filtro.Estado.Value.ToString());
+
+            return query;
+        }
+
         private async Task ValidarSinReservasActivasAsync(int laboratorioId)
         {
             if (await EstadosActivosQueries.LaboratorioTieneReservasActivasAsync(_context, laboratorioId))
                 throw new ConflictException("No se puede dar de baja el laboratorio porque tiene reservas pendientes o confirmadas.");
         }
+
         private async Task ValidarNombreDisponibleAsync(string nombre, int? idAExcluir = null)
         {
             var yaExiste = await _context.Laboratorios

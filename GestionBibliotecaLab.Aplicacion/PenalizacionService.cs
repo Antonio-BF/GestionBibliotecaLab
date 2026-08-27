@@ -1,6 +1,8 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Penalizacion;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Penalizacion;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.utils;
 using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
@@ -19,12 +21,12 @@ namespace GestionBibliotecaLab.Aplicacion
             _context = context;
         }
 
-        public async Task<List<PenalizacionResponse>> GetAllAsync()
+        public async Task<PaginacionResultado<PenalizacionResponse>> GetAllAsync(PenalizacionFiltroRequest filtro)
         {
-            return await _context.Penalizaciones.AsNoTracking()
-                .OrderByDescending(p => p.FechaGeneracion)
-                .Select(MapearAResponseExpr)
-                .ToListAsync();
+            var query = AplicarFiltros(_context.Penalizaciones.AsNoTracking(), filtro)
+                .OrderByDescending(p => p.FechaGeneracion);
+
+            return await query.ToPaginadoAsync(filtro.Pagina, filtro.TamanioPagina, MapearAResponseExpr);
         }
 
         public async Task<PenalizacionResponse> GetByIdAsync(int id)
@@ -35,37 +37,6 @@ namespace GestionBibliotecaLab.Aplicacion
                 .FirstOrDefaultAsync()
                 ?? throw new ResourceNotFoundException($"No se encontró la penalización con el id {id}");
         }
-            
-
-        public async Task<List<PenalizacionResponse>> GetPorUsuarioAsync(int usuarioId)
-        {
-            return await _context.Penalizaciones.AsNoTracking()
-                .Where(p => p.UsuarioId == usuarioId)
-                .OrderByDescending(p => p.FechaGeneracion)
-                .Select(MapearAResponseExpr)
-                .ToListAsync();
-        }
-            
-
-        public async Task<List<PenalizacionResponse>> GetPorPrestamoAsync(int prestamoId)
-        {
-            return await _context.Penalizaciones.AsNoTracking()
-                .Where(p => p.PrestamoId == prestamoId)
-                .OrderByDescending(p => p.FechaGeneracion)
-                .Select(MapearAResponseExpr)
-                .ToListAsync();
-        }
-            
-
-        public async Task<List<PenalizacionResponse>> GetPorReservaAsync(int reservaLabId)
-        {
-            return await _context.Penalizaciones.AsNoTracking()
-                .Where(p => p.ReservaLabId == reservaLabId)
-                .OrderByDescending(p => p.FechaGeneracion)
-                .Select(MapearAResponseExpr)
-                .ToListAsync();
-        }
-            
 
         public async Task<PenalizacionResponse> RegistrarAsync(CreatePenalizacionRequest request)
         {
@@ -123,7 +94,6 @@ namespace GestionBibliotecaLab.Aplicacion
         }
 
         // ---------------- Helpers privados de construcción ----------------
-
         private async Task<Penalizacion> ConstruirDesdePrestamoAsync(CreatePenalizacionRequest request)
         {
             var prestamo = await PenalizacionReglasValidacion.ObtenerPrestamoParaPenalizarAsync(_context, request.OrigenId);
@@ -158,12 +128,49 @@ namespace GestionBibliotecaLab.Aplicacion
             };
         }
 
+        // ---------------------------------------------------------------
+        private static IQueryable<Penalizacion> AplicarFiltros(IQueryable<Penalizacion> query, PenalizacionFiltroRequest filtro)
+        {
+            if (filtro.UsuarioId.HasValue)
+                query = query.Where(p => p.UsuarioId == filtro.UsuarioId);
+
+            if (filtro.PrestamoId.HasValue)
+                query = query.Where(p => p.PrestamoId == filtro.PrestamoId);
+
+            if (filtro.ReservaLabId.HasValue)
+                query = query.Where(p => p.ReservaLabId == filtro.ReservaLabId);
+
+            if (filtro.Origen.HasValue)
+            {
+                query = filtro.Origen.Value == OrigenPenalizacion.Prestamo
+                    ? query.Where(p => p.PrestamoId != null)
+                    : query.Where(p => p.ReservaLabId != null);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtro.BuscarUsuario))
+            {
+                var textoUsuario = filtro.BuscarUsuario.Trim();
+                query = query.Where(p => p.Usuario.Nombres.Contains(textoUsuario) ||
+                                         p.Usuario.Apellidos.Contains(textoUsuario) ||
+                                         p.Usuario.Email.Contains(textoUsuario));
+            }
+
+            if (filtro.Tipo.HasValue)
+                query = query.Where(p => p.Tipo == filtro.Tipo.Value.ToString());
+
+            if (filtro.Estado.HasValue)
+                query = query.Where(p => p.Estado == filtro.Estado.Value.ToString());
+
+            return query;
+        }
+
         // ---------------- Mapeo ----------------
         private static readonly Expression<Func<Penalizacion, PenalizacionResponse>> MapearAResponseExpr = p => new PenalizacionResponse
         {
             Id = p.Id,
             UsuarioId = p.UsuarioId,
             NombreUsuario = p.Usuario.Nombres + " " + p.Usuario.Apellidos,
+            EmailUsuario = p.Usuario.Email,
             PrestamoId = p.PrestamoId,
             ReservaLabId = p.ReservaLabId,
             Tipo = p.Tipo,

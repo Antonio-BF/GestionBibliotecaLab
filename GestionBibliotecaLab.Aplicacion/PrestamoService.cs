@@ -1,6 +1,8 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Prestamo;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Prestamo;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.utils;
 using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
@@ -21,12 +23,12 @@ namespace GestionBibliotecaLab.Aplicacion
             _penalizacionService = penalizacionService;
         }
 
-        public async Task<List<PrestamoResponse>> GetAllAsync()
+        public async Task<PaginacionResultado<PrestamoResponse>> GetAllAsync(PrestamoFiltroRequest filtro)
         {
-            return await _context.Prestamos.AsNoTracking()
-                    .OrderByDescending(p => p.FechaPrestamo)
-                    .Select(MapearAResponseExpr)
-                    .ToListAsync();
+            var query = AplicarFiltros(_context.Prestamos.AsNoTracking(), filtro)
+                .OrderByDescending(p => p.FechaPrestamo);
+
+            return await query.ToPaginadoAsync(filtro.Pagina, filtro.TamanioPagina, MapearAResponseExpr);
         }
 
         public async Task<PrestamoResponse> GetByIdAsync(int id)
@@ -37,17 +39,6 @@ namespace GestionBibliotecaLab.Aplicacion
                     .FirstOrDefaultAsync()
                     ?? throw new ResourceNotFoundException($"No se encontró el préstamo con el id {id}");
         }
-
-
-        public async Task<List<PrestamoResponse>> GetPorUsuarioAsync(int usuarioId)
-        {
-            return await _context.Prestamos.AsNoTracking()
-                .Where(p => p.UsuarioId == usuarioId)
-                .OrderByDescending(p => p.FechaPrestamo)
-                .Select(MapearAResponseExpr)
-                .ToListAsync();
-        }
-
 
         public async Task<PrestamoResponse> RegistrarAsync(CreatePrestamoRequest request)
         {
@@ -71,7 +62,7 @@ namespace GestionBibliotecaLab.Aplicacion
                 Estado = EstadoPrestamo.Prestado.ToString()
             };
 
-            libro.CantidadDisponible--; // Libro.RowVersion protege contra condiciones de carrera
+            libro.CantidadDisponible--;
 
             _context.Prestamos.Add(prestamo);
 
@@ -127,13 +118,50 @@ namespace GestionBibliotecaLab.Aplicacion
             return PrestamoMapperCompilado(prestamo);
         }
 
-        // ---------------- Mapeo ----------------
+        // ---------------------------------------------------------------
+        private static IQueryable<Prestamo> AplicarFiltros(IQueryable<Prestamo> query, PrestamoFiltroRequest filtro)
+        {
+            if (filtro.UsuarioId.HasValue)
+                query = query.Where(p => p.UsuarioId == filtro.UsuarioId);
+
+            if (filtro.LibroId.HasValue)
+                query = query.Where(p => p.LibroId == filtro.LibroId);
+
+            if (filtro.Estado.HasValue)
+                query = query.Where(p => p.Estado == filtro.Estado.Value.ToString());
+
+            if (!string.IsNullOrWhiteSpace(filtro.BuscarLibro))
+            {
+                var textoLibro = filtro.BuscarLibro.Trim();
+                query = query.Where(p => p.Libro.Titulo.Contains(textoLibro) ||
+                                         p.Libro.Isbn.Contains(textoLibro));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtro.BuscarUsuario))
+            {
+                var textoUsuario = filtro.BuscarUsuario.Trim();
+                query = query.Where(p => p.Usuario.Nombres.Contains(textoUsuario) ||
+                                         p.Usuario.Apellidos.Contains(textoUsuario) ||
+                                         p.Usuario.Email.Contains(textoUsuario));
+            }
+
+            if (filtro.FechaDesde.HasValue)
+                query = query.Where(p => p.FechaPrestamo >= filtro.FechaDesde.Value);
+
+            if (filtro.FechaHasta.HasValue)
+                query = query.Where(p => p.FechaPrestamo <= filtro.FechaHasta.Value);
+
+            return query;
+        }
+
         private static readonly Expression<Func<Prestamo, PrestamoResponse>> MapearAResponseExpr = p => new PrestamoResponse
         {
             Id = p.Id,
             UsuarioId = p.UsuarioId,
             NombreUsuario = p.Usuario.Nombres + " " + p.Usuario.Apellidos,
+            EmailUsuario = p.Usuario.Email,
             LibroId = p.LibroId,
+            IsbnLibro = p.Libro.Isbn,
             TituloLibro = p.Libro.Titulo,
             FechaPrestamo = p.FechaPrestamo,
             FechaDevolucionEsperada = p.FechaDevolucionEsperada,
@@ -142,6 +170,5 @@ namespace GestionBibliotecaLab.Aplicacion
         };
 
         private static readonly Func<Prestamo, PrestamoResponse> PrestamoMapperCompilado = MapearAResponseExpr.Compile();
-
     }
 }

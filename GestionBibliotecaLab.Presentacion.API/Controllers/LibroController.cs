@@ -1,4 +1,5 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Libro;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Libro;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
 using Microsoft.AspNetCore.Authorization;
@@ -20,9 +21,16 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<LibroResponse>>> Listar()
+        public async Task<ActionResult<PaginacionResultado<LibroResponse>>> Listar([FromQuery] LibroFiltroRequest filtro)
         {
-            return Ok(await _service.GetAllAsync());
+            return Ok(await _service.GetAllAsync(filtro));
+        }
+
+        [HttpGet("eliminados")]
+        [Authorize(Roles = RolesSistema.Administrador)]
+        public async Task<ActionResult<PaginacionResultado<LibroResponse>>> ListarEliminados([FromQuery] LibroFiltroRequest filtro)
+        {
+            return Ok(await _service.GetEliminadosAsync(filtro));
         }
 
         [HttpGet("{id:int}")]
@@ -59,7 +67,6 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
             var libro = await _service.ActualizarPortadaAsync(id, stream, archivo.FileName);
             return Ok(libro);
         }
-
 
         [HttpPatch("{id:int}/estado")]
         [Authorize(Roles = RolesSistema.Administrador)]

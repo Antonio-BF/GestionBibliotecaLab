@@ -1,4 +1,5 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.ReservaLab;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.ReservaLab;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
 using GestionBibliotecaLab.Presentacion.API.Utils;
@@ -23,17 +24,18 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = RolesSistema.AdminYBibliotecario)]
-        public async Task<ActionResult<List<ReservaResponse>>> Listar() => Ok(await _service.GetAllAsync());
+        public async Task<ActionResult<PaginacionResultado<ReservaResponse>>> Listar([FromQuery] ReservaFiltroRequest filtro)
+            => Ok(await _service.GetAllAsync(filtro));
 
         [HttpGet("{id:int}")]
         [Authorize(Roles = RolesSistema.AdminYBibliotecario)]
         public async Task<ActionResult<ReservaResponse>> ObtenerPorId(int id) => Ok(await _service.GetByIdAsync(id));
 
         [HttpGet("mis-reservas")]
-        public async Task<ActionResult<List<ReservaResponse>>> MisReservas()
+        public async Task<ActionResult<PaginacionResultado<ReservaResponse>>> MisReservas([FromQuery] ReservaFiltroRequest filtro)
         {
-            var usuarioId = _currentUserService.ObtenerUsuarioIdAutenticado();
-            return Ok(await _service.GetPorUsuarioAsync(usuarioId));
+            filtro.UsuarioId = _currentUserService.ObtenerUsuarioIdAutenticado();
+            return Ok(await _service.GetAllAsync(filtro));
         }
 
         [HttpGet("disponibilidad")]

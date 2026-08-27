@@ -1,12 +1,12 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Prestamo;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Prestamo;
 
 namespace GestionBibliotecaLab.Aplicacion.Interfaces
 {
     public interface IPrestamoService
     {
-        Task<List<PrestamoResponse>> GetAllAsync();
+        Task<PaginacionResultado<PrestamoResponse>> GetAllAsync(PrestamoFiltroRequest filtro);
         Task<PrestamoResponse> GetByIdAsync(int id);
-        Task<List<PrestamoResponse>> GetPorUsuarioAsync(int usuarioId);
         Task<PrestamoResponse> RegistrarAsync(CreatePrestamoRequest request);
         Task<PrestamoResponse> DevolverAsync(int id);
         Task<PrestamoResponse> RenovarAsync(int id, RenovarPrestamoRequest request);

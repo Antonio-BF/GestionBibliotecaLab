@@ -1,4 +1,5 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Penalizacion;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Penalizacion;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
 using Microsoft.AspNetCore.Authorization;
@@ -22,28 +23,37 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = RolesSistema.AdminYBibliotecario)]
-        public async Task<ActionResult<List<PenalizacionResponse>>> Listar() => Ok(await _service.GetAllAsync());
+        public async Task<ActionResult<PaginacionResultado<PenalizacionResponse>>> Listar([FromQuery] PenalizacionFiltroRequest filtro)
+             => Ok(await _service.GetAllAsync(filtro));
 
         [HttpGet("{id:int}")]
         [Authorize(Roles = RolesSistema.AdminYBibliotecario)]
         public async Task<ActionResult<PenalizacionResponse>> ObtenerPorId(int id) => Ok(await _service.GetByIdAsync(id));
 
         [HttpGet("mis-penalizaciones")]
-        public async Task<ActionResult<List<PenalizacionResponse>>> MisPenalizaciones()
+        public async Task<ActionResult<PaginacionResultado<PenalizacionResponse>>> MisPenalizaciones([FromQuery] PenalizacionFiltroRequest filtro)
         {
-            var usuarioId = _currentUserService.ObtenerUsuarioIdAutenticado();
-            return Ok(await _service.GetPorUsuarioAsync(usuarioId));
+            filtro.UsuarioId = _currentUserService.ObtenerUsuarioIdAutenticado();
+            return Ok(await _service.GetAllAsync(filtro));
         }
 
         [HttpGet("por-prestamo/{prestamoId:int}")]
         [Authorize(Roles = RolesSistema.AdminYBibliotecario)]
-        public async Task<ActionResult<List<PenalizacionResponse>>> PorPrestamo(int prestamoId) =>
-            Ok(await _service.GetPorPrestamoAsync(prestamoId));
+        public async Task<ActionResult<PaginacionResultado<PenalizacionResponse>>> PorPrestamo(
+            int prestamoId, [FromQuery] PenalizacionFiltroRequest filtro)
+        {
+            filtro.PrestamoId = prestamoId;
+            return Ok(await _service.GetAllAsync(filtro));
+        }
 
         [HttpGet("por-reserva/{reservaLabId:int}")]
         [Authorize(Roles = RolesSistema.AdminYBibliotecario)]
-        public async Task<ActionResult<List<PenalizacionResponse>>> PorReserva(int reservaLabId) =>
-            Ok(await _service.GetPorReservaAsync(reservaLabId));
+        public async Task<ActionResult<PaginacionResultado<PenalizacionResponse>>> PorReserva(
+            int reservaLabId, [FromQuery] PenalizacionFiltroRequest filtro)
+        {
+            filtro.ReservaLabId = reservaLabId;
+            return Ok(await _service.GetAllAsync(filtro));
+        }
 
         [HttpPost]
         [Authorize(Roles = RolesSistema.AdminYBibliotecario)]

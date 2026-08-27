@@ -1,7 +1,9 @@
-﻿using GestionBibliotecaLab.Aplicacion.Dtos.Libro;
+﻿using GestionBibliotecaLab.Aplicacion.Dtos.Comun;
+using GestionBibliotecaLab.Aplicacion.Dtos.Libro;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
+using GestionBibliotecaLab.Aplicacion.utils;
 using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
@@ -21,14 +23,24 @@ namespace GestionBibliotecaLab.Aplicacion
             _fileStorage = fileStorage;
         }
 
-        public async Task<List<LibroResponse>> GetAllAsync()
+        public async Task<PaginacionResultado<LibroResponse>> GetAllAsync(LibroFiltroRequest filtro)
         {
-            var libros = await _context.Libros.AsNoTracking()
-                .Include(l => l.Categoria)
-                .OrderBy(l => l.Titulo)
-                .ToListAsync();
+            var query = AplicarFiltros(_context.Libros.AsNoTracking().Include(l => l.Categoria), filtro)
+                .OrderBy(l => l.Titulo);
 
-            return libros.Select(MapearAResponse).ToList();
+            var paginado = await query.ToPaginadoAsync(filtro.Pagina, filtro.TamanioPagina);
+            return paginado.Mapear(MapearAResponse);
+        }
+
+        public async Task<PaginacionResultado<LibroResponse>> GetEliminadosAsync(LibroFiltroRequest filtro)
+        {
+            var query = AplicarFiltros(
+                    _context.Libros.IgnoreQueryFilters().AsNoTracking().Include(l => l.Categoria).Where(l => l.IsDeleted),
+                    filtro)
+                .OrderByDescending(l => l.FechaActualizacion);
+
+            var paginado = await query.ToPaginadoAsync(filtro.Pagina, filtro.TamanioPagina);
+            return paginado.Mapear(MapearAResponse);
         }
 
         public async Task<LibroResponse> GetByIdAsync(int id)
@@ -125,7 +137,6 @@ namespace GestionBibliotecaLab.Aplicacion
             libro.Portada = await _fileStorage.GuardarAsync(contenido, nombreArchivoOriginal, subcarpeta: "libros");
 
             await _context.SaveChangesAsync();
-
             _fileStorage.Eliminar(rutaAnterior);
 
             return MapearAResponse(libro);
@@ -147,6 +158,29 @@ namespace GestionBibliotecaLab.Aplicacion
         }
 
         // ---------------------------------------------------------------
+        private static IQueryable<Libro> AplicarFiltros(IQueryable<Libro> query, LibroFiltroRequest filtro)
+        {
+            if (!string.IsNullOrWhiteSpace(filtro.Titulo))
+                query = query.Where(l => l.Titulo.Contains(filtro.Titulo));
+
+            if (!string.IsNullOrWhiteSpace(filtro.Autor))
+                query = query.Where(l => l.Autor.Contains(filtro.Autor));
+
+            if (!string.IsNullOrWhiteSpace(filtro.Isbn))
+                query = query.Where(l => l.Isbn.Contains(filtro.Isbn));
+
+            if (filtro.AnioPublicacion.HasValue)
+                query = query.Where(l => l.AnioPublicacion == filtro.AnioPublicacion);
+
+            if (filtro.CategoriaId.HasValue)
+                query = query.Where(l => l.CategoriaId == filtro.CategoriaId);
+
+            if (filtro.Estado.HasValue)
+                query = query.Where(l => l.Estado == filtro.Estado.Value.ToString());
+
+            return query;
+        }
+
         private async Task ValidarIsbnDisponibleAsync(string isbn, int? idAExcluir = null)
         {
             var yaExiste = await _context.Libros
@@ -205,6 +239,5 @@ namespace GestionBibliotecaLab.Aplicacion
             FechaActualizacion = libro.FechaActualizacion,
             IsDeleted = libro.IsDeleted
         };
-
     }
 }

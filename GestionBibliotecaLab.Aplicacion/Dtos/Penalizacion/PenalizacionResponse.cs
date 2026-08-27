@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public int UsuarioId { get; set; }
         public string NombreUsuario { get; set; } = null!;
+        public string EmailUsuario { get; set; } = null!;
         public int? PrestamoId { get; set; }
         public int? ReservaLabId { get; set; }
         public string Tipo { get; set; } = null!;
