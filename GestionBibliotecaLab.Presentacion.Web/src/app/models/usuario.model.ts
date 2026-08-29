@@ -11,3 +11,38 @@ export interface UsuarioAutenticado {
   email: string | null;
   rol: string;
 }
+
+export interface UsuarioResponse {
+  id: number;
+  nombres: string;
+  apellidos: string;
+  email: string;
+  rolId: number;
+  nombreRol: string;
+  fechaCreacion: string;
+  fechaActualizacion: string | null;
+  isDeleted: boolean;
+}
+
+export interface CreateUsuarioRequest {
+  nombres: string;
+  apellidos: string;
+  email: string;
+  password: string;
+  rolId: number;
+}
+
+export interface UpdateUsuarioRequest {
+  nombres: string;
+  apellidos: string;
+  email: string;
+  password?: string | null;
+  rolId: number;
+}
+
+export interface UsuarioFiltro {
+  busqueda?: string;
+  rolId?: number;
+  pagina?: number;
+  tamanioPagina?: number;
+}

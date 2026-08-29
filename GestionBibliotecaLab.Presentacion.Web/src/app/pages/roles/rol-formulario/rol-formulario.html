@@ -1,0 +1,34 @@
+<form class="rol-formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    @if (esRolProtegido()) {
+    <div class="form-hint form-hint--aviso">
+        Este es un rol usado por la autorización del sistema. Su nombre no puede modificarse desde aquí.
+    </div>
+    }
+
+    <div class="form-group">
+        <label class="form-label" for="nombre">Nombre</label>
+        <input id="nombre" type="text" class="form-control" formControlName="nombre" />
+        @if (controles.nombre.invalid && controles.nombre.touched) {
+        <span class="form-error">El nombre es requerido (máx. 50 caracteres).</span>
+        }
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="descripcion">Descripción</label>
+        <textarea id="descripcion" class="form-control" rows="3" formControlName="descripcion"></textarea>
+        @if (controles.descripcion.invalid && controles.descripcion.touched) {
+        <span class="form-error">La descripción admite máximo 200 caracteres.</span>
+        }
+    </div>
+
+    @if (errorServidor()) {
+    <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
+    }
+
+    <div class="rol-formulario__acciones">
+        <button type="button" class="btn btn--outline-primary btn--sm" (click)="cancelado.emit()">Cancelar</button>
+        <button type="submit" class="btn btn--primary btn--sm" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando…' : modoEdicion() ? 'Guardar cambios' : 'Registrar rol' }}
+        </button>
+    </div>
+</form>

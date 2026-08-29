@@ -32,6 +32,31 @@
   --sidebar-width: 240px;
   --radius: 6px;
   --shadow: 0 2px 10px rgba(23, 46, 38, 0.15);
+
+  --elev-1: 0 1px 2px rgba(23, 46, 38, 0.06), 0 1px 3px rgba(23, 46, 38, 0.08);
+  --elev-2: 0 4px 10px rgba(23, 46, 38, 0.10), 0 2px 4px rgba(23, 46, 38, 0.08);
+  --elev-3: 0 12px 28px rgba(23, 46, 38, 0.16), 0 4px 10px rgba(23, 46, 38, 0.10);
+
+  --fs-xs: 0.72rem;
+  --fs-sm: 0.82rem;
+  --fs-base: 0.9rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.15rem;
+  --fs-xl: 1.4rem;
+  --fs-2xl: 1.75rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  --radius-sm: 4px;
+  --radius-md: var(--radius);
+  --radius-lg: 12px;
+
+  --transition-base: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * { box-sizing: border-box; }
@@ -62,12 +87,13 @@ img { max-width: 100%; }
   border: 1px solid transparent;
   border-radius: var(--radius);
   padding: 0.6rem 1.1rem;
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   font-family: var(--font-body);
+  text-decoration: none;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
-  min-height: 40px; /* objetivo táctil mínimo recomendado (~40-44px) */
+  min-height: 40px;
 }
 
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -91,13 +117,13 @@ img { max-width: 100%; }
    Formularios
    --------------------------------------------------------------------- */
 .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
-.form-label { font-size: 0.82rem; font-weight: 600; color: var(--color-text); }
+.form-label { font-size: var(--fs-sm); font-weight: 600; color: var(--color-text); }
 
 .form-control {
   padding: 0.6rem 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
   font-family: var(--font-body);
   background: var(--color-surface);
   color: var(--color-text);
@@ -114,7 +140,9 @@ img { max-width: 100%; }
 .form-error { color: var(--color-danger); font-size: 0.78rem; }
 
 /* ---------------------------------------------------------------------
-   Tarjetas / badges
+   Tarjetas / badges (legado — se conserva por compatibilidad con módulos
+   que ya usan .card; los módulos protagonistas de listado migran a
+   .surface, ver más abajo)
    --------------------------------------------------------------------- */
 .card {
   background: var(--color-surface);
@@ -138,6 +166,24 @@ img { max-width: 100%; }
 .badge--activo { background: var(--color-success-bg); color: var(--color-success); }
 .badge--inactivo { background: var(--color-danger-bg); color: var(--color-danger); }
 
+/* =====================================================================
+   SUPERFICIES 
+   ===================================================================== */
+.surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-1);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.surface--interactive:hover {
+  box-shadow: var(--elev-2);
+  transform: translateY(-2px);
+}
+
+.surface--flush { border-radius: var(--radius-lg); overflow: hidden; }
+
 /* ---------------------------------------------------------------------
    Contenedor de página — ancho fluido, padding fluido (clamp)
    --------------------------------------------------------------------- */
@@ -159,6 +205,55 @@ img { max-width: 100%; }
 .page__titulo { margin: 0; font-size: clamp(1.25rem, 1.6vw + 0.9rem, 1.5rem); color: var(--color-primary-dark); }
 .page__estado { color: var(--color-text-muted); padding: 2rem 0; text-align: center; }
 
+/* =====================================================================
+   PAGE HEADER — patrón visual para <app-page-header>. Unifica el
+   encabezado de todas las páginas de listado (eyebrow + título +
+   subtítulo + acciones), reemplazando el .page__header manual repetido.
+   ===================================================================== */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.page-header__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 0.35rem;
+}
+
+.page-header__titulo {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 1.6vw + 0.95rem, var(--fs-2xl));
+  color: var(--color-primary-dark);
+  line-height: 1.2;
+}
+
+.page-header__subtitulo {
+  margin: 0.35rem 0 0;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  max-width: 60ch;
+}
+
+.page-header__acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
 /* ---------------------------------------------------------------------
    Barra de filtros — fluida, colapsa a 1 columna en pantallas muy chicas
    --------------------------------------------------------------------- */
@@ -179,15 +274,7 @@ img { max-width: 100%; }
 }
 
 /* ---------------------------------------------------------------------
-   Patrón reutilizable: listado en tarjetas (NO tablas)
-   -----------------------------------------------------------------------
-   Este es el patrón a replicar en cualquier catálogo/listado futuro
-   (Laboratorios, Préstamos, Reservas, Penalizaciones, Usuarios):
-   - Mobile-first: 1 columna, tarjeta en fila (miniatura + info) — denso y
-     legible sin scroll horizontal ni columnas ocultas.
-   - Desde 640px: grilla fluida (auto-fill/minmax) de tarjetas en columna.
-   `.tarjetas-grid` + `.tarjeta` son las clases genéricas; cada módulo puede
-   sumar un modificador propio (ver `.tarjeta-libro` como ejemplo concreto).
+   Patrón reutilizable: listado en tarjetas 
    --------------------------------------------------------------------- */
 .tarjetas-grid {
   list-style: none;
@@ -213,6 +300,175 @@ img { max-width: 100%; }
   .tarjeta { flex-direction: column; }
 }
 
+/* =====================================================================
+   CATÁLOGO UNIFICADO 
+   ===================================================================== */
+.catalog { margin-top: var(--space-1); }
+
+.catalog__toolbar {
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.catalog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-1) var(--space-3);
+  border-bottom: 2px solid var(--color-primary-dark);
+  color: var(--color-primary-dark);
+  font-family: var(--font-heading);
+  font-size: var(--fs-base);
+}
+
+.catalog__header-count {
+  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  background: var(--color-surface-alt);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.catalog__list { display: flex; flex-direction: column; }
+
+.catalog__row {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  min-width: 0;
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color var(--transition-base), padding var(--transition-base);
+}
+
+.catalog__row:hover {
+  background: var(--color-surface-alt);
+  padding-left: var(--space-1);
+  padding-right: var(--space-1);
+}
+
+.catalog__row:last-child { border-bottom: none; }
+
+.catalog__index { display: flex; justify-content: center; padding-top: 1.35rem; }
+
+.catalog__index span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-primary-light);
+  border-radius: 50%;
+  color: var(--color-primary-dark);
+  font-family: var(--font-heading);
+  font-size: var(--fs-xs);
+  transition: background-color var(--transition-base), color var(--transition-base), border-color var(--transition-base);
+}
+
+.catalog__row:hover .catalog__index span {
+  background: var(--color-primary-dark);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary-dark);
+}
+
+.catalog__content { min-width: 0; padding: var(--space-4) var(--space-2) var(--space-3) var(--space-4); }
+
+.catalog__main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.catalog__identity { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+
+.catalog__topline { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.15rem; flex-wrap: wrap; }
+
+.catalog__code { color: var(--color-accent); font-size: var(--fs-xs); font-weight: 700; letter-spacing: 0.05em; }
+
+.catalog__title { margin: 0; color: var(--color-primary-dark); font-family: var(--font-heading); font-size: var(--fs-lg); line-height: 1.25; }
+
+.catalog__description { max-width: 720px; margin: 0.5rem 0 0; color: var(--color-text-muted); font-size: var(--fs-sm); line-height: 1.55; }
+
+.catalog__actions { display: flex; align-items: center; gap: 0.2rem; flex-shrink: 0; }
+
+.catalog__footer {
+  display: flex; align-items: center; gap: 0.45rem; margin-top: var(--space-3);
+  color: var(--color-text-muted); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em;
+}
+
+.catalog__footer-line { width: 28px; height: 1px; background: var(--color-accent); }
+
+/* Variante "marcado" — roles protegidos, categorías con vínculos, etc. */
+.catalog__row--marked .catalog__index span { border-color: var(--color-accent); }
+.catalog__row--marked .catalog__footer { color: var(--color-accent); }
+
+@media (max-width: 640px) {
+  .catalog__row { grid-template-columns: 2.5rem minmax(0, 1fr); }
+  .catalog__content { padding-left: var(--space-3); }
+  .catalog__title { font-size: var(--fs-md); }
+  .catalog__description { font-size: var(--fs-sm); }
+}
+
+@media (max-width: 420px) {
+  .catalog__header { font-size: var(--fs-sm); }
+  .catalog__index { padding-top: 1.1rem; }
+  .catalog__index span { width: 1.8rem; height: 1.8rem; }
+  .catalog__content { padding-top: var(--space-4); }
+}
+
+/* Pastilla de estado genérica — usada por <app-status-badge> */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.status-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-pill--activo { background: var(--color-success-bg); color: var(--color-success); }
+.status-pill--inactivo { background: var(--color-danger-bg); color: var(--color-danger); }
+
+/* Botón de icono compartido — reemplaza .icon-btn duplicado por módulo */
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; padding: 0; border: none; border-radius: var(--radius-md);
+  background: transparent; color: var(--color-text-muted); cursor: pointer;
+  transition: color var(--transition-base), background-color var(--transition-base);
+}
+.icon-btn:hover { color: var(--color-primary); background: var(--color-surface-alt); }
+.icon-btn--danger:hover { color: var(--color-danger); background: var(--color-danger-bg); }
+
+/* =====================================================================
+   ESTADO VACÍO — patrón visual para <app-empty-state>
+   ===================================================================== */
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.empty-state__icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%;
+  background: var(--color-surface-alt); color: var(--color-primary);
+}
+
+.empty-state__titulo { margin: 0; color: var(--color-primary-dark); font-size: var(--fs-md); font-weight: 700; }
+.empty-state__texto { margin: 0.2rem 0 0; color: var(--color-text-muted); font-size: var(--fs-sm); }
+
 /* ---------------------------------------------------------------------
    Paginador
    --------------------------------------------------------------------- */
@@ -235,8 +491,8 @@ img { max-width: 100%; }
 
 .modal {
   background: var(--color-surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-3);
   padding: 1.5rem;
   max-width: min(420px, 92vw);
   width: 100%;
@@ -257,11 +513,11 @@ img { max-width: 100%; }
 .form-error--bloque { padding: 0.6rem 0.9rem; background: var(--color-danger-bg); border-radius: var(--radius); margin: 1rem 0; }
 
 /* ---------------------------------------------------------------------
-   Auth (Login/Registro) — antes duplicado en login.css y registro.css
+   Auth (Login/Registro)
    --------------------------------------------------------------------- */
 .auth-layout {
   min-height: 100vh;
-  min-height: 100dvh; /* mejor manejo de la barra de direcciones en mobile */
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -274,8 +530,8 @@ img { max-width: 100%; }
   width: 100%;
   max-width: 400px;
   background: var(--color-surface);
-  border-radius: 10px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-3);
   padding: clamp(1.5rem, 4vw, 2.25rem) clamp(1.25rem, 4vw, 2rem);
 }
 
@@ -285,7 +541,7 @@ img { max-width: 100%; }
   display: inline-block;
   width: 46px;
   height: 46px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: var(--color-accent);
   position: relative;
   margin-bottom: 0.75rem;
@@ -315,7 +571,7 @@ img { max-width: 100%; }
 .auth-link { display: block; text-decoration: none; text-align: center; margin-top: 1rem; font-size: 0.85rem; }
 
 /* ---------------------------------------------------------------------
-   Ficha de detalle (pares etiqueta/valor) — reutilizable a futuro
+   Ficha de detalle (pares etiqueta/valor)
    --------------------------------------------------------------------- */
 .ficha { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem 1.5rem; margin: 0; }
 .ficha__item { display: flex; flex-direction: column; gap: 0.2rem; }

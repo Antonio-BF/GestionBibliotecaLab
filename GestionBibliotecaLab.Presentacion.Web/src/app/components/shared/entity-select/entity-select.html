@@ -1,0 +1,8 @@
+<select class="form-control" [disabled]="deshabilitado()" (change)="onCambio($any($event.target).value)">
+    <option value="" [selected]="valor() === null">
+        {{ incluirTodos() ? etiquetaTodos() : etiquetaVacio() }}
+    </option>
+    @for (item of items(); track item.id) {
+    <option [value]="item.id" [selected]="valor() === item.id">{{ item.nombre }}</option>
+    }
+</select>

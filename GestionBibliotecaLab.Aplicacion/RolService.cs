@@ -43,7 +43,7 @@ namespace GestionBibliotecaLab.Aplicacion
 
         public async Task<RolResponse> SaveRol(RolRequest request)
         {
-            var NombreRol = request.Nombre.Trim().ToLower();
+            var NombreRol = request.Nombre.Trim();
 
             if (await _context.Roles.AnyAsync(x => x.Nombre == NombreRol))
                 throw new DuplicateResourceException($"El nombre {NombreRol} ya se encuenta registrado en el sistema");
@@ -70,7 +70,7 @@ namespace GestionBibliotecaLab.Aplicacion
             var rol = await _context.Roles.FindAsync(id)
                ?? throw new ResourceNotFoundException($"No se pudo encontrar el rol con le ID {id}");
 
-            var NombreRol = request.Nombre.Trim().ToLower();
+            var NombreRol = request.Nombre.Trim();
 
             if (await _context.Roles.AnyAsync(x => x.Id != id && x.Nombre == NombreRol))
                 throw new DuplicateResourceException($"El nombre {NombreRol} ya se encuenta registrado en el sistema");

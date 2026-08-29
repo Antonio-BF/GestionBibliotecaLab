@@ -8,23 +8,34 @@ import { LibroService } from '../../../services/libro.service';
 import { CategoriaService } from '../../../services/categoria.service';
 import { AuthService } from '../../../services/auth.service';
 import { NotificationService } from '../../../services/notification.service';
-import { ROLES_GESTION } from '../../../core/constants/roles.constants';
+import { SOLO_ADMINISTRADOR } from '../../../core/constants/roles.constants';
 import { APP_ROUTES } from '../../../core/constants/app-routes.constants';
 
 import { CoverImagen } from '../../../components/shared/cover-imagen/cover-imagen';
 import { Paginador } from '../../../components/shared/paginador/paginador';
 import { ConfirmModal } from '../../../components/shared/confirm-modal/confirm-modal';
 import { CategoriaSelect } from '../../../components/shared/categoria-select/categoria-select';
+import { Icon } from '../../../components/shared/icon/icon';
 
 import type { CategoriaResponse } from '../../../models/categoria.model';
 import type { EstadoLibro, LibroFiltro, LibroResponse } from '../../../models/libro.model';
+import { DatePipe } from '@angular/common';
+import { EmptyState } from '../../../components/shared/empty-state/empty-state';
+import { PageHeader } from '../../../components/shared/page-header/page-header';
+import { StatusBadge } from '../../../components/shared/status-badge/status-badge';
 
 const TAMANIO_PAGINA = 8;
+type VistaLibros = 'activos' | 'eliminados';
+
+interface AccionLibro {
+  libro: LibroResponse;
+  tipo: 'baja' | 'reactivar';
+}
 
 @Component({
   selector: 'app-libros-listado',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CoverImagen, Paginador, ConfirmModal, CategoriaSelect],
+  imports: [ReactiveFormsModule, RouterLink, CoverImagen, Paginador, ConfirmModal, CategoriaSelect, Icon, DatePipe, EmptyState, PageHeader, StatusBadge],
   templateUrl: './libro-listado.html',
   styleUrl: './libro-listado.css',
 })
@@ -45,9 +56,10 @@ export class LibroListado {
 
   readonly categoriaIdFiltro = signal<number | null>(null);
   readonly paginaActual = signal(1);
-  readonly libroParaDarDeBaja = signal<LibroResponse | null>(null);
+  readonly vista = signal<VistaLibros>('activos');
+  readonly accionLibro = signal<AccionLibro | null>(null);
 
-  readonly puedeGestionar = computed(() => this.authService.tieneAlgunRol(...ROLES_GESTION));
+  readonly puedeGestionar = computed(() => this.authService.tieneAlgunRol(...SOLO_ADMINISTRADOR));
 
   readonly filtrosForm = this.fb.nonNullable.group({
     titulo: '',
@@ -76,16 +88,21 @@ export class LibroListado {
     };
   });
 
+  private readonly consultaActual = computed(() => ({ filtro: this.filtroActual(), vista: this.vista() }));
+
   constructor() {
     this.categoriaService.obtenerTodas().subscribe({ next: (categorias) => this.categorias.set(categorias) });
     this.filtrosForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.paginaActual.set(1));
 
-    toObservable(this.filtroActual)
+    toObservable(this.consultaActual)
       .pipe(
         tap(() => this.cargando.set(true)),
-        switchMap((filtro) =>
-          this.libroService.obtenerTodos(filtro).pipe(catchError(() => of(null)))
-        ),
+        switchMap(({ filtro, vista }) => {
+          const fuente = vista === 'eliminados'
+            ? this.libroService.obtenerEliminados(filtro)
+            : this.libroService.obtenerTodos(filtro);
+          return fuente.pipe(catchError(() => of(null)));
+        }),
         takeUntilDestroyed()
       )
       .subscribe((resultado) => {
@@ -93,6 +110,12 @@ export class LibroListado {
         this.totalRegistros.set(resultado?.totalRegistros ?? 0);
         this.cargando.set(false);
       });
+  }
+
+  cambiarVista(vista: VistaLibros): void {
+    if (this.vista() === vista) return;
+    this.vista.set(vista);
+    this.paginaActual.set(1);
   }
 
   onCategoriaFiltroChange(categoriaId: number | null): void {
@@ -107,25 +130,33 @@ export class LibroListado {
   }
 
   solicitarBaja(libro: LibroResponse): void {
-    this.libroParaDarDeBaja.set(libro);
+    this.accionLibro.set({ libro, tipo: 'baja' });
   }
 
-  confirmarBaja(): void {
-    const libro = this.libroParaDarDeBaja();
-    if (!libro) return;
+  solicitarReactivacion(libro: LibroResponse): void {
+    this.accionLibro.set({ libro, tipo: 'reactivar' });
+  }
 
-    this.libroService.cambiarEstado(libro.id).subscribe({
+  confirmarAccion(): void {
+    const accion = this.accionLibro();
+    if (!accion) return;
+
+    this.libroService.cambiarEstado(accion.libro.id).subscribe({
       next: () => {
-        this.notificationService.mostrarExito(`"${libro.titulo}" fue dado de baja correctamente.`);
-        this.libros.update((lista) => lista.filter((l) => l.id !== libro.id));
+        const mensaje = accion.tipo === 'baja'
+          ? `"${accion.libro.titulo}" fue dado de baja correctamente.`
+          : `"${accion.libro.titulo}" fue reactivado correctamente.`;
+        this.notificationService.mostrarExito(mensaje);
+
+        this.libros.update((lista) => lista.filter((l) => l.id !== accion.libro.id));
         this.totalRegistros.update((total) => Math.max(0, total - 1));
-        this.libroParaDarDeBaja.set(null);
+        this.accionLibro.set(null);
       },
-      error: () => this.libroParaDarDeBaja.set(null),
+      error: () => this.accionLibro.set(null),
     });
   }
 
-  cancelarBaja(): void {
-    this.libroParaDarDeBaja.set(null);
+  cancelarAccion(): void {
+    this.accionLibro.set(null);
   }
 }

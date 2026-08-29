@@ -1,0 +1,11 @@
+<div class="empty-state surface">
+    <div class="empty-state__icon">
+        <app-icon [name]="icono()" [size]="22" />
+    </div>
+    <div>
+        <h3 class="empty-state__titulo">{{ titulo() }}</h3>
+        @if (texto()) {
+        <p class="empty-state__texto">{{ texto() }}</p>
+        }
+    </div>
+</div>

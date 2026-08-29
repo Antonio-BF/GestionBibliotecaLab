@@ -5,11 +5,17 @@
       <li>
         @if (item.habilitado) {
         <a class="sidebar__link" [routerLink]="item.ruta" routerLinkActive="sidebar__link--activo">
-          {{ item.etiqueta }}
+          <span class="sidebar__link-contenido">
+            <app-icon [name]="item.icono" [size]="18" />
+            {{ item.etiqueta }}
+          </span>
         </a>
         } @else {
         <span class="sidebar__link sidebar__link--deshabilitado" title="Disponible próximamente">
-          {{ item.etiqueta }}
+          <span class="sidebar__link-contenido">
+            <app-icon [name]="item.icono" [size]="18" />
+            {{ item.etiqueta }}
+          </span>
           <span class="badge badge--pendiente">Próx.</span>
         </span>
         }

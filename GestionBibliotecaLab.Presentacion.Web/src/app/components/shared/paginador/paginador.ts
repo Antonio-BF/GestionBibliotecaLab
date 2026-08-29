@@ -1,9 +1,10 @@
 import { Component, computed, input, model } from '@angular/core';
+import { Icon } from '../icon/icon';
 
 @Component({
   selector: 'app-paginador',
   standalone: true,
-  imports: [],
+  imports: [Icon],
   templateUrl: './paginador.html',
   styleUrl: './paginador.css',
 })

@@ -27,9 +27,9 @@ export class CategoriaService {
   actualizar(id: number, request: CategoriaRequest): Observable<void> {
     return this.http.put<void>(API_ENDPOINTS.CATEGORIAS.POR_ID(id), request, { context: this.contextoSilencioso });
   }
-
+  
   eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(API_ENDPOINTS.CATEGORIAS.POR_ID(id), { context: this.contextoSilencioso });
+    return this.http.delete<void>(API_ENDPOINTS.CATEGORIAS.POR_ID(id));
   }
 
 }

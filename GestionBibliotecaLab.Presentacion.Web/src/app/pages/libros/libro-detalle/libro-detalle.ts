@@ -6,12 +6,13 @@ import { LibroService } from '../../../services/libro.service';
 import { AuthService } from '../../../services/auth.service';
 import { APP_ROUTES } from '../../../core/constants/app-routes.constants';
 import { LibroResponse } from '../../../models/libro.model';
-import { ROLES_GESTION } from '../../../core/constants/roles.constants';
+import { SOLO_ADMINISTRADOR } from '../../../core/constants/roles.constants';
+import { Icon } from '../../../components/shared/icon/icon';
 
 @Component({
   selector: 'app-libro-detalle',
   standalone: true,
-  imports: [RouterLink, CoverImagen, FichaDetalle],
+  imports: [RouterLink, CoverImagen, FichaDetalle, Icon],
   templateUrl: './libro-detalle.html',
   styleUrl: './libro-detalle.css',
 })
@@ -25,7 +26,7 @@ export class LibroDetalle implements OnInit {
   readonly cargando = signal(true);
   readonly libro = signal<LibroResponse | null>(null);
 
-  readonly puedeGestionar = computed(() => this.authService.tieneAlgunRol(...ROLES_GESTION));
+  readonly puedeGestionar = computed(() => this.authService.tieneAlgunRol(...SOLO_ADMINISTRADOR));
 
   readonly ficha = computed<FichaItem[]>(() => {
     const libro = this.libro();

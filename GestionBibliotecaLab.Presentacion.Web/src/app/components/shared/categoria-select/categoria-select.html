@@ -1,8 +1,8 @@
-<select class="form-control" [disabled]="deshabilitado()" (change)="onCambio($any($event.target).value)">
-    <option value="" [selected]="valor() === null">
-        {{ incluirTodas() ? 'Todas las categorías' : 'Sin categoría' }}
-    </option>
-    @for (categoria of categorias(); track categoria.id) {
-    <option [value]="categoria.id" [selected]="valor() === categoria.id">{{ categoria.nombre }}</option>
-    }
-</select>
+<app-entity-select 
+    [items]="categorias()" 
+    [valor]="valor()" 
+    [incluirTodos]="incluirTodas()"
+    [deshabilitado]="deshabilitado()" 
+    etiquetaTodos="Todas las categorías" 
+    etiquetaVacio="Sin categoría"
+    (cambio)="cambio.emit($event)" />

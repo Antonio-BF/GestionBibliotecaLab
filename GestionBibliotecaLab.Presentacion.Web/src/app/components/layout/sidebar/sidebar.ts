@@ -5,11 +5,12 @@ import { filter } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { MENU_ITEMS } from '../../../core/constants/menu.constants';
 import { LayoutUiService } from '../../../services/layout-ui.service';
+import { Icon } from '../../shared/icon/icon';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, Icon],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })

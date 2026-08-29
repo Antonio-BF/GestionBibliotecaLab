@@ -1,0 +1,117 @@
+<section class="page">
+    <app-page-header eyebrow="Administración" titulo="Directorio de Usuarios" [subtitulo]="vista() === 'activos'
+            ? 'Cuentas con acceso vigente al sistema'
+            : 'Cuentas dadas de baja del sistema'">
+        @if (vista() === 'activos') {
+        <button actions type="button" class="btn btn--primary" (click)="abrirNuevo()">
+            <app-icon name="nuevo" [size]="16" /> Registrar Usuario
+        </button>
+        }
+    </app-page-header>
+
+    <header class="surface panel-control">
+        <div class="panel-control__top">
+            <div class="subnav-pills" role="tablist">
+                <button type="button" role="tab" [attr.aria-selected]="vista() === 'activos'" class="pill-tab"
+                    [class.pill-tab--active]="vista() === 'activos'" (click)="cambiarVista('activos')">
+                    Cuentas Activas
+                </button>
+                <button type="button" role="tab" [attr.aria-selected]="vista() === 'eliminados'" class="pill-tab"
+                    [class.pill-tab--active]="vista() === 'eliminados'" (click)="cambiarVista('eliminados')">
+                    Inactivos / Bajas
+                </button>
+            </div>
+        </div>
+
+        <form class="panel-control__filters" [formGroup]="filtroForm" novalidate>
+            <div class="filter-search">
+                <input type="text" class="form-control" formControlName="busqueda"
+                    placeholder="Buscar por nombre, email..." />
+            </div>
+            <div class="filter-select">
+                <app-rol-select [roles]="roles()" [valor]="rolIdFiltro()" [incluirTodos]="true"
+                    (cambio)="onRolFiltroChange($event)" />
+            </div>
+        </form>
+    </header>
+
+    @if (cargando()) {
+    <p class="page__estado">Cargando directorio...</p>
+    } @else if (usuarios().length === 0) {
+    <app-empty-state icono="usuarios" titulo="Sin registros coincidentes" [texto]="vista() === 'eliminados'
+            ? 'No existen usuarios dados de baja que coincidan con los filtros.'
+            : 'Prueba modificando los filtros de búsqueda.'" />
+    } @else {
+    <div class="user-grid">
+        @for (usuario of usuarios(); track usuario.id) {
+        <article class="surface surface--interactive user-card" [class.user-card--self]="esCuentaPropia(usuario)">
+            <div class="user-card__header">
+                <div class="user-avatar">
+                    {{ usuario.nombres.charAt(0) }}{{ usuario.apellidos.charAt(0) }}
+                </div>
+                <div class="user-card__identity">
+                    <h3 class="user-card__name">{{ usuario.nombres }} {{ usuario.apellidos }}</h3>
+                    <span class="user-card__role-tag">{{ usuario.nombreRol }}</span>
+                </div>
+                <app-status-badge [activo]="!usuario.isDeleted" />
+            </div>
+
+            <div class="user-card__body">
+                <div class="user-card__detail">
+                    <span class="detail-label">Correo</span>
+                    <span class="detail-value">{{ usuario.email }}</span>
+                </div>
+            </div>
+
+            @if (vista() === 'eliminados' && usuario.fechaActualizacion) {
+            <p class="user-card__baja">
+                Dado de baja el {{ usuario.fechaActualizacion | date:'dd/MM/yyyy' }}
+            </p>
+            }
+
+            <div class="user-card__footer">
+                @if (esCuentaPropia(usuario)) {
+                <span class="self-tag">Tu Cuenta</span>
+                } @else {
+                @if (vista() === 'activos') {
+                <button type="button" class="btn btn--outline-primary btn--sm" (click)="abrirEditar(usuario)"
+                    title="Editar" aria-label="Editar">
+                    <app-icon name="editar" [size]="14" />
+                </button>
+                <button type="button" class="btn btn--danger btn--sm" (click)="solicitarCambioEstado(usuario)"
+                    title="Dar de baja" aria-label="Dar de baja">
+                    <app-icon name="baja" [size]="14" />
+                </button>
+                } @else {
+                <button type="button" class="btn btn--primary btn--sm" (click)="solicitarCambioEstado(usuario)"
+                        title="Reactivar" aria-label="Reactivar">
+                    <app-icon name="reactivar" [size]="14" /> Reactivar
+                </button>
+                }
+                }
+            </div>
+        </article>
+        }
+    </div>
+    <app-paginador [total]="totalRegistros()" [tamanioPagina]="tamanioPagina" [(paginaActual)]="paginaActual" />
+    }
+</section>
+
+<app-modal-shell 
+[visible]="modalAbierto()" 
+[titulo]="usuarioEditando() ? 'Editar Usuario' : 'Nuevo Usuario'"
+(cerrar)="cerrarModal()">
+    @if(modalAbierto()){
+    <app-usuario-formulario 
+    [roles]="roles()" 
+    [usuario]="usuarioEditando()" 
+    (guardado)="onGuardado()"
+    (cancelado)="cerrarModal()" />
+    }
+</app-modal-shell>
+
+<app-confirm-modal [visible]="!!usuarioParaCambiarEstado()"
+    [titulo]="vista() === 'eliminados' ? 'Reactivar usuario' : 'Dar de baja usuario'"
+    [mensaje]="'¿Confirmas cambiar el estado de este usuario?'"
+    [textoConfirmar]="vista() === 'eliminados' ? 'Reactivar' : 'Dar de baja'" (confirmar)="confirmarCambioEstado()"
+    (cancelar)="cancelarCambioEstado()" />

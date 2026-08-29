@@ -1,0 +1,8 @@
+<app-entity-select 
+    [items]="roles()" 
+    [valor]="valor()" 
+    [incluirTodos]="incluirTodos()" 
+    [deshabilitado]="deshabilitado()"
+    etiquetaTodos="Todos los roles" 
+    etiquetaVacio="Selecciona un rol" 
+    (cambio)="cambio.emit($event)" />

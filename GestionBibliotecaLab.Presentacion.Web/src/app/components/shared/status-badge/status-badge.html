@@ -1,0 +1,3 @@
+<span class="status-pill" [class.status-pill--activo]="activo()" [class.status-pill--inactivo]="!activo()">
+    {{ activo() ? etiquetaActivo() : etiquetaInactivo() }}
+</span>

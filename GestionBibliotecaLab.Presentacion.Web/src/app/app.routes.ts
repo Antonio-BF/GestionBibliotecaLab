@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { roleGuard } from './core/guards/role.guard';
-import { ROLES_GESTION } from './core/constants/roles.constants';
+import { ROLES_GESTION, SOLO_ADMINISTRADOR } from './core/constants/roles.constants';
 
 /**
  * Rutas de la aplicación.
@@ -42,7 +42,7 @@ export const routes: Routes = [
                     {
                         path: 'nuevo',
                         canActivate: [roleGuard],
-                        data: { roles: ROLES_GESTION },
+                        data: { roles: SOLO_ADMINISTRADOR },
                         loadComponent: () =>
                             import('./pages/libros/libro-formulario/libro-formulario').then((m) => m.LibroFormulario),
                     },
@@ -53,11 +53,29 @@ export const routes: Routes = [
                     {
                         path: ':id/editar',
                         canActivate: [roleGuard],
-                        data: { roles: ROLES_GESTION },
+                        data: { roles: SOLO_ADMINISTRADOR },
                         loadComponent: () =>
                             import('./pages/libros/libro-formulario/libro-formulario').then((m) => m.LibroFormulario),
                     },
                 ],
+            },
+            {
+                path: 'categorias',
+                loadComponent: () =>
+                    import('./pages/categorias/categoria-listado/categoria-listado').then((m) => m.CategoriaListado),
+            },
+            {
+                path: 'roles',
+                canActivate: [roleGuard],
+                data: { roles: SOLO_ADMINISTRADOR },
+                loadComponent: () => import('./pages/roles/rol-listado/rol-listado').then((m) => m.RolListado),
+            },
+            {
+                path: 'usuarios',
+                canActivate: [roleGuard],
+                data: { roles: SOLO_ADMINISTRADOR },
+                loadComponent: () =>
+                    import('./pages/usuarios/usuario-listado/usuario-listado').then((m) => m.UsuarioListado),
             },
         ],
     },

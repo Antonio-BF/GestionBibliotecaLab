@@ -6,5 +6,8 @@ export const APP_ROUTES = {
   REGISTRO: '/registro',
   DASHBOARD: '/dashboard',
   UNAUTHORIZED: '/unauthorized',
-  LIBROS: '/libros'
+  LIBROS: '/libros',
+  CATEGORIAS: '/categorias',
+  ROLES: '/roles',
+  USUARIOS: '/usuarios',
 } as const;

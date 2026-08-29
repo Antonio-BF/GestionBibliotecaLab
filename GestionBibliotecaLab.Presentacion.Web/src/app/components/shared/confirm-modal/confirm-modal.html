@@ -5,9 +5,11 @@
         <p class="modal__mensaje">{{ mensaje() }}</p>
         <div class="modal__acciones">
             <button type="button" class="btn btn--outline-primary btn--sm" (click)="cancelar.emit()">
+                <app-icon name="cancelar" [size]="14" />
                 {{ textoCancelar() }}
             </button>
             <button type="button" class="btn btn--danger btn--sm" (click)="confirmar.emit()">
+                <app-icon name="confirmar" [size]="14" />
                 {{ textoConfirmar() }}
             </button>
         </div>

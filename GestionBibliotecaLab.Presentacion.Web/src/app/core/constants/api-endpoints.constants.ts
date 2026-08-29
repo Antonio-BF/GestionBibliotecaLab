@@ -16,15 +16,23 @@ export const API_ENDPOINTS = {
     ELIMINADOS: `${API_BASE_URL}/libro/eliminados`,
   },
   LABORATORIOS: `${API_BASE_URL}/laboratorio`,
-  CATEGORIAS:{
+  CATEGORIAS: {
     BASE: `${API_BASE_URL}/categoria`,
     POR_ID: (id: number) => `${API_BASE_URL}/categoria/${id}`,
   },
   PRESTAMOS: `${API_BASE_URL}/prestamo`,
   RESERVAS: `${API_BASE_URL}/reserva`,
   PENALIZACIONES: `${API_BASE_URL}/penalizacion`,
-  USUARIOS: `${API_BASE_URL}/usuario`,
-  ROLES: `${API_BASE_URL}/rol`,
+  USUARIOS: {
+    BASE: `${API_BASE_URL}/usuario`,
+    POR_ID: (id: number) => `${API_BASE_URL}/usuario/${id}`,
+    ESTADO: (id: number) => `${API_BASE_URL}/usuario/${id}/estado`,
+    ELIMINADOS: `${API_BASE_URL}/usuario/eliminados`,
+  },
+  ROLES: {
+    BASE: `${API_BASE_URL}/rol`,
+    POR_ID: (id: number) => `${API_BASE_URL}/rol/${id}`,
+  },
 } as const;
 
 /** Endpoints públicos (no requieren Authorization header ni pasan por el refresh-on-401). */

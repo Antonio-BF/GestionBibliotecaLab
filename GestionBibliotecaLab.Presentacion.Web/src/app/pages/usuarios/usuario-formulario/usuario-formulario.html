@@ -1,0 +1,57 @@
+<form class="usuario-formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    <div class="form-grid">
+        <div class="form-group">
+            <label class="form-label" for="nombres">Nombres</label>
+            <input id="nombres" type="text" class="form-control" formControlName="nombres" />
+            @if (controles.nombres.invalid && controles.nombres.touched) {
+            <span class="form-error">Los nombres son requeridos.</span>
+            }
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="apellidos">Apellidos</label>
+            <input id="apellidos" type="text" class="form-control" formControlName="apellidos" />
+            @if (controles.apellidos.invalid && controles.apellidos.touched) {
+            <span class="form-error">Los apellidos son requeridos.</span>
+            }
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="email">Correo electrónico</label>
+            <input id="email" type="email" class="form-control" formControlName="email" />
+            @if (controles.email.invalid && controles.email.touched) {
+            <span class="form-error">Ingresa un correo válido.</span>
+            }
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password">
+                {{ modoEdicion() ? 'Nueva contraseña (opcional)' : 'Contraseña' }}
+            </label>
+            <input id="password" type="password" class="form-control" formControlName="password"
+                autocomplete="new-password" />
+            @if (controles.password.invalid && controles.password.touched) {
+            <span class="form-error">Mínimo 8 caracteres, con al menos una letra y un número.</span>
+            }
+            @if (modoEdicion()) {
+            <span class="form-hint">Déjala vacía para conservar la contraseña actual.</span>
+            }
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Rol</label>
+            <app-rol-select [roles]="roles()" [valor]="rolIdSeleccionado()" (cambio)="onRolChange($event)" />
+        </div>
+    </div>
+
+    @if (errorServidor()) {
+    <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
+    }
+
+    <div class="usuario-formulario__acciones">
+        <button type="button" class="btn btn--outline-primary btn--sm" (click)="cancelado.emit()">Cancelar</button>
+        <button type="submit" class="btn btn--primary btn--sm" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando…' : modoEdicion() ? 'Guardar cambios' : 'Registrar usuario' }}
+        </button>
+    </div>
+</form>

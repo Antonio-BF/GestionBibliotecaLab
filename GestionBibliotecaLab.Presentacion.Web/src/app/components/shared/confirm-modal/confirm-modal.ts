@@ -1,9 +1,10 @@
 import { Component, input, output } from '@angular/core';
+import { Icon } from '../icon/icon';
 
 @Component({
   selector: 'app-confirm-modal',
   standalone: true,
-  imports: [],
+  imports: [Icon],
   templateUrl: './confirm-modal.html',
   styleUrl: './confirm-modal.css',
   host: { '(document:keydown.escape)': 'onEscape()' },

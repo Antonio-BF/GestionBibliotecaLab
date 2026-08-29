@@ -4,7 +4,7 @@ import { API_ENDPOINTS } from '../core/constants/api-endpoints.constants';
 import { CreateLibroRequest, LibroFiltro, LibroResponse, UpdateLibroRequest } from '../models/libro.model';
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { SILENCIAR_ERROR_GLOBAL } from '../core/constants/http-context-tokens';
-import { PaginacionResultado } from '../models/paginacion.model.ts';
+import { PaginacionResultado } from '../models/paginacion.model';
 
 @Injectable({
   providedIn: 'root',

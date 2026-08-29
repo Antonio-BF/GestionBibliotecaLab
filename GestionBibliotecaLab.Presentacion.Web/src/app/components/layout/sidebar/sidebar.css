@@ -48,6 +48,11 @@ a.sidebar__link:hover {
   cursor: default;
 }
 
+.sidebar__link-contenido {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
 /* Off-canvas: patrón a reutilizar si el sistema suma más niveles de navegación. */
 @media (max-width: 900px) {
   .sidebar {

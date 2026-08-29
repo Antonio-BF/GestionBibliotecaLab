@@ -1,0 +1,110 @@
+<section class="page">
+    <app-page-header
+        eyebrow="Seguridad y accesos"
+        titulo="Roles y Permisos"
+        subtitulo="Niveles de acceso del sistema de gestión">
+        <button actions type="button" class="btn btn--primary" (click)="abrirNuevo()">
+            <app-icon name="nuevo" [size]="16" />
+            Crear Rol
+        </button>
+    </app-page-header>
+
+    <div class="surface filter-bar catalog__toolbar">
+        <form [formGroup]="filtroForm" novalidate>
+            <input type="text" class="form-control" formControlName="busqueda"
+                placeholder="Buscar rol por nombre o funciones..." />
+        </form>
+    </div>
+
+    @if (cargando()) {
+    <p class="page__estado">
+        Cargando perfil de roles...
+    </p>
+    } @else if (rolesFiltrados().length === 0) {
+    <app-empty-state
+        icono="roles"
+        titulo="No hay roles registrados"
+        texto="No se encontraron roles que coincidan con la búsqueda." />
+    } @else {
+    <section class="catalog">
+        <header class="catalog__header">
+            <span>Niveles de acceso</span>
+            <span class="catalog__header-count">
+                {{ rolesFiltrados().length }}
+                {{ rolesFiltrados().length === 1 ? 'rol' : 'roles' }}
+            </span>
+        </header>
+
+        <div class="catalog__list">
+            @for (rol of rolesFiltrados(); track rol.id; let i = $index) {
+            <article class="catalog__row" [class.catalog__row--marked]="esRolProtegido(rol)">
+                <div class="catalog__index">
+                    <span>{{ (i + 1).toString().padStart(2, '0') }}</span>
+                </div>
+
+                <div class="catalog__content">
+                    <div class="catalog__main">
+                        <div class="catalog__identity">
+                            <div class="catalog__topline">
+                                <span class="catalog__code">ROL-{{ rol.id }}</span>
+                                @if (esRolProtegido(rol)) {
+                                <span class="role-status role-status--system">Protegido</span>
+                                } @else {
+                                <span class="role-status role-status--custom">Personalizado</span>
+                                }
+                            </div>
+                            <h3 class="catalog__title">{{ rol.nombre | titlecase }}</h3>
+                            <p class="catalog__description">
+                                {{ rol.descripcion || 'Sin descripción asignada para este rol de usuario.' }}
+                            </p>
+                        </div>
+
+                        <div class="catalog__actions">
+                            <button type="button" class="icon-btn" (click)="abrirEditar(rol)" title="Editar rol"
+                                aria-label="Editar rol">
+                                <app-icon name="editar" [size]="15" />
+                            </button>
+                            @if (!esRolProtegido(rol)) {
+                            <button type="button" class="icon-btn icon-btn--danger" (click)="solicitarEliminar(rol)"
+                                title="Eliminar rol" aria-label="Eliminar rol">
+                                <app-icon name="baja" [size]="15" />
+                            </button>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="catalog__footer">
+                        <span class="catalog__footer-line"></span>
+                        @if (esRolProtegido(rol)) {
+                        <span>CONFIGURACIÓN DEL SISTEMA</span>
+                        } @else {
+                        <span>CONFIGURACIÓN PERSONALIZADA</span>
+                        }
+                    </div>
+                </div>
+            </article>
+            }
+        </div>
+    </section>
+    }
+</section>
+
+<app-modal-shell
+[visible]="modalAbierto()"
+[titulo]="rolEditando() ? 'Editar Rol' : 'Nuevo Rol'"
+(cerrar)="cerrarModal()">
+    @if (modalAbierto()) {
+    <app-rol-formulario
+    [rol]="rolEditando()"
+    (guardado)="onGuardado()"
+    (cancelado)="cerrarModal()" />
+    }
+</app-modal-shell>
+
+<app-confirm-modal
+[visible]="!!rolParaEliminar()"
+titulo="Eliminar Rol"
+mensaje="Esta acción eliminará el rol de manera permanente. ¿Desea continuar?"
+textoConfirmar="Eliminar"
+(confirmar)="confirmarEliminar()"
+(cancelar)="cancelarEliminar()" />

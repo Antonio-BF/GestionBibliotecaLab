@@ -1,7 +1,7 @@
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: var(--space-6);
 }
 
 /* Banner de Bienvenida */
@@ -9,38 +9,37 @@
   padding: clamp(1.25rem, 3vw, 2rem);
   background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-alt) 100%);
   border-left: 5px solid var(--color-accent);
-  border-radius: var(--radius);
 }
 
 .dashboard__hero-encabezado {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
   flex-wrap: wrap;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
 }
 
 .dashboard__titulo {
   font-family: var(--font-heading);
   color: var(--color-primary-dark);
   margin: 0;
-  font-size: clamp(1.35rem, 2vw + 0.8rem, 1.75rem);
+  font-size: clamp(1.35rem, 2vw + 0.8rem, var(--fs-2xl));
 }
 
 .dashboard__subtitulo {
   color: var(--color-text-muted);
   margin: 0;
   max-width: 680px;
-  font-size: 0.95rem;
+  font-size: var(--fs-md);
   line-height: 1.5;
 }
 
 /* Sección e Indicadores */
 .dashboard__seccion-titulo {
   font-family: var(--font-heading);
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
   color: var(--color-primary-dark);
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
   letter-spacing: 0.02em;
 }
 
@@ -48,28 +47,22 @@
 .dashboard__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.25rem;
+  gap: var(--space-5);
 }
 
 .dashboard__card {
   display: flex;
   flex-direction: column;
-  padding: 1.25rem;
+  padding: var(--space-5);
   text-decoration: none;
   color: inherit;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.dashboard__card--activo:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(23, 46, 38, 0.12);
-  border-color: var(--color-primary-light);
 }
 
 .dashboard__card--pendiente {
   background-color: var(--color-surface-alt);
   opacity: 0.75;
   border-style: dashed;
+  box-shadow: none;
 }
 
 .dashboard__card-header {
@@ -77,31 +70,31 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-3);
 }
 
 .dashboard__card-titulo {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--fs-md);
   color: var(--color-primary-dark);
   font-weight: 700;
 }
 
 .dashboard__card-texto {
-  margin: 0 0 1.25rem;
+  margin: 0 0 var(--space-5);
   font-size: 0.88rem;
   color: var(--color-text-muted);
   flex: 1;
 }
 
 .dashboard__card-link {
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--color-primary);
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  transition: color 0.15s ease;
+  transition: color var(--transition-base);
 }
 
 .dashboard__card--activo:hover .dashboard__card-link {

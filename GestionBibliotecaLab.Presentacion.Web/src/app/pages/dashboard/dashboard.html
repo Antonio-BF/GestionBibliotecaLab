@@ -1,6 +1,6 @@
 <section class="dashboard page">
   @if (usuario(); as u) {
-  <header class="dashboard__hero card">
+  <header class="surface surface--interactive dashboard__hero">
     <div class="dashboard__hero-contenido">
       <div class="dashboard__hero-encabezado">
         <h1 class="dashboard__titulo">Bienvenido(a), {{ u.nombres }}</h1>
@@ -23,7 +23,7 @@
     <div class="dashboard__grid">
       @for (modulo of modulos(); track modulo.ruta) {
       @if (modulo.habilitado) {
-      <a [routerLink]="[modulo.ruta]" class="card dashboard__card dashboard__card--activo">
+      <a [routerLink]="[modulo.ruta]" class="surface surface--interactive dashboard__card dashboard__card--activo">
         <div class="dashboard__card-header">
           <h3 class="dashboard__card-titulo">{{ modulo.etiqueta }}</h3>
           <span class="badge badge--activo">Disponible</span>
@@ -32,7 +32,7 @@
         <span class="dashboard__card-link">Acceder &rarr;</span>
       </a>
       } @else {
-      <article class="card dashboard__card dashboard__card--pendiente">
+      <article class="surface dashboard__card dashboard__card--pendiente">
         <div class="dashboard__card-header">
           <h3 class="dashboard__card-titulo">{{ modulo.etiqueta }}</h3>
           <span class="badge badge--pendiente">Próximamente</span>

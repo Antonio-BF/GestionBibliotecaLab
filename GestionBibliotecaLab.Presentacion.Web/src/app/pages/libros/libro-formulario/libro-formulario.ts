@@ -14,13 +14,14 @@ import { CoverImagen } from '../../../components/shared/cover-imagen/cover-image
 import type { CategoriaResponse } from '../../../models/categoria.model';
 import type { EstadoLibro, LibroResponse } from '../../../models/libro.model';
 import type { ApiError } from '../../../models/api-error.model';
+import { Icon } from '../../../components/shared/icon/icon';
 
 const EXTENSIONES_PERMITIDAS = ['image/jpeg', 'image/png', 'image/webp'];
 const TAMANIO_MAXIMO_BYTES = 3 * 1024 * 1024;
 @Component({
   selector: 'app-libros-formulario',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CategoriaSelect, CoverImagen],
+  imports: [ReactiveFormsModule, RouterLink, CategoriaSelect, CoverImagen, Icon],
   templateUrl: './libro-formulario.html',
   styleUrl: './libro-formulario.css',
 })

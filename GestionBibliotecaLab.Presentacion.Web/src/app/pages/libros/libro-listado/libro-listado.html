@@ -1,36 +1,57 @@
 <section class="page">
-    <div class="page__header">
-        <h1 class="page__titulo">Catálogo de libros</h1>
-        @if (puedeGestionar()) {
-        <a [routerLink]="[appRoutes.LIBROS, 'nuevo']" class="btn btn--primary btn--sm">+ Nuevo libro</a>
+    <app-page-header eyebrow="Catálogo" titulo="Catálogo de libros"
+        subtitulo="Explora y administra la colección bibliográfica">
+        @if (puedeGestionar() && vista() === 'activos') {
+        <a actions [routerLink]="[appRoutes.LIBROS, 'nuevo']" class="btn btn--primary">
+            <app-icon name="nuevo" [size]="15" /> Nuevo libro
+        </a>
         }
-    </div>
+    </app-page-header>
 
-    <form class="filtros card" [formGroup]="filtrosForm" novalidate>
-        <div class="filtros__campo">
-            <label class="form-label" for="f-titulo">Título</label>
-            <input id="f-titulo" type="text" class="form-control" formControlName="titulo"
-                placeholder="Buscar por título" />
+    @if (puedeGestionar()) {
+    <nav class="catalogo-tabs" role="tablist">
+        <button type="button" role="tab" [attr.aria-selected]="vista() === 'activos'" class="catalogo-tab"
+            [class.catalogo-tab--active]="vista() === 'activos'" (click)="cambiarVista('activos')">
+            <span class="catalogo-tab__dot"></span>
+            Disponibles
+        </button>
+        <button type="button" role="tab" [attr.aria-selected]="vista() === 'eliminados'" class="catalogo-tab"
+            [class.catalogo-tab--active]="vista() === 'eliminados'" (click)="cambiarVista('eliminados')">
+            <span class="catalogo-tab__dot"></span>
+            Dados de baja
+        </button>
+    </nav>
+    }
+
+    <form class="surface catalogo-filtros" [formGroup]="filtrosForm" novalidate>
+        <div class="catalogo-filtros__busqueda">
+            <span class="catalogo-filtros__icon">
+                <app-icon name="buscar" [size]="16" />
+            </span>
+            <input type="text" class="form-control" formControlName="titulo" placeholder="Buscar por título..." />
         </div>
+
         <div class="filtros__campo">
             <label class="form-label" for="f-autor">Autor</label>
-            <input id="f-autor" type="text" class="form-control" formControlName="autor"
-                placeholder="Buscar por autor" />
+            <input id="f-autor" type="text" class="form-control" formControlName="autor" placeholder="Autor" />
         </div>
+
         <div class="filtros__campo">
             <label class="form-label" for="f-isbn">ISBN</label>
-            <input id="f-isbn" type="text" class="form-control" formControlName="isbn" placeholder="Buscar por ISBN" />
+            <input id="f-isbn" type="text" class="form-control" formControlName="isbn" placeholder="ISBN" />
         </div>
+
         <div class="filtros__campo">
             <label class="form-label" for="f-anio">Año</label>
-            <input id="f-anio" type="number" class="form-control" formControlName="anioPublicacion"
-                placeholder="Ej. 2020" />
+            <input id="f-anio" type="number" class="form-control" formControlName="anioPublicacion" placeholder="Año" />
         </div>
+
         <div class="filtros__campo">
             <label class="form-label">Categoría</label>
             <app-categoria-select [categorias]="categorias()" [valor]="categoriaIdFiltro()" [incluirTodas]="true"
                 (cambio)="onCategoriaFiltroChange($event)" />
         </div>
+
         <div class="filtros__campo">
             <label class="form-label" for="f-estado">Estado</label>
             <select id="f-estado" class="form-control" formControlName="estado">
@@ -39,67 +60,116 @@
                 <option value="Descontinuado">Descontinuado</option>
             </select>
         </div>
-        <div class="filtros__campo filtros__campo--accion">
-            <button type="button" class="btn btn--outline-primary btn--sm" (click)="limpiarFiltros()">Limpiar
-                filtros</button>
-        </div>
+
+        <button type="button" class="btn btn--outline-primary btn--sm catalogo-filtros__limpiar"
+            (click)="limpiarFiltros()">
+            Limpiar
+        </button>
     </form>
 
     @if (cargando()) {
-    <p class="page__estado">Cargando catálogo…</p>
+    <p class="page__estado">Cargando colección...</p>
     } @else if (libros().length === 0) {
-    <p class="page__estado">No se encontraron libros con los filtros seleccionados.</p>
+    <app-empty-state icono="libros" titulo="No se encontraron libros" [texto]="vista() === 'eliminados'
+            ? 'No existen libros dados de baja que coincidan con los filtros.'
+            : 'Prueba modificando los filtros de búsqueda.'" />
     } @else {
-    <ul class="tarjetas-grid">
+    <div class="biblioteca">
         @for (libro of libros(); track libro.id) {
-        <li class="tarjeta tarjeta-libro card">
-            <a class="tarjeta-libro__portada" [routerLink]="[appRoutes.LIBROS, libro.id]">
-                <app-cover-imagen [portada]="libro.portada" [titulo]="libro.titulo" tamanio="md" />
-            </a>
+        <article class="surface surface--interactive libro-item"
+            [class.libro-item--inactivo]="vista() === 'eliminados'">
+            <div class="libro-item__portada">
+                @if (vista() === 'activos') {
+                <a [routerLink]="[appRoutes.LIBROS, libro.id]">
+                    <app-cover-imagen [portada]="libro.portada" [titulo]="libro.titulo" tamanio="md" />
+                </a>
+                } @else {
+                <span>
+                    <app-cover-imagen [portada]="libro.portada" [titulo]="libro.titulo" tamanio="md" />
+                </span>
+                }
+                <span class="libro-item__indice">#{{ libro.id }}</span>
+            </div>
 
-            <div class="tarjeta-libro__cuerpo">
-                <a class="tarjeta-libro__titulo" [routerLink]="[appRoutes.LIBROS, libro.id]">{{ libro.titulo }}</a>
-                <p class="tarjeta-libro__autor">{{ libro.autor }}</p>
+            <div class="libro-item__contenido">
+                <div class="libro-item__encabezado">
+                    <div>
+                        <span class="libro-item__categoria">
+                            {{ libro.nombreCategoria ?? 'Sin categoría' }}
+                        </span>
+                        @if (vista() === 'activos') {
+                        <a class="libro-item__titulo" [routerLink]="[appRoutes.LIBROS, libro.id]">
+                            {{ libro.titulo }}
+                        </a>
+                        } @else {
+                        <h2 class="libro-item__titulo">{{ libro.titulo }}</h2>
+                        }
+                    </div>
 
-                <div class="tarjeta-libro__meta">
-                    <span class="badge" [class.badge--activo]="libro.estado === 'Activo'"
-                        [class.badge--inactivo]="libro.estado !== 'Activo'">
-                        {{ libro.estado }}
-                    </span>
-                    <span class="tarjeta-libro__categoria">{{ libro.nombreCategoria ?? 'Sin categoría' }}</span>
+                    <app-status-badge [activo]="libro.estado === 'Activo'" etiquetaActivo="Activo"
+                        etiquetaInactivo="Descontinuado" />
                 </div>
 
-                <p class="tarjeta-libro__disponibilidad">
-                    {{ libro.cantidadDisponible }} de {{ libro.cantidadTotal }} disponibles
-                    @if (libro.anioPublicacion) { · {{ libro.anioPublicacion }} }
-                </p>
+                <p class="libro-item__autor">{{ libro.autor }}</p>
 
-                <div class="tarjeta-libro__acciones">
-                    <a [routerLink]="[appRoutes.LIBROS, libro.id]" class="btn btn--outline-primary btn--sm">Ver
-                        detalle</a>
+                <div class="libro-item__datos">
+                    <div class="libro-item__dato">
+                        <span class="libro-item__dato-label">ISBN</span>
+                        <strong>{{ libro.isbn }}</strong>
+                    </div>
+                    <div class="libro-item__dato">
+                        <span class="libro-item__dato-label">Publicación</span>
+                        <strong>{{ libro.anioPublicacion || '—' }}</strong>
+                    </div>
+                    <div class="libro-item__dato">
+                        <span class="libro-item__dato-label">Disponibilidad</span>
+                        <strong>{{ libro.cantidadDisponible }}/{{ libro.cantidadTotal }}</strong>
+                    </div>
+                </div>
+
+                @if (vista() === 'eliminados' && libro.fechaActualizacion) {
+                <p class="libro-item__baja">
+                    Dado de baja el {{ libro.fechaActualizacion | date:'dd/MM/yyyy' }}
+                </p>
+                }
+
+                <div class="libro-item__acciones">
+                    @if (vista() === 'activos') {
+                    <a [routerLink]="[appRoutes.LIBROS, libro.id]" class="btn btn--outline-primary btn--sm"
+                        title="Ver detalle" aria-label="Ver detalle">
+                        <app-icon name="ver" [size]="14" />
+                    </a>
                     @if (puedeGestionar()) {
-                    <a [routerLink]="[appRoutes.LIBROS, libro.id, 'editar']"
-                        class="btn btn--outline-primary btn--sm">Editar</a>
-                    <button type="button" class="btn btn--danger btn--sm" (click)="solicitarBaja(libro)">Dar de
-                        baja</button>
+                    <a [routerLink]="[appRoutes.LIBROS, libro.id, 'editar']" class="btn btn--outline-primary btn--sm"
+                        title="Editar" aria-label="Editar">
+                        <app-icon name="editar" [size]="14" /> 
+                    </a>
+                    <button type="button" class="btn btn--danger btn--sm" (click)="solicitarBaja(libro)"
+                        title="Dar de baja" aria-label="Dar de baja">
+                        <app-icon name="baja" [size]="14" />
+                    </button>
+                    }
+                    } @else {
+                    <button type="button" class="btn btn--primary btn--sm" (click)="solicitarReactivacion(libro)"
+                        title="Reactivar" aria-label="Reactivar">
+                        <app-icon name="reactivar" [size]="14" /> Reactivar
+                    </button>
                     }
                 </div>
             </div>
-        </li>
+        </article>
         }
-    </ul>
+    </div>
 
-    <app-paginador 
-    [total]="totalRegistros()" 
-    [tamanioPagina]="tamanioPagina" 
-    [(paginaActual)]="paginaActual" />
+    <app-paginador [total]="totalRegistros()" [tamanioPagina]="tamanioPagina" [(paginaActual)]="paginaActual" />
     }
 </section>
 
 <app-confirm-modal 
-[visible]="!!libroParaDarDeBaja()" 
-titulo="Dar de baja el libro"
-[mensaje]="'¿Confirmas dar de baja &quot;' + (libroParaDarDeBaja()?.titulo ?? '') + '&quot;? No podrás verlo ni reactivarlo desde esta pantalla.'"
-textoConfirmar="Dar de baja" 
-(confirmar)="confirmarBaja()" 
-(cancelar)="cancelarBaja()" />
+    [visible]="!!accionLibro()"
+    [titulo]="accionLibro()?.tipo === 'reactivar' ? 'Reactivar el libro' : 'Dar de baja el libro'"
+    [mensaje]="accionLibro()?.tipo === 'reactivar'
+    ? ('¿Confirmas reactivar &quot;' + (accionLibro()?.libro?.titulo ?? '') + '&quot;? Volverá a ser visible en el catálogo.')
+    : ('¿Confirmas dar de baja &quot;' + (accionLibro()?.libro?.titulo ?? '') + '&quot;? No podrás verlo ni reactivarlo desde esta pantalla.')"
+    [textoConfirmar]="accionLibro()?.tipo === 'reactivar' ? 'Reactivar' : 'Dar de baja'" (confirmar)="confirmarAccion()"
+    (cancelar)="cancelarAccion()" />
