@@ -12,7 +12,8 @@ export class CoverImagen {
   readonly portada = input<string | null>(null);
   readonly titulo = input<string>('Sin título');
   readonly tamanio = input<'sm' | 'md' | 'lg'>('md');
-
+  readonly aspectRatio = input<string>('2 / 3');
+  
   private readonly errorCarga = signal(false);
 
   readonly url = computed(() => (this.errorCarga() ? null : resolverUrlPortada(this.portada())));

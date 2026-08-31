@@ -1,7 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 import { catchError, debounceTime, of, switchMap, tap } from 'rxjs';
 
 import { LibroService } from '../../../services/libro.service';
@@ -9,7 +8,6 @@ import { CategoriaService } from '../../../services/categoria.service';
 import { AuthService } from '../../../services/auth.service';
 import { NotificationService } from '../../../services/notification.service';
 import { SOLO_ADMINISTRADOR } from '../../../core/constants/roles.constants';
-import { APP_ROUTES } from '../../../core/constants/app-routes.constants';
 
 import { CoverImagen } from '../../../components/shared/cover-imagen/cover-imagen';
 import { Paginador } from '../../../components/shared/paginador/paginador';
@@ -23,6 +21,9 @@ import { DatePipe } from '@angular/common';
 import { EmptyState } from '../../../components/shared/empty-state/empty-state';
 import { PageHeader } from '../../../components/shared/page-header/page-header';
 import { StatusBadge } from '../../../components/shared/status-badge/status-badge';
+import { ModalShell } from '../../../components/shared/modal-shell/modal-shell';
+import { LibroDetalle } from '../libro-detalle/libro-detalle';
+import { LibroFormulario } from '../libro-formulario/libro-formulario';
 
 const TAMANIO_PAGINA = 8;
 type VistaLibros = 'activos' | 'eliminados';
@@ -35,7 +36,10 @@ interface AccionLibro {
 @Component({
   selector: 'app-libros-listado',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CoverImagen, Paginador, ConfirmModal, CategoriaSelect, Icon, DatePipe, EmptyState, PageHeader, StatusBadge],
+  imports: [
+    ReactiveFormsModule, CoverImagen, Paginador, ConfirmModal, CategoriaSelect, Icon,
+    DatePipe, EmptyState, PageHeader, StatusBadge, ModalShell, LibroDetalle, LibroFormulario,
+  ],
   templateUrl: './libro-listado.html',
   styleUrl: './libro-listado.css',
 })
@@ -46,7 +50,6 @@ export class LibroListado {
   private readonly notificationService = inject(NotificationService);
   private readonly fb = inject(FormBuilder);
 
-  readonly appRoutes = APP_ROUTES;
   readonly tamanioPagina = TAMANIO_PAGINA;
 
   readonly cargando = signal(true);
@@ -58,6 +61,13 @@ export class LibroListado {
   readonly paginaActual = signal(1);
   readonly vista = signal<VistaLibros>('activos');
   readonly accionLibro = signal<AccionLibro | null>(null);
+
+  readonly libroDetalle = signal<LibroResponse | null>(null);
+
+  readonly modalFormularioAbierto = signal(false);
+  readonly libroEditando = signal<LibroResponse | null>(null);
+
+  private readonly refrescar = signal(0);
 
   readonly puedeGestionar = computed(() => this.authService.tieneAlgunRol(...SOLO_ADMINISTRADOR));
 
@@ -88,7 +98,10 @@ export class LibroListado {
     };
   });
 
-  private readonly consultaActual = computed(() => ({ filtro: this.filtroActual(), vista: this.vista() }));
+  private readonly consultaActual = computed(() => {
+    this.refrescar();
+    return { filtro: this.filtroActual(), vista: this.vista() };
+  });
 
   constructor() {
     this.categoriaService.obtenerTodas().subscribe({ next: (categorias) => this.categorias.set(categorias) });
@@ -127,6 +140,37 @@ export class LibroListado {
     this.filtrosForm.reset({ titulo: '', autor: '', isbn: '', anioPublicacion: '', estado: '' });
     this.categoriaIdFiltro.set(null);
     this.paginaActual.set(1);
+  }
+
+  abrirDetalle(libro: LibroResponse): void {
+    this.libroDetalle.set(libro);
+  }
+
+  cerrarDetalle(): void {
+    this.libroDetalle.set(null);
+  }
+
+  editarDesdeDetalle(libro: LibroResponse): void {
+    this.libroDetalle.set(null);
+    this.abrirEditar(libro);
+  }
+
+  abrirNuevo(): void {
+    this.libroEditando.set(null);
+    this.modalFormularioAbierto.set(true);
+  }
+
+  abrirEditar(libro: LibroResponse): void {
+    this.libroEditando.set(libro);
+    this.modalFormularioAbierto.set(true);
+  }
+
+  cerrarFormulario(): void {
+    this.modalFormularioAbierto.set(false);
+  }
+
+  onGuardado(): void {
+    this.refrescar.update((n) => n + 1);
   }
 
   solicitarBaja(libro: LibroResponse): void {

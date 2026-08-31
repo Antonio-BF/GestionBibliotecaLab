@@ -2,11 +2,6 @@
     display: block;
 }
 
-.filter-bar {
-    padding: var(--space-4) var(--space-5);
-    margin-bottom: var(--space-5);
-}
-
 .role-status {
     display: inline-flex;
     align-items: center;

@@ -1,6 +1,6 @@
 @if (visible()) {
 <div class="modal-overlay" (click)="cerrar.emit()">
-    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div class="modal" [class]="'modal--' + tamano()" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
         @if (titulo()) {
         <h2 class="modal__titulo">{{ titulo() }}</h2>
         }

@@ -1,0 +1,18 @@
+.detalle-modal--laboratorio {
+  gap: var(--space-5);
+}
+
+.detalle-modal--laboratorio .detalle-modal__media {
+  width: 100%;
+}
+
+.detalle-modal--laboratorio .detalle-modal__info {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .detalle-modal--laboratorio {
+    display: flex;
+    flex-direction: column;
+  }
+}

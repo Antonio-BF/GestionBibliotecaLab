@@ -1,0 +1,135 @@
+<section class="page">
+    <app-page-header eyebrow="Infraestructura" titulo="Laboratorios"
+        subtitulo="Espacios disponibles para reserva y uso académico">
+        @if (puedeGestionar() && vista() === 'activos') {
+        <button actions type="button" class="btn btn--primary" (click)="abrirNuevo()">
+            <app-icon name="nuevo" [size]="15" /> Nuevo laboratorio
+        </button>
+        }
+    </app-page-header>
+
+    @if (puedeGestionar()) {
+    <nav class="view-tabs" role="tablist">
+        <button type="button" role="tab" [attr.aria-selected]="vista() === 'activos'" class="view-tab"
+            [class.view-tab--active]="vista() === 'activos'" (click)="cambiarVista('activos')">
+            <span class="view-tab__dot"></span> Disponibles
+        </button>
+        <button type="button" role="tab" [attr.aria-selected]="vista() === 'eliminados'" class="view-tab"
+            [class.view-tab--active]="vista() === 'eliminados'" (click)="cambiarVista('eliminados')">
+            <span class="view-tab__dot"></span> Dados de baja
+        </button>
+    </nav>
+    }
+
+    <form class="surface filter-toolbar" [formGroup]="filtrosForm" novalidate>
+        <div class="filter-toolbar__busqueda">
+            <span class="filter-toolbar__icon"><app-icon name="buscar" [size]="16" /></span>
+            <input type="text" class="form-control" formControlName="nombre" placeholder="Buscar por nombre..." />
+        </div>
+        <div class="filtros__campo">
+            <label class="form-label" for="f-ubicacion">Ubicación</label>
+            <input id="f-ubicacion" type="text" class="form-control" formControlName="ubicacion"
+                placeholder="Pabellón, piso..." />
+        </div>
+        <div class="filtros__campo">
+            <label class="form-label" for="f-estado">Estado</label>
+            <select id="f-estado" class="form-control" formControlName="estado">
+                <option value="">Todos</option>
+                <option value="Disponible">Disponible</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+                <option value="Inactivo">Inactivo</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn--outline-primary btn--sm filter-toolbar__limpiar"
+            (click)="limpiarFiltros()">
+            Limpiar
+        </button>
+    </form>
+
+    @if (cargando()) {
+    <p class="page__estado">Cargando laboratorios...</p>
+    } @else if (laboratorios().length === 0) {
+    <app-empty-state icono="laboratorios" titulo="No se encontraron laboratorios" [texto]="vista() === 'eliminados'
+            ? 'No existen laboratorios dados de baja que coincidan con los filtros.'
+            : 'Prueba modificando los filtros de búsqueda.'" />
+    } @else {
+    <div class="lab-grid">
+        @for (lab of laboratorios(); track lab.id) {
+        <article class="surface surface--interactive surface--flush lab-card">
+            <div class="lab-card__media">
+                <app-cover-imagen [portada]="lab.imagen" [titulo]="lab.nombre" tamanio="lg" aspectRatio="4 / 3" />
+                <span class="lab-card__estado status-pill" [class]="claseEstado(lab.estado)">{{ lab.estado }}</span>
+                <div class="lab-card__overlay">
+                    <h3 class="lab-card__titulo">{{ lab.nombre }}</h3>
+                    <p class="lab-card__ubicacion"><app-icon name="ubicacion" [size]="13" /> {{ lab.ubicacion }}</p>
+                </div>
+            </div>
+            <div class="lab-card__footer">
+                <span class="lab-card__capacidad"><app-icon name="usuarios" [size]="14" /> {{ lab.capacidad }}
+                    personas</span>
+                <div class="lab-card__acciones" (click)="$event.stopPropagation()">
+                    
+                    @if (vista() === 'activos') {
+                    <button type="button" class="icon-btn" (click)="abrirDetalle(lab)" title="Ver detalle"
+                        aria-label="Ver detalle">
+                        <app-icon name="ver" [size]="15" />
+                    </button>
+                    @if (puedeGestionar()) {
+                    <button type="button" class="icon-btn" (click)="abrirEditar(lab)" title="Editar"
+                        aria-label="Editar">
+                        <app-icon name="editar" [size]="15" />
+                    </button>
+                    <button type="button" class="icon-btn icon-btn--danger" (click)="solicitarBaja(lab)"
+                        title="Dar de baja" aria-label="Dar de baja">
+                        <app-icon name="baja" [size]="15" />
+                    </button>
+                    }
+                    } @else {
+                    <button type="button" class="icon-btn" (click)="solicitarReactivacion(lab)" title="Reactivar"
+                        aria-label="Reactivar">
+                        <app-icon name="reactivar" [size]="15" />
+                    </button>
+                    }
+                    
+                </div>
+            </div>
+        </article>
+        }
+    </div>
+
+    <app-paginador [total]="totalRegistros()" [tamanioPagina]="tamanioPagina" [(paginaActual)]="paginaActual" />
+    }
+</section>
+
+<app-modal-shell 
+[visible]="!!laboratorioDetalle()" 
+tamano="lg" 
+(cerrar)="cerrarDetalle()">
+    @if (laboratorioDetalle(); as lab) {
+    <app-laboratorio-detalle 
+        [laboratorio]="lab" 
+        [puedeGestionar]="puedeGestionar()"
+        (editar)="editarDesdeDetalle(lab)" />
+    }
+</app-modal-shell>
+
+<app-modal-shell 
+[visible]="modalFormularioAbierto()"
+tamano="lg"
+[titulo]="laboratorioEditando() ? 'Editar laboratorio' : 'Nuevo laboratorio'" 
+(cerrar)="cerrarFormulario()">
+    @if (modalFormularioAbierto()) {
+    <app-laboratorio-formulario 
+        [laboratorio]="laboratorioEditando()" 
+        (guardado)="onGuardado()"
+        (cerrar)="cerrarFormulario()" />
+    }
+</app-modal-shell>
+
+<app-confirm-modal [visible]="!!accionLaboratorio()"
+    [titulo]="accionLaboratorio()?.tipo === 'reactivar' ? 'Reactivar laboratorio' : 'Dar de baja laboratorio'"
+    [mensaje]="accionLaboratorio()?.tipo === 'reactivar'
+        ? ('¿Confirmas reactivar &quot;' + (accionLaboratorio()?.laboratorio?.nombre ?? '') + '&quot;?')
+        : ('¿Confirmas dar de baja &quot;' + (accionLaboratorio()?.laboratorio?.nombre ?? '') + '&quot;? No podrá reservarse mientras esté inactivo.')"
+    [textoConfirmar]="accionLaboratorio()?.tipo === 'reactivar' ? 'Reactivar' : 'Dar de baja'"
+    (confirmar)="confirmarAccion()" (cancelar)="cancelarAccion()" />

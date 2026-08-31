@@ -1,0 +1,82 @@
+<form class="lab-formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    <div class="form-with-media">
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label" for="lab-nombre">Nombre</label>
+                <input id="lab-nombre" type="text" class="form-control" formControlName="nombre" />
+                @if (controles.nombre.invalid && controles.nombre.touched) {
+                <span class="form-error">El nombre es requerido (máx. 100 caracteres).</span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="lab-capacidad">Capacidad</label>
+                <input id="lab-capacidad" type="number" class="form-control" formControlName="capacidad" min="1" />
+                @if (controles.capacidad.invalid && controles.capacidad.touched) {
+                <span class="form-error">Debe ser al menos 1.</span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="lab-ubicacion">Ubicación</label>
+                <input id="lab-ubicacion" type="text" class="form-control" formControlName="ubicacion" />
+                @if (controles.ubicacion.invalid && controles.ubicacion.touched) {
+                <span class="form-error">La ubicación es requerida (máx. 150 caracteres).</span>
+                }
+            </div>
+
+            @if (modoEdicion()) {
+            <div class="form-group">
+                <label class="form-label" for="lab-estado">Estado</label>
+                <select id="lab-estado" class="form-control" formControlName="estado">
+                    <option value="Disponible">Disponible</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+            }
+
+            <div class="form-group form-group--full">
+                <label class="form-label" for="lab-equipamiento">Equipamiento</label>
+                <textarea id="lab-equipamiento" class="form-control" rows="2" formControlName="equipamiento"></textarea>
+            </div>
+
+            <div class="form-group form-group--full">
+                <label class="form-label" for="lab-descripcion">Descripción</label>
+                <textarea id="lab-descripcion" class="form-control" rows="3" formControlName="descripcion"></textarea>
+            </div>
+        </div>
+
+        <div class="form-with-media__aside">
+            @if (laboratorioActivo(); as lab) {
+            <h3 class="form-with-media__subtitulo">Imagen del laboratorio</h3>
+            <app-cover-imagen [portada]="lab.imagen" [titulo]="lab.nombre" tamanio="md" aspectRatio="16 / 9" />
+
+            <label class="btn btn--outline-primary btn--sm form-with-media__subir">
+                {{ subiendoImagen() ? 'Subiendo…' : 'Subir / reemplazar imagen' }}
+                <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onArchivoSeleccionado($event)"
+                    hidden [disabled]="subiendoImagen()" />
+            </label>
+            <p class="form-hint">Formatos permitidos: JPG, PNG o WEBP. Tamaño máximo: 3 MB.</p>
+            } @else {
+            <div class="form-with-media__placeholder">
+                <app-icon name="laboratorios" [size]="26" />
+                <p class="form-hint">Podrás subir la imagen del laboratorio apenas lo registres.</p>
+            </div>
+            }
+        </div>
+    </div>
+
+    @if (errorServidor()) {
+    <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
+    }
+
+    <div class="modal__acciones">
+        <button type="button" class="btn btn--outline-primary btn--sm" (click)="finalizar()">
+            {{ modoEdicion() ? 'Listo' : 'Cancelar' }}
+        </button>
+        <button type="submit" class="btn btn--primary btn--sm" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando…' : modoEdicion() ? 'Guardar cambios' : 'Registrar laboratorio' }}
+        </button>
+    </div>
+</form>

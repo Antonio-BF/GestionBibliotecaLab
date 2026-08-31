@@ -1,36 +1,24 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Component, computed, input, output } from '@angular/core';
 import { CoverImagen } from '../../../components/shared/cover-imagen/cover-imagen';
 import { FichaDetalle, FichaItem } from '../../../components/shared/ficha-detalle/ficha-detalle';
-import { LibroService } from '../../../services/libro.service';
-import { AuthService } from '../../../services/auth.service';
-import { APP_ROUTES } from '../../../core/constants/app-routes.constants';
-import { LibroResponse } from '../../../models/libro.model';
-import { SOLO_ADMINISTRADOR } from '../../../core/constants/roles.constants';
+import { StatusBadge } from '../../../components/shared/status-badge/status-badge';
 import { Icon } from '../../../components/shared/icon/icon';
+import type { LibroResponse } from '../../../models/libro.model';
 
 @Component({
   selector: 'app-libro-detalle',
   standalone: true,
-  imports: [RouterLink, CoverImagen, FichaDetalle, Icon],
+  imports: [CoverImagen, FichaDetalle, StatusBadge, Icon],
   templateUrl: './libro-detalle.html',
   styleUrl: './libro-detalle.css',
 })
-export class LibroDetalle implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly libroService = inject(LibroService);
-  private readonly authService = inject(AuthService);
-
-  readonly appRoutes = APP_ROUTES;
-  readonly cargando = signal(true);
-  readonly libro = signal<LibroResponse | null>(null);
-
-  readonly puedeGestionar = computed(() => this.authService.tieneAlgunRol(...SOLO_ADMINISTRADOR));
+export class LibroDetalle {
+  readonly libro = input.required<LibroResponse>();
+  readonly puedeGestionar = input<boolean>(false);
+  readonly editar = output<void>();
 
   readonly ficha = computed<FichaItem[]>(() => {
     const libro = this.libro();
-    if (!libro) return [];
     return [
       { etiqueta: 'Autor', valor: libro.autor },
       { etiqueta: 'ISBN', valor: libro.isbn },
@@ -40,20 +28,4 @@ export class LibroDetalle implements OnInit {
       { etiqueta: 'Disponibilidad', valor: `${libro.cantidadDisponible} de ${libro.cantidadTotal} ejemplares` },
     ];
   });
-
-  ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!id) {
-      this.router.navigateByUrl(this.appRoutes.LIBROS);
-      return;
-    }
-
-    this.libroService.obtenerPorId(id).subscribe({
-      next: (libro) => {
-        this.libro.set(libro);
-        this.cargando.set(false);
-      },
-      error: () => this.router.navigateByUrl(this.appRoutes.LIBROS),
-    });
-  }
 }

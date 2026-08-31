@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { roleGuard } from './core/guards/role.guard';
-import { ROLES_GESTION, SOLO_ADMINISTRADOR } from './core/constants/roles.constants';
+import { SOLO_ADMINISTRADOR } from './core/constants/roles.constants';
 
 /**
  * Rutas de la aplicación.
@@ -34,30 +34,11 @@ export const routes: Routes = [
             },
             {
                 path: 'libros',
-                children: [
-                    {
-                        path: '',
-                        loadComponent: () => import('./pages/libros/libro-listado/libro-listado').then((m) => m.LibroListado),
-                    },
-                    {
-                        path: 'nuevo',
-                        canActivate: [roleGuard],
-                        data: { roles: SOLO_ADMINISTRADOR },
-                        loadComponent: () =>
-                            import('./pages/libros/libro-formulario/libro-formulario').then((m) => m.LibroFormulario),
-                    },
-                    {
-                        path: ':id',
-                        loadComponent: () => import('./pages/libros/libro-detalle/libro-detalle').then((m) => m.LibroDetalle),
-                    },
-                    {
-                        path: ':id/editar',
-                        canActivate: [roleGuard],
-                        data: { roles: SOLO_ADMINISTRADOR },
-                        loadComponent: () =>
-                            import('./pages/libros/libro-formulario/libro-formulario').then((m) => m.LibroFormulario),
-                    },
-                ],
+                loadComponent: () => import('./pages/libros/libro-listado/libro-listado').then((m) => m.LibroListado),
+            },
+            {
+                path: 'laboratorios',
+                loadComponent: () => import('./pages/laboratorio/laboratorio-listado/laboratorio-listado').then((m) => m.LaboratorioListado),
             },
             {
                 path: 'categorias',

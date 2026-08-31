@@ -1,116 +1,108 @@
-<section class="page">
-    <div class="page__header">
-        <h1 class="page__titulo">{{ modoEdicion() ? 'Editar libro' : 'Nuevo libro' }}</h1>
-        <a [routerLink]="[appRoutes.LIBROS]" class="btn btn--outline-primary btn--sm">
-            <app-icon name="fizquierda" [size]="14" /> Volver al catálogo</a>
-    </div>
-
-    @if (cargando()) {
-    <p class="page__estado">Cargando…</p>
-    } @else {
-    <div class="libro-formulario">
-        <form class="libro-formulario__campos card" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label" for="titulo">Título</label>
-                    <input id="titulo" type="text" class="form-control" formControlName="titulo" />
-                    @if (controles.titulo.invalid && controles.titulo.touched) {
-                    <span class="form-error">El título es requerido (máx. 250 caracteres).</span>
-                    }
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="autor">Autor</label>
-                    <input id="autor" type="text" class="form-control" formControlName="autor" />
-                    @if (controles.autor.invalid && controles.autor.touched) {
-                    <span class="form-error">El autor es requerido (máx. 150 caracteres).</span>
-                    }
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="isbn">ISBN</label>
-                    <input id="isbn" type="text" class="form-control" formControlName="isbn" />
-                    @if (controles.isbn.invalid && controles.isbn.touched) {
-                    <span class="form-error">El ISBN es requerido (máx. 20 caracteres).</span>
-                    }
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="editorial">Editorial</label>
-                    <input id="editorial" type="text" class="form-control" formControlName="editorial" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="anio">Año de publicación</label>
-                    <input id="anio" type="number" class="form-control" formControlName="anioPublicacion" min="1000"
-                        max="2100" />
-                    @if (controles.anioPublicacion.invalid && controles.anioPublicacion.touched) {
-                    <span class="form-error">Debe estar entre 1000 y 2100.</span>
-                    }
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Categoría</label>
-                    <app-categoria-select [categorias]="categorias()" [valor]="categoriaIdSeleccionada()"
-                        (cambio)="onCategoriaChange($event)" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="cantidadTotal">Cantidad total de ejemplares</label>
-                    <input id="cantidadTotal" type="number" class="form-control" formControlName="cantidadTotal"
-                        min="1" />
-                    @if (controles.cantidadTotal.invalid && controles.cantidadTotal.touched) {
-                    <span class="form-error">Debe ser al menos 1.</span>
-                    }
-                    @if (modoEdicion() && libroActual(); as libro) {
-                    <span class="form-hint">Disponibles actualmente: {{ libro.cantidadDisponible }} de {{
-                        libro.cantidadTotal }}.</span>
-                    }
-                </div>
-
-                @if (modoEdicion()) {
-                <div class="form-group">
-                    <label class="form-label" for="estado">Estado</label>
-                    <select id="estado" class="form-control" formControlName="estado">
-                        <option value="Activo">Activo</option>
-                        <option value="Descontinuado">Descontinuado</option>
-                    </select>
-                </div>
+<form class="libro-formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    <div class="form-with-media">
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label" for="lib-titulo">Título</label>
+                <input id="lib-titulo" type="text" class="form-control" formControlName="titulo" />
+                @if (controles.titulo.invalid && controles.titulo.touched) {
+                <span class="form-error">El título es requerido (máx. 250 caracteres).</span>
                 }
-
-                <div class="form-group form-group--full">
-                    <label class="form-label" for="descripcion">Descripción</label>
-                    <textarea id="descripcion" class="form-control" rows="3" formControlName="descripcion"></textarea>
-                </div>
             </div>
 
-            @if (errorServidor()) {
-            <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
+            <div class="form-group">
+                <label class="form-label" for="lib-autor">Autor</label>
+                <input id="lib-autor" type="text" class="form-control" formControlName="autor" />
+                @if (controles.autor.invalid && controles.autor.touched) {
+                <span class="form-error">El autor es requerido (máx. 150 caracteres).</span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="lib-isbn">ISBN</label>
+                <input id="lib-isbn" type="text" class="form-control" formControlName="isbn" />
+                @if (controles.isbn.invalid && controles.isbn.touched) {
+                <span class="form-error">El ISBN es requerido (máx. 20 caracteres).</span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="lib-editorial">Editorial</label>
+                <input id="lib-editorial" type="text" class="form-control" formControlName="editorial" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="lib-anio">Año de publicación</label>
+                <input id="lib-anio" type="number" class="form-control" formControlName="anioPublicacion" min="1000"
+                    max="2100" />
+                @if (controles.anioPublicacion.invalid && controles.anioPublicacion.touched) {
+                <span class="form-error">Debe estar entre 1000 y 2100.</span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Categoría</label>
+                <app-categoria-select [categorias]="categorias()" [valor]="categoriaIdSeleccionada()"
+                    (cambio)="onCategoriaChange($event)" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="lib-cantidad">Cantidad total de ejemplares</label>
+                <input id="lib-cantidad" type="number" class="form-control" formControlName="cantidadTotal" min="1" />
+                @if (controles.cantidadTotal.invalid && controles.cantidadTotal.touched) {
+                <span class="form-error">Debe ser al menos 1.</span>
+                }
+                @if (modoEdicion() && libroActivo(); as libro) {
+                <span class="form-hint">Disponibles actualmente: {{ libro.cantidadDisponible }} de {{
+                    libro.cantidadTotal }}.</span>
+                }
+            </div>
+
+            @if (modoEdicion()) {
+            <div class="form-group">
+                <label class="form-label" for="lib-estado">Estado</label>
+                <select id="lib-estado" class="form-control" formControlName="estado">
+                    <option value="Activo">Activo</option>
+                    <option value="Descontinuado">Descontinuado</option>
+                </select>
+            </div>
             }
 
-            <button type="submit" class="btn btn--primary" [disabled]="guardando()">
-                {{ guardando() ? 'Guardando…' : modoEdicion() ? 'Guardar cambios' : 'Registrar libro' }}
-            </button>
-        </form>
+            <div class="form-group form-group--full">
+                <label class="form-label" for="lib-descripcion">Descripción</label>
+                <textarea id="lib-descripcion" class="form-control" rows="3" formControlName="descripcion"></textarea>
+            </div>
+        </div>
 
-        @if (modoEdicion()) {
-        <div class="libro-formulario__portada card">
-            <h2 class="libro-formulario__subtitulo">Portada</h2>
-            <app-cover-imagen [portada]="libroActual()?.portada ?? null" [titulo]="libroActual()?.titulo ?? ''"
-                tamanio="md" />
+        <div class="form-with-media__aside">
+            @if (libroActivo(); as libro) {
+            <h3 class="form-with-media__subtitulo">Portada</h3>
+            <app-cover-imagen [portada]="libro.portada" [titulo]="libro.titulo" tamanio="md" />
 
-            <label class="btn btn--outline-primary btn--sm libro-formulario__subir">
+            <label class="btn btn--outline-primary btn--sm form-with-media__subir">
                 {{ subiendoPortada() ? 'Subiendo…' : 'Subir / reemplazar portada' }}
                 <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onArchivoSeleccionado($event)"
                     hidden [disabled]="subiendoPortada()" />
             </label>
             <p class="form-hint">Formatos permitidos: JPG, PNG o WEBP. Tamaño máximo: 3 MB.</p>
+            } @else {
+            <div class="form-with-media__placeholder">
+                <app-icon name="libros" [size]="26" />
+                <p class="form-hint">Podrás subir la portada apenas registres el libro.</p>
+            </div>
+            }
         </div>
-        } @else {
-        <div class="libro-formulario__portada card libro-formulario__portada--pendiente">
-            <p class="form-hint">Podrás subir la portada apenas registres el libro.</p>
-        </div>
-        }
     </div>
+
+    @if (errorServidor()) {
+    <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
     }
-</section>
+
+    <div class="modal__acciones">
+        <button type="button" class="btn btn--outline-primary btn--sm" (click)="finalizar()">
+            {{ modoEdicion() ? 'Listo' : 'Cancelar' }}
+        </button>
+        <button type="submit" class="btn btn--primary btn--sm" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando…' : modoEdicion() ? 'Guardar cambios' : 'Registrar libro' }}
+        </button>
+    </div>
+</form>

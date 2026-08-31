@@ -1,13 +1,12 @@
-<article class="detalle-modal">
+<article class="detalle-modal detalle-modal--laboratorio">
     <div class="detalle-modal__media">
-        <app-cover-imagen [portada]="libro().portada" [titulo]="libro().titulo" tamanio="lg" />
+        <app-cover-imagen [portada]="laboratorio().imagen" [titulo]="laboratorio().nombre" tamanio="lg" aspectRatio="16 / 9" />
     </div>
 
     <div class="detalle-modal__info">
         <header class="detalle-modal__encabezado">
-            <h2 class="detalle-modal__titulo">{{ libro().titulo }}</h2>
-            <app-status-badge [activo]="libro().estado === 'Activo'" etiquetaActivo="Activo"
-                etiquetaInactivo="Descontinuado" />
+            <h2 class="detalle-modal__titulo">{{ laboratorio().nombre }}</h2>
+            <span class="status-pill" [class]="claseEstado(laboratorio().estado)">{{ laboratorio().estado }}</span>
         </header>
 
         <app-ficha-detalle [items]="ficha()" />
@@ -15,14 +14,14 @@
         <section class="detalle-modal__descripcion">
             <h3 class="detalle-modal__descripcion-titulo">Descripción</h3>
             <p class="detalle-modal__descripcion-texto">
-                {{ libro().descripcion || 'Este libro todavía no tiene una descripción registrada.' }}
+                {{ laboratorio().descripcion || 'Este laboratorio todavía no tiene una descripción registrada.' }}
             </p>
         </section>
 
         @if (puedeGestionar()) {
         <div class="detalle-modal__acciones">
             <button type="button" class="btn btn--primary btn--sm" (click)="editar.emit()">
-                <app-icon name="editar" [size]="14" /> Editar libro
+                <app-icon name="editar" [size]="14" /> Editar laboratorio
             </button>
         </div>
         }

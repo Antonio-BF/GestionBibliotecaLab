@@ -15,7 +15,13 @@ export const API_ENDPOINTS = {
     ESTADO: (id: number) => `${API_BASE_URL}/libro/${id}/estado`,
     ELIMINADOS: `${API_BASE_URL}/libro/eliminados`,
   },
-  LABORATORIOS: `${API_BASE_URL}/laboratorio`,
+  LABORATORIOS: {
+    BASE: `${API_BASE_URL}/laboratorio`,
+    POR_ID: (id: number) => `${API_BASE_URL}/laboratorio/${id}`,
+    IMAGEN: (id: number) => `${API_BASE_URL}/laboratorio/${id}/imagen`,
+    ESTADO: (id: number) => `${API_BASE_URL}/laboratorio/${id}/estado`,
+    ELIMINADOS: `${API_BASE_URL}/laboratorio/eliminados`,
+  },
   CATEGORIAS: {
     BASE: `${API_BASE_URL}/categoria`,
     POR_ID: (id: number) => `${API_BASE_URL}/categoria/${id}`,

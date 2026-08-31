@@ -19,7 +19,7 @@
     <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
     }
 
-    <div class="categoria-formulario__acciones">
+    <div class="modal__acciones">
         <button type="button" class="btn btn--outline-primary btn--sm" (click)="cancelado.emit()">Cancelar</button>
         <button type="submit" class="btn btn--primary btn--sm" [disabled]="guardando()">
             {{ guardando() ? 'Guardando…' : modoEdicion() ? 'Guardar cambios' : 'Registrar categoría' }}

@@ -2,11 +2,6 @@
     display: block;
 }
 
-.cat-toolbar {
-    padding: var(--space-4) var(--space-5);
-    margin-bottom: var(--space-5);
-}
-
 .cat-search {
     display: grid;
     grid-template-columns: auto minmax(180px, 1fr);

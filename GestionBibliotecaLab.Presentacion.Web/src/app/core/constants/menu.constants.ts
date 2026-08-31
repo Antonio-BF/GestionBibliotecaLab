@@ -10,7 +10,7 @@ import type { MenuItem } from '../../models/menu-item.model';
 export const MENU_ITEMS: MenuItem[] = [
   { etiqueta: 'Inicio', ruta: '/dashboard', roles: TODOS_LOS_ROLES, habilitado: true, icono: 'inicio' },
   { etiqueta: 'Catálogo de Libros', ruta: '/libros', roles: TODOS_LOS_ROLES, habilitado: true, icono: 'libros' },
-  { etiqueta: 'Laboratorios', ruta: '/laboratorios', roles: TODOS_LOS_ROLES, habilitado: false, icono: 'laboratorios' },
+  { etiqueta: 'Laboratorios', ruta: '/laboratorios', roles: TODOS_LOS_ROLES, habilitado: true, icono: 'laboratorios' },
   { etiqueta: 'Categorías', ruta: '/categorias', roles: TODOS_LOS_ROLES, habilitado: true, icono: 'categorias' },
   { etiqueta: 'Gestión de Préstamos', ruta: '/prestamos', roles: [ROLES.ADMINISTRADOR, ROLES.BIBLIOTECARIO], habilitado: false, icono: 'prestamos' },
   { etiqueta: 'Mis Préstamos', ruta: '/mis-prestamos', roles: [ROLES.ESTUDIANTE, ROLES.DOCENTE], habilitado: false, icono: 'prestamos' },

@@ -11,7 +11,8 @@ import { Component, input, output } from '@angular/core';
 export class ModalShell {
   readonly visible = input<boolean>(false);
   readonly titulo = input<string>('');
-
+  readonly tamano = input<'sm' | 'md' | 'lg'>('sm');
+  
   readonly cerrar = output<void>();
 
   onEscape(): void {

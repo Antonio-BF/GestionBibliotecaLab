@@ -7,6 +7,7 @@ export const APP_ROUTES = {
   DASHBOARD: '/dashboard',
   UNAUTHORIZED: '/unauthorized',
   LIBROS: '/libros',
+  LABORATORIOS: '/laboratorios',
   CATEGORIAS: '/categorias',
   ROLES: '/roles',
   USUARIOS: '/usuarios',
