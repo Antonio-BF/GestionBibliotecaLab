@@ -10,7 +10,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = RolesSistema.Administrador)]
+    [Authorize]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
@@ -21,23 +21,27 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = RolesSistema.AdminYBibliotecario)]
         public async Task<ActionResult<PaginacionResultado<UsuarioResponse>>> ListarUsuarios([FromQuery] UsuarioFiltroRequest filtro)
         {
             return Ok(await _usuarioService.GetAllUsuarioAsync(filtro));
         }
 
         [HttpGet("eliminados")]
+        [Authorize(Roles = RolesSistema.Administrador)] 
         public async Task<ActionResult<PaginacionResultado<UsuarioResponse>>> ListarEliminados([FromQuery] UsuarioFiltroRequest filtro)
         {
             return Ok(await _usuarioService.GetEliminadosAsync(filtro));
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Roles = RolesSistema.AdminYBibliotecario)]
         public async Task<ActionResult<UsuarioResponse>> ObtenerPorId(int id)
         {
             return Ok(await _usuarioService.GetByIdAsync(id));
         }
         [HttpPost]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult<UsuarioResponse>> RegistrarUsuario(CreateUsuarioRequest request)
         {
             var creado = await _usuarioService.RegistrarUsuarioAsync(request);
@@ -45,6 +49,7 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult> ActualizarUsuario(int id, UpdateUsuarioRequest request)
         {
             await _usuarioService.ActualizarUsuarioAsync(id, request);
@@ -53,13 +58,11 @@ namespace GestionBibliotecaLab.Presentacion.API.Controllers
 
 
         [HttpPatch("{id:int}/estado")]
+        [Authorize(Roles = RolesSistema.Administrador)]
         public async Task<ActionResult> CambiarEstadoUsuario(int id)
         {
             await _usuarioService.CambiarEstadoAsync(id);
             return NoContent();
         }
-
-
-
     }
 }

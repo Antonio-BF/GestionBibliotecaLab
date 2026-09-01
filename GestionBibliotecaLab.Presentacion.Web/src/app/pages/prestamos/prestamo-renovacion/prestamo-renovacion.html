@@ -1,0 +1,46 @@
+<div class="prestamo-renovacion">
+    <app-ficha-detalle [items]="fichaPrestamo()" />
+
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate class="form-section">
+        <h3 class="form-section__titulo">Días adicionales</h3>
+        <div class="prestamo-formulario__chips">
+            @for (dias of opcionesPlazo; track dias) {
+            <button type="button" class="chip" [class.chip--active]="diasActuales() === dias"
+                (click)="seleccionarPlazo(dias)">
+                +{{ dias }} días
+            </button>
+            }
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="diasAdicionales">Días personalizados (1-30)</label>
+            <input id="diasAdicionales" type="number" class="form-control" formControlName="diasAdicionales" min="1"
+                max="30" />
+            @if (controles.diasAdicionales.invalid && controles.diasAdicionales.touched) {
+            <span class="form-error">La renovación debe ser entre 1 y 30 días.</span>
+            }
+        </div>
+
+        <div class="date-range-preview">
+            <div>
+                <span class="record-item__data-label">Vencimiento actual</span>
+                <strong>{{ prestamo().fechaDevolucionEsperada | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            <app-icon name="fderecha" [size]="16" />
+            <div>
+                <span class="record-item__data-label">Nueva fecha de devolución</span>
+                <strong>{{ nuevaFechaDevolucion() | date:'dd/MM/yyyy' }}</strong>
+            </div>
+        </div>
+
+        @if (errorServidor()) {
+        <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
+        }
+
+        <div class="modal__acciones">
+            <button type="button" class="btn btn--outline-primary btn--sm" (click)="cerrar.emit()">Cancelar</button>
+            <button type="submit" class="btn btn--primary btn--sm" [disabled]="guardando()">
+                {{ guardando() ? 'Renovando…' : 'Confirmar renovación' }}
+            </button>
+        </div>
+    </form>
+</div>

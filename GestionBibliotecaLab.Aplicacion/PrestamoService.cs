@@ -9,6 +9,7 @@ using GestionBibliotecaLab.Dominio.Enums;
 using GestionBibliotecaLab.Infraestructura.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace GestionBibliotecaLab.Aplicacion
 {
@@ -97,7 +98,8 @@ namespace GestionBibliotecaLab.Aplicacion
 
             await _context.SaveChangesAsync();
 
-            if (fueTardio)
+            var tienePenalizacion = await _context.Penalizaciones.AnyAsync(p => p.PrestamoId == prestamo.Id);
+            if (fueTardio && !tienePenalizacion)
                 await _penalizacionService.GenerarPorDevolucionTardiaAsync(prestamo.Id, prestamo.UsuarioId);
 
             return PrestamoMapperCompilado(prestamo);

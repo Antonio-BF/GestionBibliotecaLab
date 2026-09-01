@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { roleGuard } from './core/guards/role.guard';
-import { SOLO_ADMINISTRADOR } from './core/constants/roles.constants';
+import { ROLES_GESTION, SOLO_ADMINISTRADOR } from './core/constants/roles.constants';
 
 /**
  * Rutas de la aplicación.
@@ -39,6 +39,18 @@ export const routes: Routes = [
             {
                 path: 'laboratorios',
                 loadComponent: () => import('./pages/laboratorio/laboratorio-listado/laboratorio-listado').then((m) => m.LaboratorioListado),
+            },
+            {
+                path: 'prestamos',
+                canActivate: [roleGuard],
+                data: { roles: ROLES_GESTION },
+                loadComponent: () =>
+                    import('./pages/prestamos/prestamo-listado/prestamo-listado').then((m) => m.PrestamoListado),
+            },
+            {
+                path: 'mis-prestamos',
+                loadComponent: () =>
+                    import('./pages/mis-prestamos/mis-prestamos').then((m) => m.MisPrestamos),
             },
             {
                 path: 'categorias',

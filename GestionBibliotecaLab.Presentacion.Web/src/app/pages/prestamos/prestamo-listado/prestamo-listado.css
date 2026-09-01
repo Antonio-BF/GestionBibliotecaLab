@@ -1,0 +1,10 @@
+:host {
+  display: block;
+}
+
+.prestamo-listado__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}

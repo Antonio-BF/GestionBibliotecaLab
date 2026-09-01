@@ -1,0 +1,29 @@
+<div class="searchbox">
+    <div class="searchbox__campo">
+        <span class="searchbox__icono"><app-icon name="buscar" [size]="15" /></span>
+        <input type="text" class="form-control" [formControl]="control" [placeholder]="placeholder()"
+            autocomplete="off" />
+    </div>
+
+    @if (buscando()) {
+    <div class="searchbox__resultados surface">
+        <p class="searchbox__mensaje">Buscando usuarios…</p>
+    </div>
+    } @else if (seHaBuscado() && resultados().length === 0) {
+    <div class="searchbox__resultados surface">
+        <p class="searchbox__mensaje">No se encontraron usuarios con ese criterio.</p>
+    </div>
+    } @else if (resultados().length > 0) {
+    <div class="searchbox__resultados surface">
+        @for (u of resultados(); track u.id) {
+        <button type="button" class="searchbox__item" (click)="seleccionar(u)">
+            <span class="avatar-circle avatar-circle--sm">{{ u.nombres.charAt(0) }}{{ u.apellidos.charAt(0) }}</span>
+            <span class="searchbox__item-info">
+                <strong>{{ u.nombres }} {{ u.apellidos }}</strong>
+                <span>{{ u.email }} · {{ u.nombreRol }}</span>
+            </span>
+        </button>
+        }
+    </div>
+    }
+</div>

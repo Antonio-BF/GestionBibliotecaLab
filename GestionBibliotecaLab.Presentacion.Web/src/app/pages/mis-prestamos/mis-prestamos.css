@@ -1,0 +1,23 @@
+:host {
+    display: block;
+}
+
+.mis-prestamos__resumen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    margin-bottom: var(--space-5);
+}
+
+.mis-prestamos__filtro {
+    min-width: 200px;
+    margin-left: auto;
+}
+
+.mis-prestamos__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}

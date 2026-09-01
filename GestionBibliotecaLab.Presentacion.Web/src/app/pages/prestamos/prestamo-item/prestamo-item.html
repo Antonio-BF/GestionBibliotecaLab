@@ -1,0 +1,52 @@
+<article class="surface surface--interactive prestamo-item" [class]="'prestamo-item--' + estadoEfectivo()">
+    <div class="record-item__body">
+        <div class="record-item__header">
+            <div class="prestamo-item__main">
+                @if (mostrarUsuario()) {
+                <span class="prestamo-item__usuario">
+                    <app-icon name="buscar" [size]="12" />
+                    {{ prestamo().nombreUsuario }} · {{ prestamo().emailUsuario }}
+                </span>
+                }
+                <h3 class="prestamo-item__titulo">{{ prestamo().tituloLibro }}</h3>
+            </div>
+            <span class="status-pill" [class]="claseEstado()">{{ etiquetaEstado() }}</span>
+        </div>
+
+        <div class="record-item__data">
+            <div class="record-item__data-item">
+                <span class="record-item__data-label">ISBN</span>
+                <strong>{{ prestamo().isbnLibro }}</strong>
+            </div>
+            <div class="record-item__data-item">
+                <span class="record-item__data-label">Prestado el</span>
+                <strong>{{ prestamo().fechaPrestamo | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            <div class="record-item__data-item">
+                <span class="record-item__data-label">Devolución esperada</span>
+                <strong>{{ prestamo().fechaDevolucionEsperada | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            @if (prestamo().fechaDevolucionReal) {
+            <div class="record-item__data-item">
+                <span class="record-item__data-label">Devuelto el</span>
+                <strong>{{ prestamo().fechaDevolucionReal | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            }
+        </div>
+
+        @if (mostrarAcciones()) {
+        <div class="record-item__actions">
+            @if (puedeRenovar()) {
+            <button type="button" class="btn btn--outline-primary btn--sm" (click)="renovar.emit()">
+                <app-icon name="reactivar" [size]="14" /> Renovar
+            </button>
+            }
+            @if (puedeDevolver()) {
+            <button type="button" class="btn btn--primary btn--sm" (click)="devolver.emit()">
+                <app-icon name="confirmar" [size]="14" /> Registrar devolución
+            </button>
+            }
+        </div>
+        }
+    </div>
+</article>

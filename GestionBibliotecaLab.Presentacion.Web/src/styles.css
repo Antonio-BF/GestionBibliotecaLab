@@ -385,6 +385,11 @@ img { max-width: 100%; }
 .status-pill--inactivo { background: var(--color-danger-bg); color: var(--color-danger); }
 .status-pill--mantenimiento { background: rgba(217, 149, 89, 0.15); color: var(--color-primary-dark); }
 
+.status-pill--mora { background: rgba(185, 74, 72, 0.12); color: var(--color-danger); }
+.status-pill--info { background: rgba(30, 89, 99, 0.1); color: var(--color-primary); }
+
+.badge--vencido { background: var(--color-danger-bg); color: var(--color-danger); }
+
 /* Botón de icono compartido — reemplaza .icon-btn duplicado por módulo */
 .icon-btn {
   display: inline-flex; align-items: center; justify-content: center;
@@ -646,3 +651,144 @@ img { max-width: 100%; }
 .filter-toolbar__limpiar { height: 38px; }
 @media (max-width: 1050px) { .filter-toolbar { grid-template-columns: repeat(3, 1fr); } .filter-toolbar__busqueda { grid-column: 1 / -1; } }
 @media (max-width: 640px) { .filter-toolbar { grid-template-columns: 1fr; } .filter-toolbar__busqueda { grid-column: auto; } }
+
+
+
+.avatar-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-primary-dark);
+  color: var(--color-on-primary);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.avatar-circle--sm { width: 32px; height: 32px; font-size: 0.7rem; }
+.avatar-circle--md { width: 44px; height: 44px; font-size: var(--fs-base); }
+
+/* =====================================================================
+   SEARCHBOX — buscador de entidad relacionada con resultados desplegables.
+   Usado en Préstamo (elegir Usuario/Libro); Reserva lo reutilizará para
+   elegir Usuario (mismo patrón "no autoservicio", ver v2 §6.16.2).
+   ===================================================================== */
+.searchbox { position: relative; }
+.searchbox__campo { position: relative; }
+.searchbox__icono {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+.searchbox__campo .form-control { padding-left: 2.2rem; }
+
+.searchbox__resultados {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 0.35rem;
+  box-shadow: var(--elev-2);
+}
+
+.searchbox__item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: none;
+  background: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+.searchbox__item:hover { background: var(--color-surface-alt); }
+.searchbox__item--deshabilitado { opacity: 0.5; cursor: not-allowed; }
+.searchbox__item--deshabilitado:hover { background: none; }
+.searchbox__item-media { width: 42px; flex-shrink: 0; }
+
+.searchbox__item-info { display: flex; flex-direction: column; min-width: 0; gap: 0.05rem; }
+.searchbox__item-info strong {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.searchbox__item-info span { font-size: 0.72rem; color: var(--color-text-muted); }
+
+.searchbox__mensaje { padding: 0.6rem; font-size: 0.8rem; color: var(--color-text-muted); text-align: center; }
+
+.searchbox__seleccionado {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+.searchbox__seleccionado-info { display: flex; flex-direction: column; min-width: 0; gap: 0.1rem; flex: 1; }
+.searchbox__seleccionado-info strong { font-size: 0.9rem; color: var(--color-text); }
+.searchbox__seleccionado-info span { font-size: 0.78rem; color: var(--color-text-muted); }
+
+/* =====================================================================
+   SELECTOR DE PLAZO — chips de opciones rápidas + vista previa de fecha
+   calculada. Usado en registro y renovación de Préstamo.
+   ===================================================================== */
+.chip {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+.chip:hover { border-color: var(--color-primary); }
+.chip--active { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
+
+.date-range-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.date-range-preview strong {
+  display: block;
+  color: var(--color-primary-dark);
+  font-size: var(--fs-md);
+  margin-top: 0.15rem;
+}
+
+.form-section { display: flex; flex-direction: column; gap: var(--space-3); }
+.form-section__titulo {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.record-item__body { min-width: 0; display: flex; flex-direction: column; }
+.record-item__header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); }
+.record-item__data { display: flex; flex-wrap: wrap; border-top: 1px solid var(--color-surface-alt); border-bottom: 1px solid var(--color-surface-alt); }
+.record-item__data-item { min-width: 120px; padding: 0.55rem 1rem 0.55rem 0; margin-right: var(--space-4); display: flex; flex-direction: column; gap: 0.1rem; }
+.record-item__data-label { color: var(--color-text-muted); font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.record-item__data-item strong { color: var(--color-text); font-size: 0.8rem; font-weight: 600; }
+.record-item__actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }

@@ -26,7 +26,13 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}/categoria`,
     POR_ID: (id: number) => `${API_BASE_URL}/categoria/${id}`,
   },
-  PRESTAMOS: `${API_BASE_URL}/prestamo`,
+  PRESTAMOS: {
+    BASE: `${API_BASE_URL}/prestamo`,
+    POR_ID: (id: number) => `${API_BASE_URL}/prestamo/${id}`,
+    MIS_PRESTAMOS: `${API_BASE_URL}/prestamo/mis-prestamos`,
+    DEVOLUCION: (id: number) => `${API_BASE_URL}/prestamo/${id}/devolucion`,
+    RENOVACION: (id: number) => `${API_BASE_URL}/prestamo/${id}/renovacion`,
+  },
   RESERVAS: `${API_BASE_URL}/reserva`,
   PENALIZACIONES: `${API_BASE_URL}/penalizacion`,
   USUARIOS: {

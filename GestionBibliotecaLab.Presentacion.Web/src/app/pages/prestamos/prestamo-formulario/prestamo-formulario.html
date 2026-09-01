@@ -1,0 +1,88 @@
+<form class="prestamo-formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    <section class="form-section">
+        <h3 class="form-section__titulo">1. Usuario solicitante</h3>
+        @if (usuarioSeleccionado(); as u) {
+        <div class="searchbox__seleccionado">
+            <span class="avatar-circle avatar-circle--md">{{ u.nombres.charAt(0) }}{{ u.apellidos.charAt(0) }}</span>
+            <span class="searchbox__seleccionado-info">
+                <strong>{{ u.nombres }} {{ u.apellidos }}</strong>
+                <span>{{ u.email }} · {{ u.nombreRol }}</span>
+            </span>
+            <button type="button" class="icon-btn" (click)="quitarUsuario()" title="Cambiar usuario">
+                <app-icon name="cancelar" [size]="14" />
+            </button>
+        </div>
+        } @else {
+        <app-usuario-buscador (seleccionado)="onUsuarioSeleccionado($event)" />
+        }
+    </section>
+
+    <section class="form-section">
+        <h3 class="form-section__titulo">2. Libro a prestar</h3>
+        @if (libroSeleccionado(); as l) {
+        <div class="searchbox__seleccionado">
+            <span class="searchbox__item-media"><app-cover-imagen [portada]="l.portada" [titulo]="l.titulo"
+                    tamanio="sm" /></span>
+            <span class="searchbox__seleccionado-info">
+                <strong>{{ l.titulo }}</strong>
+                <span>{{ l.autor }} · ISBN {{ l.isbn }}</span>
+                <span>Disponibles: {{ l.cantidadDisponible }} de {{ l.cantidadTotal }}</span>
+            </span>
+            <button type="button" class="icon-btn" (click)="quitarLibro()" title="Cambiar libro">
+                <app-icon name="cancelar" [size]="14" />
+            </button>
+        </div>
+        } @else {
+        <app-libro-buscador (seleccionado)="onLibroSeleccionado($event)" />
+        }
+    </section>
+
+    <section class="form-section">
+        <h3 class="form-section__titulo">3. Plazo del préstamo</h3>
+        <div class="prestamo-formulario__chips">
+            @for (dias of opcionesPlazo; track dias) {
+            <button type="button" class="chip" [class.chip--active]="diasPlazoActual() === dias"
+                (click)="seleccionarPlazo(dias)">
+                {{ dias }} días
+            </button>
+            }
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="diasPlazo">Días personalizados (1-90)</label>
+            <input id="diasPlazo" type="number" class="form-control" formControlName="diasPlazo" min="1" max="90" />
+            @if (controles.diasPlazo.invalid && controles.diasPlazo.touched) {
+            <span class="form-error">El plazo debe estar entre 1 y 90 días.</span>
+            }
+        </div>
+
+        <div class="date-range-preview">
+            <div>
+                <span class="record-item__data-label">Fecha de préstamo</span>
+                <strong>{{ fechaPrestamo | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            <app-icon name="fderecha" [size]="16" />
+            <div>
+                <span class="record-item__data-label">Devolución esperada</span>
+                <strong>{{ fechaDevolucionEsperada() | date:'dd/MM/yyyy' }}</strong>
+            </div>
+        </div>
+    </section>
+
+    @if (listoParaResumen()) {
+    <section class="form-section surface prestamo-formulario__resumen">
+        <h3 class="form-section__titulo">Resumen del préstamo</h3>
+        <app-ficha-detalle [items]="resumenItems()" />
+    </section>
+    }
+
+    @if (errorServidor()) {
+    <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
+    }
+
+    <div class="modal__acciones">
+        <button type="button" class="btn btn--outline-primary btn--sm" (click)="cerrar.emit()">Cancelar</button>
+        <button type="submit" class="btn btn--primary btn--sm" [disabled]="guardando() || !listoParaResumen()">
+            {{ guardando() ? 'Registrando…' : 'Registrar préstamo' }}
+        </button>
+    </div>
+</form>

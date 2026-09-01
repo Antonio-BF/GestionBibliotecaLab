@@ -8,6 +8,8 @@ export const APP_ROUTES = {
   UNAUTHORIZED: '/unauthorized',
   LIBROS: '/libros',
   LABORATORIOS: '/laboratorios',
+  PRESTAMOS: '/prestamos',
+  MIS_PRESTAMOS: '/mis-prestamos',
   CATEGORIAS: '/categorias',
   ROLES: '/roles',
   USUARIOS: '/usuarios',

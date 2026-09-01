@@ -1,0 +1,35 @@
+<div class="searchbox">
+    <div class="searchbox__campo">
+        <span class="searchbox__icono"><app-icon name="buscar" [size]="15" /></span>
+        <input type="text" class="form-control" [formControl]="control" placeholder="Busca por título o ISBN..."
+            autocomplete="off" />
+    </div>
+
+    @if (buscando()) {
+    <div class="searchbox__resultados surface">
+        <p class="searchbox__mensaje">Buscando libros…</p>
+    </div>
+    } @else if (seHaBuscado() && resultados().length === 0) {
+    <div class="searchbox__resultados surface">
+        <p class="searchbox__mensaje">No se encontraron libros con ese criterio.</p>
+    </div>
+    } @else if (resultados().length > 0) {
+    <div class="searchbox__resultados surface">
+        @for (l of resultados(); track l.id) {
+        <button type="button" class="searchbox__item" [class.searchbox__item--deshabilitado]="!puedeSeleccionar(l)"
+            [disabled]="!puedeSeleccionar(l)" (click)="seleccionar(l)">
+            <span class="searchbox__item-media"><app-cover-imagen [portada]="l.portada" [titulo]="l.titulo"
+                    tamanio="sm" /></span>
+            <span class="searchbox__item-info">
+                <strong>{{ l.titulo }}</strong>
+                <span>{{ l.autor }} · ISBN {{ l.isbn }}</span>
+                <span>
+                    @if (puedeSeleccionar(l)) { {{ l.cantidadDisponible }} disponible(s) }
+                    @else { No disponible para préstamo }
+                </span>
+            </span>
+        </button>
+        }
+    </div>
+    }
+</div>
