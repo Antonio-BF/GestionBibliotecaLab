@@ -388,6 +388,8 @@ img { max-width: 100%; }
 .status-pill--mora { background: rgba(185, 74, 72, 0.12); color: var(--color-danger); }
 .status-pill--info { background: rgba(30, 89, 99, 0.1); color: var(--color-primary); }
 
+.status-pill--pendiente { background: rgba(217, 149, 89, 0.18); color: var(--color-accent); }
+
 .badge--vencido { background: var(--color-danger-bg); color: var(--color-danger); }
 
 /* Botón de icono compartido — reemplaza .icon-btn duplicado por módulo */
@@ -756,6 +758,11 @@ img { max-width: 100%; }
 }
 .chip:hover { border-color: var(--color-primary); }
 .chip--active { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
+.chips-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
 
 .date-range-preview {
   display: flex;
@@ -783,6 +790,16 @@ img { max-width: 100%; }
   color: var(--color-primary-dark);
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+.form-section--disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.form-control:disabled {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
 }
 
 .record-item__body { min-width: 0; display: flex; flex-direction: column; }

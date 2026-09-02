@@ -1,0 +1,14 @@
+:host {
+    display: block;
+}
+
+.mis-reservas__filtro {
+    max-width: 220px;
+    margin-bottom: var(--space-5);
+}
+
+.mis-reservas__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}

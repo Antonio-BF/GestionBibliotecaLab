@@ -1,0 +1,9 @@
+.penalizacion-formulario {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.penalizacion-formulario__resumen {
+    padding: var(--space-4) var(--space-5);
+}

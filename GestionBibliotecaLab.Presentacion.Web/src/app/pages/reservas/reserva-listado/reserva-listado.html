@@ -1,0 +1,82 @@
+<section class="page">
+    <app-page-header eyebrow="Infraestructura" titulo="Gestión de Reservas"
+        subtitulo="Registra, confirma y controla las reservas de laboratorios">
+        <button actions type="button" class="btn btn--primary" (click)="abrirNuevo()">
+            <app-icon name="nuevo" [size]="15" /> Registrar reserva
+        </button>
+    </app-page-header>
+
+    <form class="surface filter-toolbar" [formGroup]="filtrosForm" novalidate>
+        <div class="filter-toolbar__busqueda">
+            <span class="filter-toolbar__icon"><app-icon name="buscar" [size]="16" /></span>
+            <input type="text" class="form-control" formControlName="buscarUsuario"
+                placeholder="Buscar por usuario..." />
+        </div>
+        <div class="filtros__campo">
+            <label class="form-label" for="f-laboratorio">Laboratorio</label>
+            <input id="f-laboratorio" type="text" class="form-control" formControlName="buscarLaboratorio"
+                placeholder="Nombre del laboratorio" />
+        </div>
+        <div class="filtros__campo">
+            <label class="form-label" for="f-fecha">Fecha</label>
+            <input id="f-fecha" type="date" class="form-control" formControlName="fecha" />
+        </div>
+        <div class="filtros__campo">
+            <label class="form-label" for="f-estado">Estado</label>
+            <select id="f-estado" class="form-control" formControlName="estado">
+                <option value="">Todos</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Confirmada">Confirmada</option>
+                <option value="Cancelada">Cancelada</option>
+                <option value="Finalizada">Finalizada</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn--outline-primary btn--sm filter-toolbar__limpiar"
+            (click)="limpiarFiltros()">
+            Limpiar
+        </button>
+    </form>
+
+    @if (cargando()) {
+    <p class="page__estado">Cargando reservas...</p>
+    } @else if (reservas().length === 0) {
+    <app-empty-state icono="reservas" titulo="No se encontraron reservas"
+        texto="Prueba modificando los filtros de búsqueda." />
+    } @else {
+    <div class="reserva-listado__lista">
+        @for (r of reservas(); track r.id) {
+        <app-reserva-item [reserva]="r" [mostrarUsuario]="true" (confirmar)="solicitarConfirmacion(r)"
+            (cancelar)="solicitarCancelacion(r)" />
+        }
+    </div>
+    <app-paginador [total]="totalRegistros()" [tamanioPagina]="tamanioPagina" [(paginaActual)]="paginaActual" />
+    }
+</section>
+
+<app-modal-shell 
+    [visible]="modalFormularioAbierto()" 
+    tamano="lg" 
+    titulo="Registrar reserva"
+    (cerrar)="cerrarFormulario()">
+    @if (modalFormularioAbierto()) {
+    <app-reserva-formulario 
+        (guardado)="onGuardado()" 
+        (cerrar)="cerrarFormulario()" />
+    }
+</app-modal-shell>
+
+<app-confirm-modal 
+    [visible]="!!reservaParaConfirmar()" 
+    titulo="Confirmar asistencia"
+    [mensaje]="'¿Confirmas que el usuario se presentó y hará uso de &quot;' + (reservaParaConfirmar()?.nombreLaboratorio ?? '') + '&quot;?'"
+    textoConfirmar="Confirmar" 
+    (confirmar)="confirmarReserva()" 
+    (cancelar)="cancelarSolicitudConfirmacion()" />
+
+<app-confirm-modal 
+    [visible]="!!reservaParaCancelar()" 
+    titulo="Cancelar reserva"
+    [mensaje]="'¿Confirmas cancelar la reserva de &quot;' + (reservaParaCancelar()?.nombreLaboratorio ?? '') + '&quot;?'"
+    textoConfirmar="Cancelar reserva" 
+    (confirmar)="confirmarCancelacion()"
+    (cancelar)="cancelarSolicitudCancelacion()" />

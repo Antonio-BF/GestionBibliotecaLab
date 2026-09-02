@@ -1,0 +1,46 @@
+<article class="surface surface--interactive reserva-item">
+    <div class="record-item__body">
+        <div class="record-item__header">
+            <div class="reserva-item__main">
+                @if (mostrarUsuario()) {
+                <span class="reserva-item__usuario">
+                    <app-icon name="buscar" [size]="12" />
+                    {{ reserva().nombreUsuario }} · {{ reserva().emailUsuario }}
+                </span>
+                }
+                <h3 class="reserva-item__titulo">{{ reserva().nombreLaboratorio }}</h3>
+            </div>
+            <span class="status-pill" [class]="claseEstado()">{{ reserva().estado }}</span>
+        </div>
+
+        <div class="record-item__data">
+            <div class="record-item__data-item">
+                <span class="record-item__data-label">Fecha</span>
+                <strong>{{ reserva().fecha | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            <div class="record-item__data-item">
+                <span class="record-item__data-label">Hora de inicio</span>
+                <strong>{{ reserva().horaInicio.substring(0, 5) }}</strong>
+            </div>
+            <div class="record-item__data-item">
+                <span class="record-item__data-label">Hora de fin</span>
+                <strong>{{ reserva().horaFin.substring(0, 5) }}</strong>
+            </div>
+        </div>
+
+        @if (puedeConfirmar() || puedeCancelar()) {
+        <div class="record-item__actions">
+            @if (puedeConfirmar()) {
+            <button type="button" class="btn btn--primary btn--sm" (click)="confirmar.emit()">
+                <app-icon name="confirmar" [size]="14" /> Confirmar asistencia
+            </button>
+            }
+            @if (puedeCancelar()) {
+            <button type="button" class="btn btn--danger btn--sm" (click)="cancelar.emit()">
+                <app-icon name="cancelar" [size]="14" /> Cancelar
+            </button>
+            }
+        </div>
+        }
+    </div>
+</article>

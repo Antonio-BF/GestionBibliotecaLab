@@ -1,0 +1,14 @@
+:host {
+    display: block;
+}
+
+.mis-penalizaciones__filtro {
+    max-width: 220px;
+    margin: var(--space-5) 0;
+}
+
+.mis-penalizaciones__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}

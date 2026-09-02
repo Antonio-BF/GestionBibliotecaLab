@@ -1,5 +1,7 @@
 import { EstadoLaboratorio } from '../../models/laboratorio.model';
+import { EstadoPenalizacion } from '../../models/penalizacion.model';
 import { EstadoEfectivoPrestamo, PrestamoResponse } from '../../models/prestamo.model';
+import { EstadoReserva } from '../../models/reserva.model';
 
 export function claseEstadoLaboratorio(estado: EstadoLaboratorio): string {
   switch (estado) {
@@ -28,5 +30,22 @@ export function etiquetaEstadoPrestamo(estado: EstadoEfectivoPrestamo): string {
     case 'vigente': return 'Vigente';
     case 'vencido': return 'Vencido';
     case 'devuelto': return 'Devuelto';
+  }
+}
+
+export function claseEstadoReserva(estado: EstadoReserva): string {
+  switch (estado) {
+    case 'Pendiente': return 'status-pill--pendiente';
+    case 'Confirmada': return 'status-pill--activo';
+    case 'Cancelada': return 'status-pill--inactivo';
+    case 'Finalizada': return 'status-pill--info';
+  }
+}
+
+export function claseEstadoPenalizacion(estado: EstadoPenalizacion): string {
+  switch (estado) {
+    case 'Pendiente': return 'status-pill--pendiente';
+    case 'Pagada': return 'status-pill--activo';
+    case 'Anulada': return 'status-pill--inactivo';
   }
 }

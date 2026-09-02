@@ -1,0 +1,29 @@
+<div class="searchbox">
+    <div class="searchbox__campo">
+        <span class="searchbox__icono"><app-icon name="buscar" [size]="15" /></span>
+        <input type="text" class="form-control" [formControl]="control"
+            placeholder="Busca por nombre, apellido o email del usuario..." autocomplete="off" />
+    </div>
+
+    @if (buscando()) {
+    <div class="searchbox__resultados surface">
+        <p class="searchbox__mensaje">Buscando préstamos…</p>
+    </div>
+    } @else if (seHaBuscado() && resultados().length === 0) {
+    <div class="searchbox__resultados surface">
+        <p class="searchbox__mensaje">No se encontraron préstamos devueltos o en mora para ese usuario.</p>
+    </div>
+    } @else if (resultados().length > 0) {
+    <div class="searchbox__resultados surface">
+        @for (p of resultados(); track p.id) {
+        <button type="button" class="searchbox__item" (click)="seleccionar(p)">
+            <span class="searchbox__item-info">
+                <strong>{{ p.tituloLibro }}</strong>
+                <span>{{ p.nombreUsuario }} · {{ p.emailUsuario }}</span>
+                <span>Préstamo #{{ p.id }} · {{ p.estado }}</span>
+            </span>
+        </button>
+        }
+    </div>
+    }
+</div>

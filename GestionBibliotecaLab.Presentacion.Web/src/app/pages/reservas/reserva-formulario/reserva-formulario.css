@@ -1,0 +1,16 @@
+.reserva-formulario {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.reserva-formulario__disponibilidad {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.reserva-formulario__resumen {
+    padding: var(--space-4) var(--space-5);
+}

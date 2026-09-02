@@ -1,0 +1,35 @@
+<section class="page">
+    <app-page-header eyebrow="Mi actividad" titulo="Mis penalizaciones"
+        subtitulo="Consulta las penalizaciones registradas a tu nombre" />
+
+    @if (resumenPendientes() > 0) {
+    <div class="form-error--bloque" role="alert">
+        Tienes {{ resumenPendientes() }} penalización(es) pendiente(s) en esta página. Mientras estén pendientes, no
+        podrás solicitar nuevos préstamos ni reservas.
+    </div>
+    }
+
+    <form [formGroup]="filtrosForm" novalidate class="filtros__campo mis-penalizaciones__filtro">
+        <label class="form-label" for="f-estado">Estado</label>
+        <select id="f-estado" class="form-control" formControlName="estado">
+            <option value="">Todos</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Pagada">Pagada</option>
+            <option value="Anulada">Anulada</option>
+        </select>
+    </form>
+
+    @if (cargando()) {
+    <p class="page__estado">Cargando tus penalizaciones...</p>
+    } @else if (penalizaciones().length === 0) {
+    <app-empty-state icono="penalizaciones" titulo="No tienes penalizaciones registradas"
+        texto="Aquí verás las penalizaciones asociadas a tus préstamos o reservas, si las hubiera." />
+    } @else {
+    <div class="mis-penalizaciones__lista">
+        @for (p of penalizaciones(); track p.id) {
+        <app-penalizacion-item [penalizacion]="p" [mostrarUsuario]="false" [mostrarAcciones]="false" />
+        }
+    </div>
+    <app-paginador [total]="totalRegistros()" [tamanioPagina]="tamanioPagina" [(paginaActual)]="paginaActual" />
+    }
+</section>

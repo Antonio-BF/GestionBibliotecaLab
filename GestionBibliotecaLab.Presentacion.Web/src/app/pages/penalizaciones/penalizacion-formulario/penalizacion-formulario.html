@@ -1,0 +1,124 @@
+<form class="penalizacion-formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    <section class="form-section">
+        <h3 class="form-section__titulo">1. Origen de la penalización</h3>
+        <div class="chips-group">
+            <button type="button" class="chip" [class.chip--active]="origenSeleccionado() === 'Prestamo'"
+                (click)="elegirOrigen('Prestamo')">
+                <app-icon name="prestamos" [size]="14" /> Préstamo
+            </button>
+            <button type="button" class="chip" [class.chip--active]="origenSeleccionado() === 'ReservaLab'"
+                (click)="elegirOrigen('ReservaLab')">
+                <app-icon name="reservas" [size]="14" /> Reserva de laboratorio
+            </button>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <h3 class="form-section__titulo">2. Registro a penalizar</h3>
+
+        @if (origenSeleccionado() === null) {
+        <div class="form-with-media__placeholder">
+            <app-icon name="penalizaciones" [size]="24" />
+            <p class="form-hint">Selecciona primero un origen para buscar el préstamo o la reserva.</p>
+        </div>
+        } @else if (origenSeleccionado() === 'Prestamo') {
+        @if (prestamoSeleccionado(); as p) {
+        <div class="searchbox__seleccionado">
+            <span class="searchbox__seleccionado-info">
+                <strong>{{ p.tituloLibro }}</strong>
+                <span>{{ p.nombreUsuario }} · {{ p.emailUsuario }}</span>
+                <span>Préstamo #{{ p.id }} · {{ p.estado }}</span>
+            </span>
+            <button type="button" class="icon-btn" (click)="quitarPrestamo()" title="Cambiar préstamo">
+                <app-icon name="cancelar" [size]="14" />
+            </button>
+        </div>
+        } @else {
+        <app-prestamo-penalizable-buscador (seleccionado)="onPrestamoSeleccionado($event)" />
+        }
+        } @else {
+        @if (reservaSeleccionada(); as r) {
+        <div class="searchbox__seleccionado">
+            <span class="searchbox__seleccionado-info">
+                <strong>{{ r.nombreLaboratorio }}</strong>
+                <span>{{ r.nombreUsuario }} · {{ r.emailUsuario }}</span>
+                <span>Reserva #{{ r.id }} · {{ r.estado }}</span>
+            </span>
+            <button type="button" class="icon-btn" (click)="quitarReserva()" title="Cambiar reserva">
+                <app-icon name="cancelar" [size]="14" />
+            </button>
+        </div>
+        } @else {
+        <app-reserva-penalizable-buscador (seleccionado)="onReservaSeleccionada($event)" />
+        }
+        }
+
+        @if (verificandoDuplicado()) {
+        <p class="form-hint">Verificando penalizaciones pendientes sobre este origen…</p>
+        } @else if (advertenciaDuplicado()) {
+        <div class="form-error--bloque" role="alert">
+            Este origen ya tiene una penalización Pendiente registrada. El sistema no permitirá crear una segunda
+            hasta que se resuelva o anule la existente.
+        </div>
+        }
+    </section>
+
+    <section class="form-section" [class.form-section--disabled]="!origenElegido()">
+        <h3 class="form-section__titulo">3. Tipo y detalle</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label" for="pen-tipo">Tipo de penalización</label>
+                <select id="pen-tipo" class="form-control" formControlName="tipo">
+                    <option value="" disabled>Selecciona...</option>
+                    @for (tipo of opcionesTipo(); track tipo) {
+                    <option [value]="tipo">{{ etiquetasTipo[tipo] }}</option>
+                    }
+                </select>
+                @if (controles.tipo.invalid && controles.tipo.touched) {
+                <span class="form-error">Selecciona un tipo de penalización.</span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="pen-monto">Monto (opcional)</label>
+                <input id="pen-monto" type="number" class="form-control" formControlName="monto" min="0" max="100000"
+                    step="0.01" placeholder="0.00" />
+                @if (controles.monto.invalid && controles.monto.touched) {
+                <span class="form-error">Ingresa un monto válido mayor o igual a 0.</span>
+                }
+            </div>
+
+            <div class="form-group form-group--full">
+                <label class="form-label" for="pen-motivo">Motivo</label>
+                <textarea id="pen-motivo" class="form-control" rows="3" formControlName="motivo"
+                    maxlength="300"></textarea>
+                @if (controles.motivo.invalid && controles.motivo.touched) {
+                <span class="form-error">El motivo es requerido (máx. 300 caracteres).</span>
+                }
+            </div>
+        </div>
+        @if (!origenElegido()) {
+        <p class="form-hint">Se habilita al elegir el origen y el registro (préstamo o reserva) a penalizar.</p>
+        }
+    </section>
+
+    <section class="form-section surface penalizacion-formulario__resumen">
+        <h3 class="form-section__titulo">Resumen</h3>
+        @if (listoParaResumen()) {
+        <app-ficha-detalle [items]="resumenItems()" />
+        } @else {
+        <p class="form-hint">Completa el origen, el registro a penalizar y el tipo para ver el resumen.</p>
+        }
+    </section>
+
+    @if (errorServidor()) {
+    <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
+    }
+
+    <div class="modal__acciones">
+        <button type="button" class="btn btn--outline-primary btn--sm" (click)="cerrar.emit()">Cancelar</button>
+        <button type="submit" class="btn btn--primary btn--sm" [disabled]="guardando() || !listoParaResumen()">
+            {{ guardando() ? 'Registrando…' : 'Registrar penalización' }}
+        </button>
+    </div>
+</form>

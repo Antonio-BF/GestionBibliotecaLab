@@ -48,6 +48,30 @@ export const routes: Routes = [
                     import('./pages/prestamos/prestamo-listado/prestamo-listado').then((m) => m.PrestamoListado),
             },
             {
+                path: 'reservas',
+                canActivate: [roleGuard],
+                data: { roles: ROLES_GESTION },
+                loadComponent: () =>
+                    import('./pages/reservas/reserva-listado/reserva-listado').then((m) => m.ReservaListado),
+            },
+            {
+                path: 'penalizaciones',
+                canActivate: [roleGuard],
+                data: { roles: ROLES_GESTION },
+                loadComponent: () =>
+                    import('./pages/penalizaciones/penalizacion-listado/penalizacion-listado').then((m) => m.PenalizacionListado),
+            },
+            {
+                path: 'mis-penalizaciones',
+                loadComponent: () =>
+                    import('./pages/mis-penalizaciones/mis-penalizaciones').then((m) => m.MisPenalizaciones),
+            },
+            {
+                path: 'mis-reservas',
+                loadComponent: () =>
+                    import('./pages/mis-reservas/mis-reservas').then((m) => m.MisReservas),
+            },
+            {
                 path: 'mis-prestamos',
                 loadComponent: () =>
                     import('./pages/mis-prestamos/mis-prestamos').then((m) => m.MisPrestamos),

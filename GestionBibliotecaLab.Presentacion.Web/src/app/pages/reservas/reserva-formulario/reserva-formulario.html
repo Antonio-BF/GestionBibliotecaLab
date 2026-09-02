@@ -1,0 +1,103 @@
+<form class="reserva-formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    <section class="form-section">
+        <h3 class="form-section__titulo">1. Usuario solicitante</h3>
+        @if (usuarioSeleccionado(); as u) {
+        <div class="searchbox__seleccionado">
+            <span class="avatar-circle avatar-circle--md">{{ u.nombres.charAt(0) }}{{ u.apellidos.charAt(0) }}</span>
+            <span class="searchbox__seleccionado-info">
+                <strong>{{ u.nombres }} {{ u.apellidos }}</strong>
+                <span>{{ u.email }} · {{ u.nombreRol }}</span>
+            </span>
+            <button type="button" class="icon-btn" (click)="quitarUsuario()" title="Cambiar usuario">
+                <app-icon name="cancelar" [size]="14" />
+            </button>
+        </div>
+        } @else {
+        <app-usuario-buscador (seleccionado)="onUsuarioSeleccionado($event)" />
+        }
+    </section>
+
+    <section class="form-section">
+        <h3 class="form-section__titulo">2. Laboratorio</h3>
+        @if (laboratorioSeleccionado(); as l) {
+        <div class="searchbox__seleccionado">
+            <span class="searchbox__item-media">
+                <app-cover-imagen [portada]="l.imagen" [titulo]="l.nombre" tamanio="sm" aspectRatio="4 / 3" />
+            </span>
+            <span class="searchbox__seleccionado-info">
+                <strong>{{ l.nombre }}</strong>
+                <span>{{ l.ubicacion }} · Capacidad {{ l.capacidad }}</span>
+            </span>
+            <button type="button" class="icon-btn" (click)="quitarLaboratorio()" title="Cambiar laboratorio">
+                <app-icon name="cancelar" [size]="14" />
+            </button>
+        </div>
+        } @else {
+        <app-laboratorio-buscador (seleccionado)="onLaboratorioSeleccionado($event)" />
+        }
+    </section>
+
+    <section class="form-section">
+        <h3 class="form-section__titulo">3. Fecha y horario</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label" for="fecha">Fecha</label>
+                <input id="fecha" type="date" class="form-control" formControlName="fecha" [min]="fechaMinima" />
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="horaInicio">Hora de inicio</label>
+                <select id="horaInicio" class="form-control" formControlName="horaInicio">
+                    <option value="" disabled>Selecciona...</option>
+                    @for (bloque of opcionesHoraInicio; track bloque) {
+                    <option [value]="bloque">{{ bloque }}</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="horaFin">Hora de fin</label>
+                <select id="horaFin" class="form-control" formControlName="horaFin">
+                    <option value="" disabled>Selecciona...</option>
+                    @for (bloque of opcionesHoraFin(); track bloque) {
+                    <option [value]="bloque">{{ bloque }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <p class="form-hint">Horario de atención: 09:00 a 20:00, en bloques de 30 minutos.</p>
+    </section>
+
+    <section class="form-section">
+        <h3 class="form-section__titulo">4. Disponibilidad</h3>
+        <div class="reserva-formulario__disponibilidad">
+            <button type="button" class="btn btn--outline-primary btn--sm"
+                [disabled]="!listoParaVerificar() || verificando()" (click)="verificarDisponibilidad()">
+                <app-icon name="buscar" [size]="14" />
+                {{ verificando() ? 'Verificando…' : 'Verificar disponibilidad' }}
+            </button>
+
+            @if (disponible() === true) {
+            <span class="status-pill status-pill--activo">Laboratorio disponible</span>
+            } @else if (disponible() === false) {
+            <span class="status-pill status-pill--inactivo">No disponible en ese horario</span>
+            }
+        </div>
+    </section>
+
+    @if (listoParaResumen()) {
+    <section class="form-section surface reserva-formulario__resumen">
+        <h3 class="form-section__titulo">Resumen de la reserva</h3>
+        <app-ficha-detalle [items]="resumenItems()" />
+    </section>
+    }
+
+    @if (errorServidor()) {
+    <div class="form-error--bloque" role="alert">{{ errorServidor() }}</div>
+    }
+
+    <div class="modal__acciones">
+        <button type="button" class="btn btn--outline-primary btn--sm" (click)="cerrar.emit()">Cancelar</button>
+        <button type="submit" class="btn btn--primary btn--sm" [disabled]="guardando() || !listoParaResumen()">
+            {{ guardando() ? 'Registrando…' : 'Registrar reserva' }}
+        </button>
+    </div>
+</form>
