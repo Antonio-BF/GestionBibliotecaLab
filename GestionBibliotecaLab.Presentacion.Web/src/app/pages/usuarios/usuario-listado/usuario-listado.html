@@ -24,14 +24,10 @@
         </div>
 
         <form class="panel-control__filters" [formGroup]="filtroForm" novalidate>
-            <div class="filter-search">
-                <input type="text" class="form-control" formControlName="busqueda"
+            <input type="text" class="form-control" formControlName="busqueda"
                     placeholder="Buscar por nombre, email..." />
-            </div>
-            <div class="filter-select">
-                <app-rol-select [roles]="roles()" [valor]="rolIdFiltro()" [incluirTodos]="true"
-                    (cambio)="onRolFiltroChange($event)" />
-            </div>
+            <app-rol-select [roles]="roles()" [valor]="rolIdFiltro()" [incluirTodos]="true"
+                (cambio)="onRolFiltroChange($event)" />
         </form>
     </header>
 
@@ -46,7 +42,7 @@
         @for (usuario of usuarios(); track usuario.id) {
         <article class="surface surface--interactive user-card" [class.user-card--self]="esCuentaPropia(usuario)">
             <div class="user-card__header">
-                <div class="user-avatar">
+                <div class="avatar-circle avatar-circle--md">
                     {{ usuario.nombres.charAt(0) }}{{ usuario.apellidos.charAt(0) }}
                 </div>
                 <div class="user-card__identity">

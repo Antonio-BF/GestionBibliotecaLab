@@ -1,4 +1,4 @@
-<form class="rol-formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+<form class="form-stack" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
     @if (esRolProtegido()) {
     <div class="form-hint form-hint--aviso">
         Este es un rol usado por la autorización del sistema. Su nombre no puede modificarse desde aquí.

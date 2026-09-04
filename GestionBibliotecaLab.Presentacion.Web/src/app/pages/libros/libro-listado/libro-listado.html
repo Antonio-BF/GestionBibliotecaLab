@@ -22,47 +22,63 @@
     }
 
     <form class="surface filter-toolbar" [formGroup]="filtrosForm" novalidate>
-        <div class="filter-toolbar__busqueda">
-            <span class="filter-toolbar__icon">
-                <app-icon name="buscar" [size]="16" />
-            </span>
-            <input type="text" class="form-control" formControlName="titulo" placeholder="Buscar por título..." />
+        <div class="filter-toolbar__main">
+            <div class="filter-toolbar__busqueda">
+                <span class="filter-toolbar__icon">
+                    <app-icon name="buscar" [size]="16" />
+                </span>
+                <input type="text" class="form-control" formControlName="titulo" placeholder="Buscar por título..." />
+            </div>
+            
+            <button type="button" class="btn" 
+                [class.btn--primary]="filtrosAvanzados()" 
+                [class.btn--outline-primary]="!filtrosAvanzados()"
+                (click)="toggleFiltros()">
+                <app-icon name="buscar" [size]="15" /> 
+                {{ filtrosAvanzados() ? 'Ocultar filtros' : 'Filtros avanzados' }}
+            </button>
         </div>
 
-        <div class="filtros__campo">
-            <label class="form-label" for="f-autor">Autor</label>
-            <input id="f-autor" type="text" class="form-control" formControlName="autor" placeholder="Autor" />
-        </div>
+        @if (filtrosAvanzados()) {
+        <div class="filter-toolbar__advanced">
+            <div class="filtros__campo">
+                <label class="form-label" for="f-autor">Autor</label>
+                <input id="f-autor" type="text" class="form-control" formControlName="autor" placeholder="Autor" />
+            </div>
 
-        <div class="filtros__campo">
-            <label class="form-label" for="f-isbn">ISBN</label>
-            <input id="f-isbn" type="text" class="form-control" formControlName="isbn" placeholder="ISBN" />
-        </div>
+            <div class="filtros__campo">
+                <label class="form-label" for="f-isbn">ISBN</label>
+                <input id="f-isbn" type="text" class="form-control" formControlName="isbn" placeholder="ISBN" />
+            </div>
 
-        <div class="filtros__campo">
-            <label class="form-label" for="f-anio">Año</label>
-            <input id="f-anio" type="number" class="form-control" formControlName="anioPublicacion" placeholder="Año" />
-        </div>
+            <div class="filtros__campo">
+                <label class="form-label" for="f-anio">Año</label>
+                <input id="f-anio" type="number" class="form-control" formControlName="anioPublicacion" placeholder="Año" />
+            </div>
 
-        <div class="filtros__campo">
-            <label class="form-label">Categoría</label>
-            <app-categoria-select [categorias]="categorias()" [valor]="categoriaIdFiltro()" [incluirTodas]="true"
-                (cambio)="onCategoriaFiltroChange($event)" />
-        </div>
+            <div class="filtros__campo">
+                <label class="form-label">Categoría</label>
+                <app-categoria-select [categorias]="categorias()" [valor]="categoriaIdFiltro()" [incluirTodas]="true"
+                    (cambio)="onCategoriaFiltroChange($event)" />
+            </div>
 
-        <div class="filtros__campo">
-            <label class="form-label" for="f-estado">Estado</label>
-            <select id="f-estado" class="form-control" formControlName="estado">
-                <option value="">Todos</option>
-                <option value="Activo">Activo</option>
-                <option value="Descontinuado">Descontinuado</option>
-            </select>
-        </div>
+            <div class="filtros__campo">
+                <label class="form-label" for="f-estado">Estado</label>
+                <select id="f-estado" class="form-control" formControlName="estado">
+                    <option value="">Todos</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Descontinuado">Descontinuado</option>
+                </select>
+            </div>
 
-        <button type="button" class="btn btn--outline-primary btn--sm filter-toolbar__limpiar"
-            (click)="limpiarFiltros()">
-            Limpiar
-        </button>
+            <div class="filter-toolbar__acciones">
+                <button type="button" class="btn btn--outline-primary btn--sm filter-toolbar__limpiar"
+                    (click)="limpiarFiltros()">
+                    Limpiar
+                </button>
+            </div>
+        </div>
+        }
     </form>
 
     @if (cargando()) {

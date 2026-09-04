@@ -1,9 +1,9 @@
-<div class="prestamo-renovacion">
+<div class="form-stack">
     <app-ficha-detalle [items]="fichaPrestamo()" />
 
     <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate class="form-section">
         <h3 class="form-section__titulo">Días adicionales</h3>
-        <div class="prestamo-formulario__chips">
+        <div class="chips-group">
             @for (dias of opcionesPlazo; track dias) {
             <button type="button" class="chip" [class.chip--active]="diasActuales() === dias"
                 (click)="seleccionarPlazo(dias)">

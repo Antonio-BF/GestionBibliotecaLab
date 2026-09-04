@@ -40,6 +40,7 @@ export class ReservaListado {
   readonly reservas = signal<ReservaResponse[]>([]);
   readonly totalRegistros = signal(0);
   readonly paginaActual = signal(1);
+  readonly filtrosAvanzados = signal(false);
 
   readonly modalFormularioAbierto = signal(false);
   readonly reservaParaConfirmar = signal<ReservaResponse | null>(null);
@@ -94,6 +95,10 @@ export class ReservaListado {
   limpiarFiltros(): void {
     this.filtrosForm.reset({ buscarUsuario: '', buscarLaboratorio: '', estado: '', fecha: '' });
     this.paginaActual.set(1);
+  }
+
+  toggleFiltros(): void {
+    this.filtrosAvanzados.update(v => !v);
   }
 
   abrirNuevo(): void { this.modalFormularioAbierto.set(true); }

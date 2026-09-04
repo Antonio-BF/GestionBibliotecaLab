@@ -55,6 +55,7 @@ export class LaboratorioListado {
   readonly paginaActual = signal(1);
   readonly vista = signal<VistaLaboratorios>('activos');
   readonly accionLaboratorio = signal<AccionLaboratorio | null>(null);
+  readonly filtrosAvanzados = signal(false);
 
   readonly modalFormularioAbierto = signal(false);
   readonly laboratorioEditando = signal<LaboratorioResponse | null>(null);
@@ -116,6 +117,9 @@ export class LaboratorioListado {
     if (this.vista() === vista) return;
     this.vista.set(vista);
     this.paginaActual.set(1);
+  }
+  toggleFiltros(): void {
+    this.filtrosAvanzados.update(v => !v);
   }
 
   limpiarFiltros(): void {

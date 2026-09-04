@@ -13,9 +13,7 @@ import { Icon } from '../../../components/shared/icon/icon';
 import type { CategoriaResponse } from '../../../models/categoria.model';
 import type { CreateLibroRequest, EstadoLibro, LibroResponse, UpdateLibroRequest } from '../../../models/libro.model';
 import type { ApiError } from '../../../models/api-error.model';
-
-const EXTENSIONES_PERMITIDAS = ['image/jpeg', 'image/png', 'image/webp'];
-const TAMANIO_MAXIMO_BYTES = 3 * 1024 * 1024;
+import { EXTENSIONES_PERMITIDAS, TAMANIO_MAXIMO_BYTES } from '../../../core/utils/imagen.util';
 
 @Component({
   selector: 'app-libro-formulario',

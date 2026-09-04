@@ -42,6 +42,7 @@ export class PrestamoListado {
   readonly prestamos = signal<PrestamoResponse[]>([]);
   readonly totalRegistros = signal(0);
   readonly paginaActual = signal(1);
+  readonly filtrosAvanzados = signal(false);
 
   readonly modalFormularioAbierto = signal(false);
   readonly prestamoParaRenovar = signal<PrestamoResponse | null>(null);
@@ -103,6 +104,10 @@ export class PrestamoListado {
   limpiarFiltros(): void {
     this.filtrosForm.reset({ buscarUsuario: '', buscarLibro: '', estado: '' });
     this.paginaActual.set(1);
+  }
+
+  toggleFiltros(): void {
+    this.filtrosAvanzados.update(v => !v);
   }
 
   abrirNuevo(): void { this.modalFormularioAbierto.set(true); }

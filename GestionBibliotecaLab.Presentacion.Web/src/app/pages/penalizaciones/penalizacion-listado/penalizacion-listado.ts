@@ -41,11 +41,11 @@ export class PenalizacionListado {
   readonly etiquetasTipo = ETIQUETAS_TIPO_PENALIZACION;
   readonly todosLosTipos = TODOS_LOS_TIPOS_PENALIZACION;
 
-
   readonly cargando = signal(true);
   readonly penalizaciones = signal<PenalizacionResponse[]>([]);
   readonly totalRegistros = signal(0);
   readonly paginaActual = signal(1);
+  readonly filtrosAvanzados = signal(false);
 
   readonly modalFormularioAbierto = signal(false);
   readonly penalizacionParaResolver = signal<PenalizacionResponse | null>(null);
@@ -100,6 +100,10 @@ export class PenalizacionListado {
   limpiarFiltros(): void {
     this.filtrosForm.reset({ buscarUsuario: '', origen: '', tipo: '', estado: '' });
     this.paginaActual.set(1);
+  }
+  
+  toggleFiltros(): void {
+    this.filtrosAvanzados.update(v => !v);
   }
 
   abrirNuevo(): void { this.modalFormularioAbierto.set(true); }

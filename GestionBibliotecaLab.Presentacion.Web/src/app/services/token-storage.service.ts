@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { STORAGE_KEYS } from '../core/constants/storage-keys.constants';
 import { AuthResponse } from '../models/auth.model';
 import { UsuarioAutenticado } from '../models/usuario.model';
-import { decodificarJwt } from '../core/utils/jwt.util';
+import { decodificarJwt, obtenerIdUsuarioDesdeToken } from '../core/utils/jwt.util';
 
 /**
  * Única responsabilidad: leer/escribir la sesión (tokens + datos de usuario)
@@ -43,10 +43,9 @@ export class TokenStorageService {
 
   private construirUsuario(auth: AuthResponse): UsuarioAutenticado {
     const payload = decodificarJwt(auth.accessToken);
-    const idCandidato = Number(payload?.sub);
-
+    
     return {
-      id: Number.isFinite(idCandidato) && idCandidato > 0 ? idCandidato : null,
+      id: obtenerIdUsuarioDesdeToken(auth.accessToken),
       nombres: auth.nombres,
       apellidos: auth.apellidos,
       email: (payload?.email as string) ?? null,

@@ -61,6 +61,7 @@ export class LibroListado {
   readonly paginaActual = signal(1);
   readonly vista = signal<VistaLibros>('activos');
   readonly accionLibro = signal<AccionLibro | null>(null);
+  readonly filtrosAvanzados = signal(false);
 
   readonly libroDetalle = signal<LibroResponse | null>(null);
 
@@ -148,6 +149,10 @@ export class LibroListado {
 
   cerrarDetalle(): void {
     this.libroDetalle.set(null);
+  }
+
+  toggleFiltros(): void {
+    this.filtrosAvanzados.update(v => !v);
   }
 
   editarDesdeDetalle(libro: LibroResponse): void {

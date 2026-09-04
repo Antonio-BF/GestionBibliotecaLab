@@ -7,26 +7,45 @@
   </app-page-header>
 
   <form class="surface filter-toolbar" [formGroup]="filtrosForm" novalidate>
-    <div class="filter-toolbar__busqueda">
-      <span class="filter-toolbar__icon"><app-icon name="buscar" [size]="16" /></span>
-      <input type="text" class="form-control" formControlName="buscarUsuario" placeholder="Buscar por usuario..." />
+    <div class="filter-toolbar__main">
+        <div class="filter-toolbar__busqueda">
+            <span class="filter-toolbar__icon"><app-icon name="buscar" [size]="16" /></span>
+            <input type="text" class="form-control" formControlName="buscarUsuario" placeholder="Buscar por usuario..." />
+        </div>
+
+        <button type="button" class="btn" 
+            [class.btn--primary]="filtrosAvanzados()" 
+            [class.btn--outline-primary]="!filtrosAvanzados()"
+            (click)="toggleFiltros()">
+            <app-icon name="buscar" [size]="15" />
+            {{ filtrosAvanzados() ? 'Ocultar filtros' : 'Filtros avanzados' }}
+        </button>
     </div>
-    <div class="filtros__campo">
-      <label class="form-label" for="f-libro">Libro</label>
-      <input id="f-libro" type="text" class="form-control" formControlName="buscarLibro" placeholder="Título o ISBN" />
+
+    @if (filtrosAvanzados()) {
+    <div class="filter-toolbar__advanced">
+        <div class="filtros__campo">
+            <label class="form-label" for="f-libro">Libro</label>
+            <input id="f-libro" type="text" class="form-control" formControlName="buscarLibro" placeholder="Título o ISBN" />
+        </div>
+
+        <div class="filtros__campo">
+            <label class="form-label" for="f-estado">Estado</label>
+            <select id="f-estado" class="form-control" formControlName="estado">
+                <option value="">Todos</option>
+                <option value="Prestado">Prestado</option>
+                <option value="EnMora">En mora</option>
+                <option value="Devuelto">Devuelto</option>
+            </select>
+        </div>
+
+        <div class="filter-toolbar__acciones">
+            <button type="button" class="btn btn--outline-primary btn--sm filter-toolbar__limpiar" (click)="limpiarFiltros()">
+                Limpiar
+            </button>
+        </div>
     </div>
-    <div class="filtros__campo">
-      <label class="form-label" for="f-estado">Estado</label>
-      <select id="f-estado" class="form-control" formControlName="estado">
-        <option value="">Todos</option>
-        <option value="Prestado">Prestado</option>
-        <option value="EnMora">En mora</option>
-        <option value="Devuelto">Devuelto</option>
-      </select>
-    </div>
-    <button type="button" class="btn btn--outline-primary btn--sm filter-toolbar__limpiar" (click)="limpiarFiltros()">
-      Limpiar
-    </button>
+    }
   </form>
 
   @if (cargando()) {

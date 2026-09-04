@@ -1,14 +1,14 @@
-<article class="surface surface--interactive reserva-item">
+<article class="surface surface--interactive record-card">
     <div class="record-item__body">
         <div class="record-item__header">
-            <div class="reserva-item__main">
+            <div class="record-card__main">
                 @if (mostrarUsuario()) {
-                <span class="reserva-item__usuario">
+                <span class="record-card__etiqueta">
                     <app-icon name="buscar" [size]="12" />
                     {{ reserva().nombreUsuario }} · {{ reserva().emailUsuario }}
                 </span>
                 }
-                <h3 class="reserva-item__titulo">{{ reserva().nombreLaboratorio }}</h3>
+                <h3 class="record-card__titulo">{{ reserva().nombreLaboratorio }}</h3>
             </div>
             <span class="status-pill" [class]="claseEstado()">{{ reserva().estado }}</span>
         </div>

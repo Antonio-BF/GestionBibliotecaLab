@@ -75,20 +75,6 @@
     margin-bottom: var(--space-4);
 }
 
-.user-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--color-primary-dark);
-    color: var(--color-on-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: var(--fs-base);
-    flex-shrink: 0;
-}
-
 .user-card__identity {
     flex: 1;
     min-width: 0;

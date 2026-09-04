@@ -10,9 +10,7 @@ import { CoverImagen } from '../../../components/shared/cover-imagen/cover-image
 import type { CreateLaboratorioRequest, EstadoLaboratorio, LaboratorioResponse, UpdateLaboratorioRequest } from '../../../models/laboratorio.model';
 import type { ApiError } from '../../../models/api-error.model';
 import { Icon } from '../../../components/shared/icon/icon';
-
-const EXTENSIONES_PERMITIDAS = ['image/jpeg', 'image/png', 'image/webp'];
-const TAMANIO_MAXIMO_BYTES = 3 * 1024 * 1024;
+import { EXTENSIONES_PERMITIDAS, TAMANIO_MAXIMO_BYTES } from '../../../core/utils/imagen.util';
 
 @Component({
   selector: 'app-laboratorio-formulario',
