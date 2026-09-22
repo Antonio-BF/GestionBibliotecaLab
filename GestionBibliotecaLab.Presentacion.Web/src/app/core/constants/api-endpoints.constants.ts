@@ -60,6 +60,11 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}/rol`,
     POR_ID: (id: number) => `${API_BASE_URL}/rol/${id}`,
   },
+  DASHBOARD: {
+    USUARIO: `${API_BASE_URL}/dashboard/usuario`,
+    BIBLIOTECARIO: `${API_BASE_URL}/dashboard/bibliotecario`,
+    ADMINISTRADOR: `${API_BASE_URL}/dashboard/administrador`,
+  },
 } as const;
 
 /** Endpoints públicos (no requieren Authorization header ni pasan por el refresh-on-401). */

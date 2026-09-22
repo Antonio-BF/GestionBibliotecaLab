@@ -1,4 +1,5 @@
 ﻿using GestionBibliotecaLab.Aplicacion.Excepciones;
+using GestionBibliotecaLab.Aplicacion.Queries;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
 using GestionBibliotecaLab.Infraestructura.Context;

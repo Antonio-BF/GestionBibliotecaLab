@@ -1,0 +1,12 @@
+<article class="surface surface--interactive stat-card" [class]="'stat-card--' + variante()">
+    <div class="stat-card__icono">
+        <app-icon [name]="icono()" [size]="20" />
+    </div>
+    <div class="stat-card__texto">
+        <span class="stat-card__valor">{{ valor() }}</span>
+        <span class="stat-card__etiqueta">{{ etiqueta() }}</span>
+        @if (subtexto()) {
+        <span class="stat-card__subtexto">{{ subtexto() }}</span>
+        }
+    </div>
+</article>

@@ -1,0 +1,16 @@
+<div class="ranking-list">
+    @for (item of items(); track item.nombre; let i = $index) {
+    <div class="ranking-list__row">
+        <span class="ranking-list__pos">{{ i + 1 }}</span>
+        <div class="ranking-list__info">
+            <div class="ranking-list__top">
+                <span class="ranking-list__nombre">{{ item.nombre }}</span>
+                <span class="ranking-list__valor">{{ item.valor }} {{ etiquetaValor() }}</span>
+            </div>
+            <div class="ranking-list__track">
+                <div class="ranking-list__fill" [style.width.%]="(item.valor / maximo()) * 100"></div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

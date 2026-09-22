@@ -1,0 +1,10 @@
+<div class="progress-bar">
+    <div class="progress-bar__header">
+        <span class="progress-bar__etiqueta">{{ etiqueta() }}</span>
+        <span class="progress-bar__valores">{{ valor() }} / {{ total() }}</span>
+    </div>
+    <div class="progress-bar__track">
+        <div class="progress-bar__fill" [class]="'progress-bar__fill--' + variante()" [style.width.%]="porcentaje()">
+        </div>
+    </div>
+</div>

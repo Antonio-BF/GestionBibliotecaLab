@@ -3,7 +3,7 @@
  */
 export type IconName = 'editar' | 'baja' | 'reactivar' | 'ver' | 'nuevo' | 'confirmar' | 'cancelar' | 'fizquierda'
     | 'fderecha' | 'logout' | 'inicio' | 'libros' | 'laboratorios' | 'categorias' | 'prestamos' | 'reservas'
-    | 'penalizaciones' | 'usuarios' | 'roles' | 'buscar' | 'ubicacion';
+    | 'penalizaciones' | 'usuarios' | 'roles' | 'buscar' | 'ubicacion' | 'reloj' | 'moneda' | 'tendencia' | 'grafico';;
 
 export const ICONOS: Record<IconName, string> = {
     editar: 'M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3Z M13.5 6.5l3 3',
@@ -27,4 +27,8 @@ export const ICONOS: Record<IconName, string> = {
     roles: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6Z M9 12l2 2 4-4',
     buscar: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z M21 21l-4.35-4.35',
     ubicacion: 'M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11Z M12 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z',
+    reloj: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M12 7v5l3 3',
+    moneda: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M9.5 15a2.5 2.5 0 0 0 2.5 1.5c1.5 0 2.5-.8 2.5-2s-1-1.7-2.5-2-2.5-.8-2.5-2 1-2 2.5-2a2.5 2.5 0 0 1 2.5 1.5 M12 7v1.5 M12 15.5V17',
+    tendencia: 'M3 17l6-6 4 4 8-8 M15 7h6v6',
+    grafico: 'M4 20V10 M10 20V4 M16 20v-7 M22 20H2',
 };

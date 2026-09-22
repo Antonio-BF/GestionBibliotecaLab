@@ -2,8 +2,8 @@
 using GestionBibliotecaLab.Aplicacion.Dtos.Usuario;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.Queries;
 using GestionBibliotecaLab.Aplicacion.utils;
-using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Infraestructura.Context;
 using Microsoft.EntityFrameworkCore;

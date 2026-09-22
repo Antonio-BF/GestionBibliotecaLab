@@ -1,0 +1,29 @@
+<div class="activity-chart">
+    @if (series().length > 0) {
+    <div class="activity-chart__leyenda">
+        @for (s of series(); track s.nombre) {
+        <span class="activity-chart__leyenda-item">
+            <span class="activity-chart__punto" [style.background]="s.color"></span>{{ s.nombre }}
+        </span>
+        }
+    </div>
+    }
+
+    @if (columnas().length === 0) {
+    <p class="dash-panel__vacio">Sin actividad registrada en el periodo.</p>
+    } @else {
+    <div class="activity-chart__bars">
+        @for (col of columnas(); track col.etiqueta) {
+        <div class="activity-chart__columna">
+            <div class="activity-chart__barras">
+                @for (v of col.valores; track v.nombre) {
+                <div class="activity-chart__barra" [style.height.%]="alturaPorcentual(v.cantidad)"
+                    [style.background]="v.color" [attr.title]="v.nombre + ': ' + v.cantidad"></div>
+                }
+            </div>
+            <span class="activity-chart__etiqueta">{{ col.etiqueta | date:'MMM yy' }}</span>
+        </div>
+        }
+    </div>
+    }
+</div>

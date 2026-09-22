@@ -2,7 +2,7 @@
 using GestionBibliotecaLab.Infraestructura.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace GestionBibliotecaLab.Aplicacion.Validaciones
+namespace GestionBibliotecaLab.Aplicacion.Queries
 {
     internal static class EstadosActivosQueries
     {

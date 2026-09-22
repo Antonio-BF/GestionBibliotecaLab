@@ -128,6 +128,7 @@ builder.Services.AddScoped<ILaboratorioService, LaboratorioService>();
 builder.Services.AddScoped<IPenalizacionService, PenalizacionService>();
 builder.Services.AddScoped<IPrestamoService, PrestamoService>();
 builder.Services.AddScoped<IReservaService, ReservaService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 
 var app = builder.Build();

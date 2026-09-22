@@ -2,9 +2,9 @@
 using GestionBibliotecaLab.Aplicacion.Dtos.Libro;
 using GestionBibliotecaLab.Aplicacion.Excepciones;
 using GestionBibliotecaLab.Aplicacion.Interfaces;
+using GestionBibliotecaLab.Aplicacion.Queries;
 using GestionBibliotecaLab.Aplicacion.Seguridad;
 using GestionBibliotecaLab.Aplicacion.utils;
-using GestionBibliotecaLab.Aplicacion.Validaciones;
 using GestionBibliotecaLab.Dominio.Entidades;
 using GestionBibliotecaLab.Dominio.Enums;
 using GestionBibliotecaLab.Infraestructura.Context;

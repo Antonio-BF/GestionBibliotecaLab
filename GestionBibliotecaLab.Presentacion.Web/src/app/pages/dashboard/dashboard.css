@@ -4,11 +4,40 @@
   gap: var(--space-6);
 }
 
-/* Banner de Bienvenida */
+/* Hero con superficies elevadas — específico de esta página, no se globaliza. */
 .dashboard__hero {
-  padding: clamp(1.25rem, 3vw, 2rem);
-  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-alt) 100%);
-  border-left: 5px solid var(--color-accent);
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-alt) 65%, rgba(217, 149, 89, 0.08) 100%);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--elev-2);
+}
+.dashboard__hero::before {
+  content: '';
+  position: absolute;
+  top: -70px;
+  right: -70px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(217, 149, 89, 0.20), transparent 70%);
+  pointer-events: none;
+}
+.dashboard__hero::after {
+  content: '';
+  position: absolute;
+  bottom: -90px;
+  left: 15%;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(36, 91, 99, 0.12), transparent 70%);
+  pointer-events: none;
+}
+.dashboard__hero-contenido {
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard__hero-encabezado {
@@ -34,35 +63,19 @@
   line-height: 1.5;
 }
 
-/* Sección e Indicadores */
-.dashboard__seccion-titulo {
-  font-family: var(--font-heading);
-  font-size: var(--fs-lg);
-  color: var(--color-primary-dark);
-  margin: 0 0 var(--space-4);
-  letter-spacing: 0.02em;
-}
-
-/* Grilla de Accesos Directos */
+/* Accesos rápidos (grid de módulos dentro del panel "Accesos rápidos") */
 .dashboard__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
 }
 
 .dashboard__card {
   display: flex;
   flex-direction: column;
-  padding: var(--space-5);
+  padding: var(--space-4);
   text-decoration: none;
   color: inherit;
-}
-
-.dashboard__card--pendiente {
-  background-color: var(--color-surface-alt);
-  opacity: 0.75;
-  border-style: dashed;
-  box-shadow: none;
 }
 
 .dashboard__card-header {
@@ -70,19 +83,19 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .dashboard__card-titulo {
   margin: 0;
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   color: var(--color-primary-dark);
   font-weight: 700;
 }
 
 .dashboard__card-texto {
-  margin: 0 0 var(--space-5);
-  font-size: 0.88rem;
+  margin: 0 0 var(--space-3);
+  font-size: 0.8rem;
   color: var(--color-text-muted);
   flex: 1;
 }
